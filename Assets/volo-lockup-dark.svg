@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="300" height="64" viewBox="0 0 300 64" fill="none">
+  <title>Volo Index — horizontal lockup (for dark backgrounds)</title>
+  <path d="M10 40 A22 22 0 0 1 54 40" stroke="#efe2cd" stroke-width="3" stroke-linecap="round"></path>
+  <path d="M17.5 40 A14.5 14.5 0 0 1 46.5 40" stroke="#d99a5f" stroke-width="3" stroke-linecap="round"></path>
+  <path d="M25 40 A7 7 0 0 1 39 40" stroke="#c66236" stroke-width="3" stroke-linecap="round"></path>
+  <circle cx="32" cy="40" r="3.4" fill="#c66236"></circle>
+  <text x="76" y="46" font-family="Spectral, Georgia, &#39;Times New Roman&#39;, serif" font-weight="600" font-size="34" letter-spacing="-0.4" fill="#f3ead9">Volo Index</text>
+</svg>

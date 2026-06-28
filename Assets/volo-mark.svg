@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="64" height="56" viewBox="0 0 64 56" fill="none">
+  <title>Volo Index — Lift mark</title>
+  <path d="M8 44 A24 24 0 0 1 56 44" stroke="#e0d4c0" stroke-width="3.2" stroke-linecap="round"></path>
+  <path d="M16 44 A16 16 0 0 1 48 44" stroke="#cd8a4f" stroke-width="3.2" stroke-linecap="round"></path>
+  <path d="M24 44 A8 8 0 0 1 40 44" stroke="#b0542c" stroke-width="3.2" stroke-linecap="round"></path>
+  <circle cx="32" cy="44" r="3.6" fill="#b0542c"></circle>
+</svg>
