@@ -1,8 +1,8 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 64 64">
   <title>Volo Index — app icon</title>
-  <rect width="64" height="64" rx="14" fill="#1c1a16"></rect>
-  <path d="M14 42 A18 18 0 0 1 50 42" fill="none" stroke="#4a4438" stroke-width="4" stroke-linecap="round"></path>
-  <path d="M20 42 A12 12 0 0 1 44 42" fill="none" stroke="#cd8a4f" stroke-width="4" stroke-linecap="round"></path>
-  <path d="M26 42 A6 6 0 0 1 38 42" fill="none" stroke="#c66236" stroke-width="4" stroke-linecap="round"></path>
-  <circle cx="32" cy="42" r="4" fill="#c66236"></circle>
+  <rect width="64" height="64" rx="14" fill="#f4efe5"></rect>
+  <path d="M14 42 A18 18 0 0 1 50 42" fill="none" stroke="#e0d4c0" stroke-width="3.4" stroke-linecap="round"></path>
+  <path d="M20 42 A12 12 0 0 1 44 42" fill="none" stroke="#cd8a4f" stroke-width="3.4" stroke-linecap="round"></path>
+  <path d="M26 42 A6 6 0 0 1 38 42" fill="none" stroke="#b0542c" stroke-width="3.4" stroke-linecap="round"></path>
+  <circle cx="32" cy="42" r="3.4" fill="#b0542c"></circle>
 </svg>
