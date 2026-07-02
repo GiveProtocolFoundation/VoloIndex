@@ -1,0 +1,21 @@
+Volo Index
+Copyright 2026 Give Protocol Foundation
+
+This product includes software developed by Give Protocol Foundation
+(https://giveprotocol.foundation/).
+
+The software components of this repository (source code, build tooling,
+and configuration) are licensed under the Apache License, Version 2.0.
+See the LICENSE file for the full text.
+
+The Volo Index assessment framework — including the six competency
+dimensions, the developmental-level and audience-scope-band scoring axes,
+the probe sets, the scoring rubric, the "Lift" brand mark, and the prose
+documentation in README.md and the docs/ directory — is a separate work
+licensed under Creative Commons Attribution-ShareAlike 4.0 International
+(CC BY-SA 4.0). See the LICENSE-CONTENT file, or the deed at
+https://creativecommons.org/licenses/by-sa/4.0/, for the full terms.
+
+When redistributing the assessment framework, in whole or in part, please
+credit "Volo Index by Give Protocol Foundation" and preserve a link to
+the original source.

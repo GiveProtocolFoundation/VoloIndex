@@ -113,4 +113,15 @@ Navigates the ethical complexities of leading unpaid contributors, ensures equit
 
 ---
 
+## License
+
+Volo Index uses a dual license because the repository holds two different kinds of work:
+
+- **Code** (SPA source, build tooling, CI, and any code that renders or scores the framework) — [Apache License 2.0](LICENSE).
+- **Content** (the six dimensions, probe sets, scoring rubric, prose in this README and `docs/`, and the "Lift" brand assets in `Assets/`) — [Creative Commons Attribution-ShareAlike 4.0 International (CC BY-SA 4.0)](LICENSE-CONTENT).
+
+See [`NOTICE`](NOTICE) for attribution guidance when redistributing either.
+
+---
+
 *This README is a living document and will be updated as new research is synthesized and dimensions are built out.*
