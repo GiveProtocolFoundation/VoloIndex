@@ -1,0 +1,88 @@
+name: CI
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+
+# Cancel superseded runs on the same ref to save minutes.
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    name: validate
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          # Cache is a no-op until a lockfile exists (post-F1 [GIV-66]);
+          # wiring it now keeps the workflow forward-compatible.
+          cache: 'npm'
+          cache-dependency-path: package-lock.json
+        continue-on-error: true
+
+      - name: Install dependencies (if package.json present)
+        id: install
+        run: |
+          if [ -f package.json ]; then
+            if [ -f package-lock.json ]; then
+              npm ci
+            else
+              npm install
+            fi
+          else
+            echo "No package.json yet — skipping install. Tracked by GIV-66 (F1)."
+          fi
+
+      - name: Typecheck (if configured)
+        run: |
+          if [ -f package.json ] && node -e "process.exit(require('./package.json').scripts?.typecheck ? 0 : 1)"; then
+            npm run typecheck
+          else
+            echo "No typecheck script yet — skipping. Tracked by GIV-66 (F1)."
+          fi
+
+      - name: Lint (if configured)
+        run: |
+          if [ -f package.json ] && node -e "process.exit(require('./package.json').scripts?.lint ? 0 : 1)"; then
+            npm run lint
+          else
+            echo "No lint script yet — skipping. Tracked by GIV-66 (F1)."
+          fi
+
+      - name: Build (if configured)
+        run: |
+          if [ -f package.json ] && node -e "process.exit(require('./package.json').scripts?.build ? 0 : 1)"; then
+            npm run build
+          else
+            echo "No build script yet — skipping. Tracked by GIV-66 (F1)."
+          fi
+
+      - name: Validate static site (phase-0)
+        # Until F1 lands, the "build" is the tracked index.html + Assets/.
+        # These checks catch the failure mode called out in GIV-68:
+        # "a typo in index.html can break the live site with no automated catch".
+        run: node scripts/validate-static-site.mjs
+
+      - name: Upload build artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: site
+          path: |
+            index.html
+            Assets/**
+            dist/**
+          if-no-files-found: ignore
+          retention-days: 7

@@ -1,5 +1,7 @@
 # Volo Index
 
+[![CI](https://github.com/GiveProtocolFoundation/VoloIndex/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/GiveProtocolFoundation/VoloIndex/actions/workflows/ci.yml)
+
 > An assessment-based certificate program for volunteer leaders, coordinators, and program directors — built from the research literature up, not from convention down.
 
 ---
