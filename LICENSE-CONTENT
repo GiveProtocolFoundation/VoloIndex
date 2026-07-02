@@ -1,0 +1,79 @@
+Volo Index — Content License
+============================
+
+The Volo Index assessment framework and all associated prose, research
+synthesis, brand marks, and illustrations in this repository are licensed
+under the Creative Commons Attribution-ShareAlike 4.0 International
+License (CC BY-SA 4.0).
+
+This applies to:
+
+  - README.md and all files under docs/
+  - The six competency dimensions (D1 Strategic Engagement Design,
+    D2 Recruitment/Matching/Onboarding, D3 Training/Development/Role
+    Support, D4 Performance/Impact/Accountability, D5 Recognition/
+    Retention/Culture, D6 Ethics/Equity/Advocacy) and their probe sets
+  - The two-axis scoring model (Developmental Level × Audience Scope
+    Band) and the scope-boundary-awareness rule
+  - The "Lift" brand mark, wordmark, and color system (files under
+    Assets/, including the mark SVGs, favicons, and lockups)
+  - Any assessment content that lands in a future content/ directory
+
+The software components of this repository — including the SPA source
+code, build tooling, CI configuration, and any code that renders or
+scores the framework — are licensed separately under the Apache License,
+Version 2.0. See LICENSE.
+
+Deed and legal text
+-------------------
+
+Human-readable deed: https://creativecommons.org/licenses/by-sa/4.0/
+Full legal code:     https://creativecommons.org/licenses/by-sa/4.0/legalcode
+
+You are free to:
+
+  Share    — copy and redistribute the material in any medium or format
+  Adapt    — remix, transform, and build upon the material for any
+             purpose, even commercially
+
+Under the following terms:
+
+  Attribution   — You must give appropriate credit, provide a link to
+                  the license, and indicate if changes were made. You
+                  may do so in any reasonable manner, but not in any
+                  way that suggests the licensor endorses you or your
+                  use.
+
+  ShareAlike    — If you remix, transform, or build upon the material,
+                  you must distribute your contributions under the same
+                  license as the original.
+
+  No additional restrictions — You may not apply legal terms or
+                  technological measures that legally restrict others
+                  from doing anything the license permits.
+
+Notices
+-------
+
+You do not have to comply with the license for elements of the material
+in the public domain or where your use is permitted by an applicable
+exception or limitation.
+
+No warranties are given. The license may not give you all of the
+permissions necessary for your intended use. For example, other rights
+such as publicity, privacy, or moral rights may limit how you use the
+material.
+
+Attribution format
+------------------
+
+When crediting Volo Index content, please use:
+
+    "Volo Index" by Give Protocol Foundation, licensed under
+    CC BY-SA 4.0. https://voloindex.org/
+
+Or, in academic contexts:
+
+    Give Protocol Foundation. Volo Index: a competency framework for
+    volunteer leaders. https://voloindex.org/. Licensed under
+    CC BY-SA 4.0.
