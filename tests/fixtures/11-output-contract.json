@@ -3,10 +3,13 @@
   "_rubric_refs": ["§8"],
   "_contract": {
     "required_top_level_fields": ["rubricVersion", "dimensions", "overall", "integrityFlags"],
-    "rubricVersion": "must be '1.0' (string)",
-    "dimension_required_fields": ["id", "name", "score", "tier", "baseTier", "signals", "redFlags", "insufficientEvidence"],
-    "signal_required_fields": ["type", "strength", "excerpt", "anchor"],
-    "overall_required_fields": ["score", "tier", "partial", "capped"],
+    "rubricVersion": "must be '1.1' (string)",
+    "dimension_required_fields": ["id", "name", "score", "tier", "baseTier", "signals", "redFlags", "insufficientEvidence", "evidenceDensity", "appliedCaps"],
+    "signal_required_fields": ["type", "strength", "excerpt", "anchor", "tier"],
+    "evidenceDensity_fields": ["sumStrength", "K", "Q", "position"],
+    "appliedCaps_entry_fields": ["rule", "capValue", "reason"],
+    "redFlags_entry_fields": ["excerpt", "anchor", "corrected"],
+    "overall_required_fields": ["score", "tier", "partial", "capped", "capReason"],
     "rounding": "all scores rounded to one decimal place (not two, not zero)",
     "dimension_ids": "D1 through D6 in §4 order",
     "integrityFlags_names": {
@@ -69,16 +72,18 @@
     ]
   },
   "expected": {
-    "rubricVersion": "1.0",
+    "rubricVersion": "1.1",
     "dimensions": [
       {
         "id": "D1",
         "name": "Strategic Engagement Design",
         "baseTier": "Proficient",
         "tier": "Proficient",
-        "_score_calc": "Σ Proficient+: 1.0+1.0+1.0 = 3.0; position = min(1.0, 3.0/5.0) = 0.6; score = 5.6 + 0.6*1.9 = 6.74 → 6.7",
-        "score": 6.7,
+        "_score_calc": "v1.1: Σ Proficient+: 1.0+1.0+1.0 = 3.0; Q=2.0, K=5.0 → position = (3.0−2.0)/3.0 = 0.333; score = 5.6 + 0.333*1.9 = 6.23 → 6.2",
+        "score": 6.2,
         "insufficientEvidence": false,
+        "evidenceDensity": { "sumStrength": 3.0, "K": 5.0, "Q": 2.0, "position": 0.333 },
+        "appliedCaps": [],
         "redFlags": [],
         "signals": [
           { "type": "S3", "strength": 1.0, "excerpt": "Mission-linked roles attract more motivated volunteers because the values alignment is explicit from day one.", "anchor": "mission-motivation reasoning" },
@@ -91,8 +96,8 @@
         "name": "Recruitment, Matching & Onboarding",
         "baseTier": "Proficient",
         "tier": "Proficient",
-        "_score_calc": "Σ Proficient+: 1.0+1.0+1.0 = 3.0; position = 3.0/5.0 = 0.6; score = 5.6 + 0.6*1.9 = 6.74 → 6.7",
-        "score": 6.7,
+        "_score_calc": "v1.1: Σ Proficient+: 3.0; position = (3.0−2.0)/3.0 = 0.333; score = 6.23 → 6.2",
+        "score": 6.2,
         "insufficientEvidence": false,
         "redFlags": [],
         "signals": [
@@ -106,8 +111,8 @@
         "name": "Training, Development & Role Support",
         "baseTier": "Proficient",
         "tier": "Proficient",
-        "_score_calc": "Σ Proficient+: 1.0+1.0+1.0 = 3.0; position = 0.6; score = 6.74 → 6.7",
-        "score": 6.7,
+        "_score_calc": "v1.1: Σ Proficient+: 3.0; position = 0.333; score = 6.23 → 6.2",
+        "score": 6.2,
         "insufficientEvidence": false,
         "redFlags": [],
         "signals": [
@@ -121,9 +126,9 @@
         "name": "Performance, Impact & Accountability",
         "baseTier": "Proficient",
         "tier": "Proficient",
-        "_score_calc": "Σ Proficient+: S3 clear=1.0, S2 clear=1.0 (S4 weak=0.5 counts — it's at Proficient tier). Σ=2.5; position=2.5/5.0=0.5; score=5.6+0.5*1.9=6.55→6.6",
-        "_note_on_S4_weak": "S4 at 'weak' (0.5) — if at Proficient tier level it contributes. If only Proficient+ signals count for position: S3 clear + S2 clear = 2.0. position=0.4; score=5.6+0.4*1.9=6.36→6.4. AMBIGUITY: rubric says 'Σ signal_strength at base tier and above'. S2 is Developing-tier signal type. Does it count toward Proficient position? Engine must decide.",
-        "score": 6.4,
+        "_score_calc": "v1.1: Σ Proficient+: S3 clear=1.0, S2 clear=1.0, S4 weak=0.5 (at Proficient tier). Σ=2.5; Q=2.0, K=5.0 → position=(2.5−2.0)/3.0=0.167; score=5.6+0.167*1.9=5.92→5.9",
+        "_note_on_S4_weak": "S4 at 'weak' (0.5) contributes if its anchor is at Proficient tier level. Same 'Σ at base tier and above' interpretation as v1.0 — only the Q offset changed.",
+        "score": 5.9,
         "insufficientEvidence": false,
         "redFlags": [],
         "signals": [
@@ -137,8 +142,8 @@
         "name": "Recognition, Retention & Culture",
         "baseTier": "Proficient",
         "tier": "Proficient",
-        "_score_calc": "Σ Proficient+: 1.0+1.0+1.0=3.0; position=0.6; score=6.74→6.7",
-        "score": 6.7,
+        "_score_calc": "v1.1: Σ Proficient+: 3.0; position=(3.0−2.0)/3.0=0.333; score=6.23→6.2",
+        "score": 6.2,
         "insufficientEvidence": false,
         "redFlags": [],
         "signals": [
@@ -152,8 +157,8 @@
         "name": "Ethics, Equity & Advocacy",
         "baseTier": "Proficient",
         "tier": "Proficient",
-        "_score_calc": "Σ Proficient+: 1.0+1.0+1.0=3.0; position=0.6; score=6.74→6.7",
-        "score": 6.7,
+        "_score_calc": "v1.1: Σ Proficient+: 3.0; position=(3.0−2.0)/3.0=0.333; score=6.23→6.2",
+        "score": 6.2,
         "insufficientEvidence": false,
         "redFlags": [],
         "signals": [
@@ -164,22 +169,26 @@
       }
     ],
     "overall": {
-      "_mean_calc": "(6.7+6.7+6.7+6.4+6.7+6.7)/6 = 39.9/6 = 6.65 → 6.7",
-      "score": 6.7,
+      "_mean_calc": "v1.1: (6.2+6.2+6.2+5.9+6.2+6.2)/6 = 36.9/6 = 6.15 → 6.2",
+      "score": 6.2,
       "tier": "Proficient",
       "partial": false,
-      "capped": false
+      "capped": false,
+      "capReason": null
     },
     "integrityFlags": [],
     "_contract_verification_checklist": [
-      "rubricVersion field present and equals '1.0' (string not number)",
+      "rubricVersion field present and equals '1.1' (string not number)",
       "All 6 dimension objects present with ids D1–D6",
-      "Each dimension has: id, name, score, tier, baseTier, signals, redFlags, insufficientEvidence",
-      "Each signal has: type, strength (numeric), excerpt, anchor",
+      "Each dimension has: id, name, score, tier, baseTier, signals, redFlags, insufficientEvidence, evidenceDensity, appliedCaps",
+      "Each signal has: type, strength (numeric), excerpt, anchor, tier (matched anchor tier label)",
       "strength in output is numeric (weak=0.5, clear=1.0, strong=1.5), not string",
+      "evidenceDensity has: sumStrength, K, Q, position",
+      "appliedCaps entries have: rule, capValue, reason; every applied §5.3/§5.4/§6/§7 cap is listed",
+      "redFlags entries include: corrected (bool)",
       "All scores rounded to exactly 1 decimal place",
-      "overall has: score, tier, partial (bool), capped (bool)",
-      "integrityFlags is array (empty array when no flags, not null/absent)",
+      "overall has: score, tier, partial (bool), capped (bool), capReason (string or null)",
+      "integrityFlags is array (empty array when no flags, not null/absent); flags include triggering signal ids/excerpts",
       "No extra fields that are not in the §8 contract"
     ]
   }

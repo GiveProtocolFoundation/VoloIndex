@@ -244,8 +244,8 @@ function validateOverall(actual, expected, fixtureName) {
  */
 function validateContract(actual, fixtureName) {
   assert(
-    actual.rubricVersion === "1.0",
-    `${fixtureName}: rubricVersion must be '1.0' (string), got ${JSON.stringify(actual.rubricVersion)}`,
+    actual.rubricVersion === "1.1",
+    `${fixtureName}: rubricVersion must be '1.1' (string), got ${JSON.stringify(actual.rubricVersion)}`,
     { actual }
   );
   assert(

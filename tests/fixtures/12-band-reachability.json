@@ -1,0 +1,89 @@
+{
+  "_description": "R2 REGRESSION GUARD (v1.1 §5.2): each band previously unreachable under v1.0 must now be reachable. Under v1.0, minimal qualifying evidence (Σ=2.0) landed mid-band, so 3.1–4.2, 5.6–6.3 and 7.6–8.3 could never occur. The v1.1 Q offset (position = min(1, max(0, (Σ−Q)/(K−Q)))) makes each band floor reachable with minimal qualifying evidence.",
+  "_rubric_refs": ["§5.2"],
+  "_q_values": { "foundational": 0, "developing": 2.0, "proficient": 2.0, "expert": 2.0 },
+
+  "case_A_developing_lower_band": {
+    "_description": "Minimal Developing evidence → 3.1 (band 3.1–4.2 reachable).",
+    "input": {
+      "dimensions": [
+        {
+          "id": "D1",
+          "signals": [
+            { "type": "S2", "strength": "clear", "excerpt": "I wrote purpose statements for our volunteer roles.", "anchor": "mission-linked role design" },
+            { "type": "S2", "strength": "clear", "excerpt": "I set basic program goals around headcount.", "anchor": "activity-based goal setting" },
+            { "type": "S1", "strength": "weak",  "excerpt": "I know outcome-linked goals exist.", "anchor": "outcome goal awareness" }
+          ]
+        }
+      ]
+    },
+    "expected": {
+      "dimensions": [
+        {
+          "id": "D1",
+          "baseTier": "Developing",
+          "_score_calc": "Σ dev+ = 2.0; Q=2.0, K=4.0 → position = 0 → score = 3.1 (band floor)",
+          "score": 3.1,
+          "tier": "Developing",
+          "_band": "3.1–4.2 — unreachable under v1.0, reachable under v1.1"
+        }
+      ]
+    }
+  },
+
+  "case_B_proficient_lower_band": {
+    "_description": "Minimal Proficient evidence → 5.6 (band 5.6–6.3 reachable).",
+    "input": {
+      "dimensions": [
+        {
+          "id": "D3",
+          "signals": [
+            { "type": "S3", "strength": "clear", "excerpt": "Training depth must match role risk because failure modes differ.", "anchor": "risk-calibrated training reasoning" },
+            { "type": "S4", "strength": "clear", "excerpt": "For tech-averse volunteers I redesign training to use paper job aids.", "anchor": "learner-adapted training" },
+            { "type": "S2", "strength": "clear", "excerpt": "I run structured initial training.", "anchor": "structured training" }
+          ]
+        }
+      ]
+    },
+    "expected": {
+      "dimensions": [
+        {
+          "id": "D3",
+          "baseTier": "Proficient",
+          "_score_calc": "Σ prof+ = 2.0 (S2 at developing anchor excluded); Q=2.0, K=5.0 → position = 0 → score = 5.6 (band floor)",
+          "score": 5.6,
+          "tier": "Proficient",
+          "_band": "5.6–6.3 — unreachable under v1.0, reachable under v1.1"
+        }
+      ]
+    }
+  },
+
+  "case_C_expert_lower_band": {
+    "_description": "Minimal Expert evidence → 7.6 (band 7.6–8.3 reachable).",
+    "input": {
+      "dimensions": [
+        {
+          "id": "D1",
+          "signals": [
+            { "type": "S5", "strength": "clear", "excerpt": "I designed a strategic volunteer engagement framework with capacity planning.", "anchor": "engagement system design" },
+            { "type": "S6", "strength": "clear", "excerpt": "I mentor peer volunteer managers on strategic design.", "anchor": "mentors peers on strategic design" },
+            { "type": "S3", "strength": "clear", "excerpt": "Mission-linked roles recruit better because values alignment is explicit.", "anchor": "mission-motivation reasoning" }
+          ]
+        }
+      ]
+    },
+    "expected": {
+      "dimensions": [
+        {
+          "id": "D1",
+          "baseTier": "Expert",
+          "_score_calc": "Σ expert+ = 2.0; Q=2.0, K=6.0 → position = 0 → score = 7.6 (band floor)",
+          "score": 7.6,
+          "tier": "Expert",
+          "_band": "7.6–8.3 — unreachable under v1.0, reachable under v1.1"
+        }
+      ]
+    }
+  }
+}
