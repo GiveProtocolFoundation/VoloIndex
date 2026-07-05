@@ -2,9 +2,40 @@
   "_description": "INTEGRITY CHECKS (§7): all four rules — recall inflation, cross-dimension contradiction, generic answer detection, uniform maximum.",
   "_rubric_refs": ["§7"],
 
-  "case_A_recall_inflation": {
-    "_description": "≥4 S1 signals and zero S2 in a dimension → cap at Developing midpoint (4.3).",
-    "_key_rule": "Recall inflation: ≥4 S1, zero S2 → cap at 4.3",
+  "case_A_recall_inflation_v1_1": {
+    "_description": "v1.1 R3 trigger: dimension qualifies Developing+, has ≥4 S1, exactly ONE clear S2, and no strong S2/S3+ → flag + cap at ≤4.3 (Developing lower third).",
+    "_key_rule": "v1.1 recall inflation: Developing+ base AND ≥4 S1 AND exactly 1 clear S2 AND no strong S2/S3+ → cap ≤4.3",
+    "input": {
+      "dimensions": [
+        {
+          "id": "D4",
+          "signals": [
+            { "type": "S2", "strength": "clear",  "excerpt": "I set written expectations for volunteers at placement.", "anchor": "expectation-setting", "_note": "the single clear S2" },
+            { "type": "S1", "strength": "strong", "excerpt": "Accountability means setting clear expectations up front.", "anchor": "expectation-setting concept" },
+            { "type": "S1", "strength": "strong", "excerpt": "You should document underperformance in writing.", "anchor": "documentation knowledge" },
+            { "type": "S1", "strength": "strong", "excerpt": "Releasing a volunteer should be done respectfully and privately.", "anchor": "exit process knowledge" },
+            { "type": "S1", "strength": "clear",  "excerpt": "Feedback should be specific and timely.", "anchor": "feedback best practice recall" }
+          ]
+        }
+      ]
+    },
+    "expected": {
+      "dimensions": [
+        {
+          "id": "D4",
+          "baseTier": "Developing",
+          "_raw_score": "would exceed 4.3 without the cap",
+          "_cap_note": "recall_inflation caps score at ≤4.3 (Developing lower third) per §7 v1.1; cap recorded in appliedCaps (rule §7)",
+          "integrityFlags": ["recall_inflation"],
+          "insufficientEvidence": false
+        }
+      ],
+      "_flag_contract": "v1.1 R4: the recall_inflation integrity flag must reference the triggering signal ids"
+    }
+  },
+
+  "case_A2_old_trigger_no_longer_fires": {
+    "_description": "v1.0 trigger (≥4 S1, zero S2 → Foundational base) must NOT fire under v1.1 — check only applies to dimensions qualifying Developing+.",
     "input": {
       "dimensions": [
         {
@@ -24,14 +55,11 @@
         {
           "id": "D4",
           "baseTier": "Foundational",
-          "_raw_score": "Foundational range — lots of S1 strong, position high within Foundational",
-          "score": 4.3,
-          "tier": "Developing",
-          "integrityFlags": ["recall_inflation"],
-          "_cap_note": "recall_inflation flag caps score at Developing midpoint (4.3) per §7",
+          "_score_note": "scored normally within Foundational (no recall_inflation cap)",
           "insufficientEvidence": false
         }
-      ]
+      ],
+      "_integrityFlags_should_NOT_contain": "recall_inflation"
     }
   },
 
