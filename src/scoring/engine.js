@@ -1,18 +1,18 @@
 /**
- * Volo Index Scoring Engine v1.0
+ * Volo Index Scoring Engine v1.1
  *
  * Pure, deterministic: signals in → scores out.
  * Implements §5 (per-dimension), §6 (aggregation), §7 (integrity checks)
- * of docs/SCORING_RUBRIC.md.
+ * of docs/SCORING_RUBRIC.md (v1.1, R1–R4 applied).
  */
 
 import {
-  TIERS, TIER_ORDER, TIER_BY_ID, K_VALUES,
+  TIERS, TIER_ORDER, TIER_BY_ID, K_VALUES, Q_VALUES,
   CLEAR_THRESHOLD, TIER_REQUIREMENTS, MIN_TIER_ANCHOR_SIGNALS,
   EXPERT_GATING, RED_FLAG_HARD_CAP_COUNT, RED_FLAG_HARD_CAP_SCORE,
   MIN_SIGNALS_FOR_SCORING, RECALL_INFLATION, UNIFORM_MAX_THRESHOLD,
   OVERALL_EXPERT_CONSTRAINT, MAX_INSUFFICIENT_FOR_PARTIAL,
-  DIMENSIONS, DIMENSION_IDS, RUBRIC_VERSION,
+  DIMENSIONS, DIMENSION_IDS, RUBRIC_VERSION, STRENGTH,
 } from './config.js';
 
 // ── Helpers ──────────────────────────────────────────────────────────
@@ -169,24 +169,38 @@ function checkRequirements(signals, requirements) {
 
 // ── §5.2  Position within tier ──────────────────────────────────────
 
+/**
+ * v1.1 (R2): position = min(1, max(0, (Σ − Q) / (K − Q))) so the
+ * qualifying minimum maps to tier_min and the full tier range is reachable.
+ * Returns { score, evidenceDensity } (§8 R4).
+ */
 function positionScore(signals, baseTierId) {
   const baseTierIdx = tierIndex(baseTierId);
   const tier = TIER_BY_ID[baseTierId];
   const K = K_VALUES[baseTierId];
+  const Q = Q_VALUES[baseTierId];
 
   // Sum signal strengths at base tier and above (only positive signals)
-  const relevantStrength = signals
+  const sumStrength = signals
     .filter(s => s.type !== 'N' && tierIndex(s.anchorTier) >= baseTierIdx)
     .reduce((sum, s) => sum + s.strength, 0);
 
-  const position = Math.min(1.0, relevantStrength / K);
+  const position = Math.min(1.0, Math.max(0, (sumStrength - Q) / (K - Q)));
   const raw = tier.min + position * (tier.max - tier.min);
-  return round1(raw);
+  return {
+    score: round1(raw),
+    evidenceDensity: {
+      sumStrength,
+      K,
+      Q,
+      position: Math.round(position * 1000) / 1000,
+    },
+  };
 }
 
 // ── §5.3  Expert gating ─────────────────────────────────────────────
 
-function applyExpertGating(score, signals) {
+function applyExpertGating(score, signals, appliedCaps) {
   if (score <= EXPERT_GATING.scoreThreshold) return score;
 
   const strongExpertAnchors = new Set();
@@ -202,6 +216,11 @@ function applyExpertGating(score, signals) {
   }
 
   if (strongExpertAnchors.size < EXPERT_GATING.requiredDistinctAnchors) {
+    appliedCaps.push({
+      rule: '§5.3',
+      capValue: EXPERT_GATING.scoreThreshold,
+      reason: `expert-breadth-cap: score >${EXPERT_GATING.scoreThreshold} requires strong signals in ≥${EXPERT_GATING.requiredDistinctAnchors} distinct Expert anchor behaviors (found ${strongExpertAnchors.size})`,
+    });
     return EXPERT_GATING.scoreThreshold;
   }
   return score;
@@ -209,38 +228,80 @@ function applyExpertGating(score, signals) {
 
 // ── §5.4  Red-flag caps ─────────────────────────────────────────────
 
-function applyRedFlagCaps(score, signals, baseTierId) {
+/**
+ * v1.1 (R1): with n uncorrected N signals at clear+, the cap is the midpoint
+ * of the tier n steps below the base tier (floor 1.0). Additionally, ≥2
+ * uncorrected N cap the dimension at Developing (≤5.5). The applied cap is
+ * the LOWEST of all triggered caps (monotonic guarantee).
+ */
+function applyRedFlagCaps(score, signals, baseTierId, appliedCaps) {
   const uncorrectedN = signals.filter(
     s => s.type === 'N' && s.strength >= CLEAR_THRESHOLD && !s.corrected
   );
+  const n = uncorrectedN.length;
+  if (n === 0) return score;
 
-  if (uncorrectedN.length === 0) return score;
+  const triggeredCaps = [];
+
+  // Monotonic cap: midpoint of the tier n steps below base (floor 1.0)
+  const belowIdx = tierIndex(baseTierId) - n;
+  if (belowIdx >= 0) {
+    const belowTierId = TIER_ORDER[belowIdx];
+    triggeredCaps.push({
+      capValue: tierMidpoint(belowTierId),
+      reason: `${n} uncorrected red flag${n > 1 ? 's' : ''}: midpoint of tier ${n} step${n > 1 ? 's' : ''} below base (${TIER_BY_ID[belowTierId].label})`,
+    });
+  } else {
+    triggeredCaps.push({
+      capValue: 1.0,
+      reason: `${n} uncorrected red flag${n > 1 ? 's' : ''}: tier ${n} step${n > 1 ? 's' : ''} below base is under the scale — floor 1.0`,
+    });
+  }
 
   // ≥2 uncorrected N: hard cap at Developing max
-  if (uncorrectedN.length >= RED_FLAG_HARD_CAP_COUNT) {
-    return Math.min(score, RED_FLAG_HARD_CAP_SCORE);
+  if (n >= RED_FLAG_HARD_CAP_COUNT) {
+    triggeredCaps.push({
+      capValue: RED_FLAG_HARD_CAP_SCORE,
+      reason: `≥${RED_FLAG_HARD_CAP_COUNT} uncorrected red flags: capped at Developing (≤${RED_FLAG_HARD_CAP_SCORE})`,
+    });
   }
 
-  // 1 uncorrected N: cap at midpoint of tier below base
-  const baseTierIdx = tierIndex(baseTierId);
-  if (baseTierIdx === 0) {
-    // Already foundational — cap at minimum score
-    return Math.min(score, 1.0);
+  // Lowest of all triggered caps wins
+  const lowest = triggeredCaps.reduce((a, b) => (b.capValue < a.capValue ? b : a));
+  if (lowest.capValue < score) {
+    appliedCaps.push({ rule: '§5.4', capValue: lowest.capValue, reason: lowest.reason });
   }
-  const belowTierId = TIER_ORDER[baseTierIdx - 1];
-  const capScore = tierMidpoint(belowTierId);
-  return Math.min(score, capScore);
+  return Math.min(score, lowest.capValue);
 }
 
-// ── §7.1  Recall inflation ──────────────────────────────────────────
+// ── §7  Recall inflation ────────────────────────────────────────────
 
-function applyRecallInflation(score, signals) {
-  const s1Count = signals.filter(s => s.type === 'S1').length;
-  const s2Count = signals.filter(s => s.type === 'S2').length;
-  if (s1Count >= RECALL_INFLATION.minS1Count && s2Count === 0) {
-    return Math.min(score, RECALL_INFLATION.capScore);
-  }
-  return score;
+/**
+ * v1.1 (R3): fires when the dimension qualifies Developing+ but has
+ * ≥4 S1, exactly one clear S2, and no S2/S3+ signal at strong.
+ * Returns trigger metadata or null. Pure — shared by the per-dimension
+ * cap (§7 action) and the assessment-level integrity flag.
+ */
+function checkRecallInflation(signals, baseTierId) {
+  if (tierIndex(baseTierId) < tierIndex('developing')) return null;
+
+  const s1 = signals.filter(s => s.type === 'S1');
+  if (s1.length < RECALL_INFLATION.minS1Count) return null;
+
+  const clearS2 = signals.filter(
+    s => s.type === 'S2' && s.strength >= CLEAR_THRESHOLD
+  );
+  if (clearS2.length !== RECALL_INFLATION.requiredClearS2Count) return null;
+
+  const strongHigherOrder = signals.filter(
+    s => s.type !== 'N' && s.type !== 'S1' && s.strength >= STRENGTH.strong
+  );
+  if (strongHigherOrder.length > 0) return null;
+
+  return {
+    s1Count: s1.length,
+    signalIds: [...s1, ...clearS2].map(s => s.id).filter(Boolean),
+  };
 }
 
 // ── §5 complete: score one dimension ────────────────────────────────
@@ -255,8 +316,10 @@ function scoreDimension(dimId, dimName, rawSignals) {
       score: null,
       tier: null,
       baseTier: null,
+      evidenceDensity: null,
       signals: rawSignals.map(outputSignal),
       redFlags: rawSignals.filter(s => s.type === 'N').map(outputSignal),
+      appliedCaps: [],
       insufficientEvidence: true,
     };
   }
@@ -265,17 +328,29 @@ function scoreDimension(dimId, dimName, rawSignals) {
   const baseTierId = baseTierPlacement(rawSignals);
   const baseTier = TIER_BY_ID[baseTierId];
 
+  // §8 (R4): every cap applied from §5.3/§5.4/§7 is recorded here
+  const appliedCaps = [];
+
   // §5.2
-  let score = positionScore(rawSignals, baseTierId);
+  const { score: rawScore, evidenceDensity } = positionScore(rawSignals, baseTierId);
+  let score = rawScore;
 
   // §5.3 expert gating
-  score = applyExpertGating(score, rawSignals);
+  score = applyExpertGating(score, rawSignals, appliedCaps);
 
   // §5.4 red-flag caps
-  score = applyRedFlagCaps(score, rawSignals, baseTierId);
+  score = applyRedFlagCaps(score, rawSignals, baseTierId, appliedCaps);
 
-  // §7.1 recall inflation
-  score = applyRecallInflation(score, rawSignals);
+  // §7 recall inflation (R3)
+  const recallInflation = checkRecallInflation(rawSignals, baseTierId);
+  if (recallInflation && RECALL_INFLATION.capScore < score) {
+    appliedCaps.push({
+      rule: '§7',
+      capValue: RECALL_INFLATION.capScore,
+      reason: `recall_inflation: ≥${RECALL_INFLATION.minS1Count} S1 with exactly one clear S2 and no strong S2/S3+ — capped at Developing lower third`,
+    });
+    score = RECALL_INFLATION.capScore;
+  }
 
   const finalTier = tierFor(score);
 
@@ -285,14 +360,18 @@ function scoreDimension(dimId, dimName, rawSignals) {
     score,
     tier: finalTier.label,
     baseTier: baseTier.label,
+    evidenceDensity,
     signals: rawSignals.filter(s => s.type !== 'N').map(outputSignal),
     redFlags: rawSignals.filter(s => s.type === 'N').map(outputSignal),
+    appliedCaps,
     insufficientEvidence: false,
   };
 }
 
 function outputSignal(s) {
   const out = { type: s.type, strength: s.strength };
+  // §8 (R4): each signal records its classified tier so §5.2 is reproducible
+  out.tier = TIER_BY_ID[s.anchorTier]?.label ?? null;
   if (s.excerpt != null) out.excerpt = s.excerpt;
   if (s.anchor != null) out.anchor = s.anchor;
   if (s._downgraded) {
@@ -300,7 +379,9 @@ function outputSignal(s) {
     out.originalType = s._originalType;
   }
   if (s._contradicted) out.contradicted = true;
-  if (s.corrected) out.corrected = true;
+  // §8 (R4): red flags always carry an explicit corrected boolean
+  if (s.type === 'N') out.corrected = !!s.corrected;
+  else if (s.corrected) out.corrected = true;
   return out;
 }
 
@@ -312,11 +393,11 @@ function aggregate(dimensionResults) {
 
   // §6.3 — ≥2 insufficient → incomplete
   if (insufficientCount > MAX_INSUFFICIENT_FOR_PARTIAL) {
-    return { score: null, tier: null, partial: false, capped: false, incomplete: true };
+    return { score: null, tier: null, partial: false, capped: false, capReason: null, incomplete: true };
   }
 
   if (scored.length === 0) {
-    return { score: null, tier: null, partial: false, capped: false, incomplete: true };
+    return { score: null, tier: null, partial: false, capped: false, capReason: null, incomplete: true };
   }
 
   const partial = insufficientCount > 0;
@@ -324,6 +405,7 @@ function aggregate(dimensionResults) {
 
   // §6.4 overall-tier Expert constraint
   let capped = false;
+  let capReason = null;
   let overallScore = mean;
   const tier = tierFor(overallScore);
 
@@ -340,6 +422,7 @@ function aggregate(dimensionResults) {
     ) {
       overallScore = Math.min(overallScore, OVERALL_EXPERT_CONSTRAINT.capScore);
       capped = true;
+      capReason = `§6.4: overall in Expert range requires ≥${OVERALL_EXPERT_CONSTRAINT.minProficientPlus} Proficient+ dimensions and ≥${OVERALL_EXPERT_CONSTRAINT.minExpert} Expert dimensions (have ${proficientPlusCount} Proficient+, ${expertCount} Expert) — capped at ${OVERALL_EXPERT_CONSTRAINT.capScore}`;
     }
   }
 
@@ -349,6 +432,7 @@ function aggregate(dimensionResults) {
     tier: finalTier.label,
     partial,
     capped,
+    capReason,
     incomplete: false,
   };
 }
@@ -399,6 +483,7 @@ export function scoreAssessment(input) {
         rule: 'generic_answer_detection',
         dimension: dimId,
         downgradedCount: downgraded.length,
+        signalIds: downgraded.map(s => s.id).filter(Boolean),
       });
     }
   }
@@ -416,17 +501,17 @@ export function scoreAssessment(input) {
     scoreDimension(dim.id, dim.name, dimensionSignals[dim.id] || [])
   );
 
-  // §7.1 recall inflation flags
+  // §7 recall inflation flags (v1.1 R3)
   for (const dim of dimensionResults) {
     if (!dim.insufficientEvidence) {
       const signals = dimensionSignals[dim.id] || [];
-      const s1Count = signals.filter(s => s.type === 'S1').length;
-      const s2Count = signals.filter(s => s.type === 'S2').length;
-      if (s1Count >= RECALL_INFLATION.minS1Count && s2Count === 0) {
+      const trigger = checkRecallInflation(signals, baseTierPlacement(signals));
+      if (trigger) {
         integrityFlags.push({
           rule: 'recall_inflation',
           dimension: dim.id,
-          s1Count,
+          s1Count: trigger.s1Count,
+          signalIds: trigger.signalIds,
         });
       }
     }

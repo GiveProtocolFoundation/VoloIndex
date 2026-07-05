@@ -1,5 +1,5 @@
 /**
- * Volo Index Scoring Configuration v1.0
+ * Volo Index Scoring Configuration v1.1
  *
  * All parameterized constants from the scoring rubric.
  * Change these for config-level adjustments without rewriting engine logic.
@@ -25,6 +25,18 @@ export const K_VALUES = {
   developing:   4.0,
   proficient:   5.0,
   expert:       6.0,
+};
+
+/**
+ * Qualifying signal-strength minimum Q per tier (§5.2, v1.1 R2).
+ * The ≥2 clear+ signals needed to enter a tier map to tier_min:
+ * position = min(1, max(0, (Σ − Q) / (K − Q)))
+ */
+export const Q_VALUES = {
+  foundational: 0,
+  developing:   2.0,
+  proficient:   2.0,
+  expert:       2.0,
 };
 
 /** Signal strength values (§3) */
@@ -76,9 +88,14 @@ export const RED_FLAG_HARD_CAP_SCORE = 5.5;
 /** Minimum signals per dimension before "insufficient evidence" (§5.5) */
 export const MIN_SIGNALS_FOR_SCORING = 3;
 
-/** Recall inflation: cap when ≥ N S1 and zero S2 (§7.1) */
+/**
+ * Recall inflation (§7, v1.1 R3): dimension qualifies Developing+ but has
+ * ≥ minS1Count S1, exactly requiredClearS2Count clear S2, and no S2/S3+
+ * signal at strong → cap at Developing lower third (≤ capScore).
+ */
 export const RECALL_INFLATION = {
   minS1Count: 4,
+  requiredClearS2Count: 1,
   capScore: 4.3,
 };
 
@@ -107,4 +124,4 @@ export const DIMENSIONS = [
 
 export const DIMENSION_IDS = DIMENSIONS.map(d => d.id);
 
-export const RUBRIC_VERSION = '1.0';
+export const RUBRIC_VERSION = '1.1';

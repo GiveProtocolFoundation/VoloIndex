@@ -2,8 +2,8 @@
   "_description": "RED FLAG (N signal) cap tests per §5.4.",
   "_rubric_refs": ["§5.4"],
   "_key_rules": [
-    "1 N at clear+ → cap at midpoint of tier BELOW base tier (min 1.0)",
-    "2+ uncorrected N → cap at Developing (≤5.5) regardless of other evidence",
+    "v1.1 R1 (monotonic): n uncorrected N at clear+ → cap at midpoint of tier n steps BELOW base tier (floor 1.0)",
+    "2+ uncorrected N → additionally cap at Developing (≤5.5); the LOWEST of all triggered caps applies",
     "Self-correction removes the cap but N signal is still recorded"
   ],
 
@@ -100,7 +100,7 @@
   },
 
   "case_D_two_N_signals": {
-    "_description": "2+ uncorrected N signals → cap at Developing (≤5.5) regardless of Expert-level evidence.",
+    "_description": "v1.1 monotonic: 2 uncorrected N on Expert base → midpoint of tier 2 steps below (Developing, 4.3) AND the ≥2-N cap (5.5); lowest wins → 4.3.",
     "input": {
       "dimensions": [
         {
@@ -119,9 +119,9 @@
         {
           "id": "D6",
           "baseTier": "Expert",
-          "score": 5.5,
+          "score": 4.3,
           "tier": "Developing",
-          "_cap_rule": "2+ uncorrected N → hard cap at Developing (≤5.5). Score capped at 5.5 even though Expert evidence is very strong.",
+          "_cap_rule": "v1.1 R1: 2 uncorrected N → midpoint of tier 2 steps below Expert = Developing midpoint 4.3; also ≥2-N cap 5.5; lowest of caps = 4.3.",
           "redFlags": [
             { "excerpt": "Access barriers aren't really our problem — volunteers choose to participate.", "anchor": "no awareness of access barriers", "capApplied": true },
             { "excerpt": "We share volunteer info freely with partner orgs — no point in strict privacy rules.", "anchor": "cavalier handling of personal data", "capApplied": true }

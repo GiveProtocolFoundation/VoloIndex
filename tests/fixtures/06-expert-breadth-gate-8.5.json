@@ -23,11 +23,14 @@
         {
           "id": "D1",
           "baseTier": "Expert",
-          "_raw_score_calc": "Σ = 1.5+1.5+1.5+1.5 = 6.0; position = min(1.0, 6.0/6.0) = 1.0; raw = 7.6 + 1.0*2.4 = 10.0",
+          "_raw_score_calc": "v1.1: Σ = 1.5+1.5+1.5+1.5 = 6.0; Q=2.0, K=6.0 → position = min(1.0, (6.0−2.0)/4.0) = 1.0; raw = 7.6 + 1.0*2.4 = 10.0",
           "_breadth_check": "Strong signals in distinct anchors: 'business case/ROI' (strong) and 'mentors peers' (strong) = only 2 distinct. Gate requires 3. FAIL.",
           "score": 8.5,
           "tier": "Expert",
           "insufficientEvidence": false,
+          "appliedCaps": [
+            { "rule": "§5.3", "capValue": 8.5, "_note": "v1.1 R6: expert-breadth-cap must be recorded in appliedCaps with rule, capValue, reason" }
+          ],
           "_cap_applied": "Expert breadth gate capped score from 10.0 to 8.5"
         }
       ]
@@ -55,17 +58,18 @@
           "id": "D1",
           "baseTier": "Expert",
           "_breadth_check": "Strong signals in distinct anchors: 'business case/ROI' (strong), 'capacity planning' (strong), 'mentors peers' (strong) = 3 distinct. Gate PASSES.",
-          "_score_calc": "Σ = 1.5+1.5+1.5+1.0 = 5.5; position = min(1.0, 5.5/6.0) = 0.917; score = 7.6 + 0.917*2.4 = 9.8",
-          "score": 9.8,
+          "_score_calc": "v1.1: Σ = 1.5+1.5+1.5+1.0 = 5.5; Q=2.0, K=6.0 → position = (5.5−2.0)/4.0 = 0.875; score = 7.6 + 0.875*2.4 = 9.7",
+          "score": 9.7,
           "tier": "Expert",
-          "insufficientEvidence": false
+          "insufficientEvidence": false,
+          "appliedCaps": []
         }
       ]
     }
   },
 
-  "case_C_exactly_8.5_no_breadth_check_needed": {
-    "_description": "Score lands exactly at 8.5 via formula — breadth gate only applies ABOVE 8.5. Should NOT be capped.",
+  "case_C_below_8.5_no_breadth_check_needed": {
+    "_description": "v1.1: with the Q offset the raw score lands at 8.2 (≤8.5) — breadth gate only applies ABOVE 8.5, so no cap and no appliedCaps entry.",
     "input": {
       "dimensions": [
         {
@@ -83,11 +87,12 @@
         {
           "id": "D4",
           "baseTier": "Expert",
-          "_score_calc": "Σ at Expert+: 1.5+1.0+0.5 = 3.0; position = min(1.0, 3.0/6.0) = 0.5; score = 7.6 + 0.5*2.4 = 8.8",
-          "_breadth_check": "Score 8.8 > 8.5, so breadth gate applies. Strong signals in distinct Expert anchors: 'full accountability system' (strong) = 1 distinct only. Gate FAILS. Cap at 8.5.",
-          "score": 8.5,
+          "_score_calc": "v1.1: Σ at Expert+: 1.5+1.0+0.5 = 3.0; Q=2.0, K=6.0 → position = (3.0−2.0)/4.0 = 0.25; score = 7.6 + 0.25*2.4 = 8.2",
+          "_breadth_check": "Score 8.2 ≤ 8.5 → breadth gate does not apply. No cap.",
+          "score": 8.2,
           "tier": "Expert",
-          "insufficientEvidence": false
+          "insufficientEvidence": false,
+          "appliedCaps": []
         }
       ]
     }

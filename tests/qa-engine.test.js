@@ -208,15 +208,15 @@ describe('§5.2 Position within tier (score formula)', () => {
     assert.ok(d.score >= 1.0 && d.score <= 3.0, `Score ${d.score} out of Foundational range`);
   });
 
-  it('Developing score formula: K=4.0, range 3.1–5.5', () => {
-    // 2 S2 at clear = 2.0 developing+ strength; K=4.0 → pos=0.5; score=3.1+0.5*2.4=4.3
+  it('Developing score formula: K=4.0, Q=2.0, range 3.1–5.5 (v1.1)', () => {
+    // 2 S2 at clear = 2.0 developing+ strength; Q=2.0, K=4.0 → pos=(2.0−2.0)/2.0=0; score=3.1
     const d = score('D2', [
       S('S2', CLEAR, 'developing', { anchor: 'a1' }),
       S('S2', CLEAR, 'developing', { anchor: 'a2' }),
       S('S1', WEAK,  'foundational'),
     ]);
     assert.equal(d.baseTier, 'Developing');
-    assert.ok(near(d.score, 4.3), `Expected ~4.3, got ${d.score}`);
+    assert.ok(near(d.score, 3.1), `Expected ~3.1 (v1.1: minimal qualifying evidence → band floor), got ${d.score}`);
   });
 
   it('Developing saturated at 5.5 (K=4.0, 4.0+ strength)', () => {
@@ -327,9 +327,12 @@ describe('§5.4 Red-flag caps', () => {
   });
 
   it('1 uncorrected N (clear) on Developing → cap at Foundational midpoint (2.0)', () => {
+    // 3rd positive signal added so the dimension clears the §5.5 minimum
+    // (N signals do not count toward the 3-signal minimum — see BUG-001).
     const d = score('D4', [
       S('S2', CLEAR, 'developing', { anchor: 'a1' }),
       S('S2', CLEAR, 'developing', { anchor: 'a2' }),
+      S('S1', WEAK,  'foundational'),
       S('N',  CLEAR, 'developing', { corrected: false }),
     ]);
     // base=Developing; tier below = Foundational; midpoint=(1.0+3.0)/2=2.0
@@ -520,9 +523,11 @@ describe('§6.4 Overall-tier Expert constraint', () => {
 
 // ─── §7 Integrity Checks ─────────────────────────────────────────────────────
 
-describe('§7.1 Recall inflation', () => {
+describe('§7.1 Recall inflation (v1.1)', () => {
 
-  it('≥4 S1 and 0 S2 → integrityFlag recall_inflation is set', () => {
+  it('v1.0 trigger (≥4 S1, 0 S2) no longer fires — Foundational base exempt (v1.1 R3)', () => {
+    // No S2 → dimension cannot place Developing → base is Foundational.
+    // v1.1 retarget: check only applies to dimensions qualifying Developing+.
     const result = scoreAssessment({
       dimensions: {
         D4: [
@@ -531,6 +536,22 @@ describe('§7.1 Recall inflation', () => {
           S('S1', STRONG, 'developing'),
           S('S1', CLEAR,  'developing'),
           S('S1', CLEAR,  'proficient'),
+        ]
+      }
+    });
+    const flags = result.integrityFlags.map(f => typeof f === 'object' ? f.rule : f);
+    assert.ok(!flags.includes('recall_inflation'), `v1.1: Foundational-base dimension must not flag recall_inflation: ${JSON.stringify(result.integrityFlags)}`);
+  });
+
+  it('v1.1 trigger: Developing base, ≥4 S1, exactly 1 clear S2, no strong S2/S3+ → flag set', () => {
+    const result = scoreAssessment({
+      dimensions: {
+        D4: [
+          S('S2', CLEAR,  'developing', { anchor: 'a1' }), // exactly one clear S2
+          S('S1', STRONG, 'developing'),
+          S('S1', CLEAR,  'foundational'),
+          S('S1', CLEAR,  'foundational'),
+          S('S1', CLEAR,  'foundational'),
         ]
       }
     });
@@ -538,36 +559,56 @@ describe('§7.1 Recall inflation', () => {
     assert.ok(flags.includes('recall_inflation'), `recall_inflation not in integrityFlags: ${JSON.stringify(result.integrityFlags)}`);
   });
 
-  it('recall inflation caps score at 4.3', () => {
+  it('v1.1: recall inflation caps score at ≤4.3 (Developing lower third)', () => {
     const d = result => result.dimensions.find(d => d.id === 'D4');
+    // Σ developing+ = 1.0 + 1.5×3 = 5.5 → uncapped score would be 5.5; cap → 4.3
     const result = scoreAssessment({
       dimensions: {
         D4: [
-          S('S1', STRONG, 'foundational'),
-          S('S1', STRONG, 'foundational'),
+          S('S2', CLEAR,  'developing', { anchor: 'a1' }),
           S('S1', STRONG, 'developing'),
-          S('S1', CLEAR,  'developing'),
-          S('S1', CLEAR,  'proficient'),
-        ]
-      }
-    });
-    assert.ok(d(result).score <= 4.3, `recall_inflation score should be ≤4.3, got ${d(result).score}`);
-  });
-
-  it('4 S1 WITH 1 S2 → no recall inflation flag', () => {
-    const result = scoreAssessment({
-      dimensions: {
-        D4: [
-          S('S1', STRONG, 'foundational'),
-          S('S1', STRONG, 'foundational'),
           S('S1', STRONG, 'developing'),
-          S('S1', CLEAR,  'developing'),
-          S('S2', CLEAR,  'developing', { anchor: 'a1' }), // has S2 → no recall inflation
+          S('S1', STRONG, 'developing'),
+          S('S1', CLEAR,  'foundational'),
         ]
       }
     });
     const flags = result.integrityFlags.map(f => typeof f === 'object' ? f.rule : f);
-    assert.ok(!flags.includes('recall_inflation'), 'Should not flag recall_inflation when S2 is present');
+    assert.ok(flags.includes('recall_inflation'), 'recall_inflation flag expected');
+    assert.ok(d(result).score <= 4.3, `recall_inflation score should be ≤4.3, got ${d(result).score}`);
+  });
+
+  it('v1.1: strong S2 present → no recall inflation flag', () => {
+    const result = scoreAssessment({
+      dimensions: {
+        D4: [
+          S('S2', STRONG, 'developing', { anchor: 'a1' }), // strong application evidence blocks the check
+          S('S1', STRONG, 'developing'),
+          S('S1', CLEAR,  'foundational'),
+          S('S1', CLEAR,  'foundational'),
+          S('S1', CLEAR,  'foundational'),
+        ]
+      }
+    });
+    const flags = result.integrityFlags.map(f => typeof f === 'object' ? f.rule : f);
+    assert.ok(!flags.includes('recall_inflation'), 'Should not flag recall_inflation when a strong S2 is present');
+  });
+
+  it('v1.1: two clear S2 → no recall inflation flag', () => {
+    const result = scoreAssessment({
+      dimensions: {
+        D4: [
+          S('S2', CLEAR,  'developing', { anchor: 'a1' }),
+          S('S2', CLEAR,  'developing', { anchor: 'a2' }), // second clear S2 → not "exactly one"
+          S('S1', STRONG, 'developing'),
+          S('S1', CLEAR,  'foundational'),
+          S('S1', CLEAR,  'foundational'),
+          S('S1', CLEAR,  'foundational'),
+        ]
+      }
+    });
+    const flags = result.integrityFlags.map(f => typeof f === 'object' ? f.rule : f);
+    assert.ok(!flags.includes('recall_inflation'), 'Should not flag recall_inflation with 2 clear S2 signals');
   });
 });
 
@@ -676,10 +717,10 @@ describe('§7.4 Uniform maximum', () => {
 
 describe('§8 Output contract', () => {
 
-  it('rubricVersion = "1.0" (string)', () => {
+  it('rubricVersion = "1.1" (string)', () => {
     const result = scoreAssessment({ dimensions: {} });
     assert.equal(typeof result.rubricVersion, 'string', 'rubricVersion must be a string');
-    assert.equal(result.rubricVersion, '1.0');
+    assert.equal(result.rubricVersion, '1.1');
   });
 
   it('dimensions is an array with D1–D6', () => {
@@ -770,5 +811,49 @@ describe('§8 Output contract', () => {
       const name = typeof f === 'object' ? f.rule : f;
       assert.ok(VALID_FLAGS.has(name), `Unknown integrityFlag name: '${name}'`);
     }
+  });
+});
+
+// ─── R2 regression guard: previously-unreachable bands (v1.0 → v1.1) ─────────
+// Under v1.0, minimal qualifying evidence (Σ=2.0) landed mid-band, making the
+// lower thirds of Developing/Proficient/Expert unreachable. v1.1's Q offset
+// (position = (Σ−Q)/(K−Q)) makes each band floor reachable. One fixture per band.
+
+describe('R2 §5.2 Band reachability (v1.1 regression guard)', () => {
+
+  it('Developing lower band 3.1–4.2 reachable: minimal evidence → 3.1', () => {
+    // Σ dev+ = 2.0, Q=2.0, K=4.0 → position 0 → score 3.1 (band floor)
+    const d = score('D1', [
+      S('S2', CLEAR, 'developing', { anchor: 'a1' }),
+      S('S2', CLEAR, 'developing', { anchor: 'a2' }),
+      S('S1', WEAK,  'foundational'),
+    ]);
+    assert.equal(d.baseTier, 'Developing');
+    assert.ok(d.score >= 3.1 && d.score <= 4.2, `Expected score in previously-unreachable band 3.1–4.2, got ${d.score}`);
+    assert.ok(near(d.score, 3.1), `Minimal qualifying evidence should land at band floor 3.1, got ${d.score}`);
+  });
+
+  it('Proficient lower band 5.6–6.3 reachable: minimal evidence → 5.6', () => {
+    // Σ prof+ = 2.0, Q=2.0, K=5.0 → position 0 → score 5.6 (band floor)
+    const d = score('D3', [
+      S('S3', CLEAR, 'proficient', { anchor: 'r1' }),
+      S('S4', CLEAR, 'proficient', { anchor: 'a1' }),
+      S('S2', CLEAR, 'developing'),
+    ]);
+    assert.equal(d.baseTier, 'Proficient');
+    assert.ok(d.score >= 5.6 && d.score <= 6.3, `Expected score in previously-unreachable band 5.6–6.3, got ${d.score}`);
+    assert.ok(near(d.score, 5.6), `Minimal qualifying evidence should land at band floor 5.6, got ${d.score}`);
+  });
+
+  it('Expert lower band 7.6–8.3 reachable: minimal evidence → 7.6', () => {
+    // Σ expert+ = 2.0, Q=2.0, K=6.0 → position 0 → score 7.6 (band floor)
+    const d = score('D1', [
+      S('S5', CLEAR, 'expert', { anchor: 'e1' }),
+      S('S6', CLEAR, 'expert', { anchor: 'e2' }),
+      S('S3', CLEAR, 'proficient', { anchor: 'p1' }),
+    ]);
+    assert.equal(d.baseTier, 'Expert');
+    assert.ok(d.score >= 7.6 && d.score <= 8.3, `Expected score in previously-unreachable band 7.6–8.3, got ${d.score}`);
+    assert.ok(near(d.score, 7.6), `Minimal qualifying evidence should land at band floor 7.6, got ${d.score}`);
   });
 });

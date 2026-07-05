@@ -343,21 +343,19 @@ export const EDGE_INSUFFICIENT = [
   // Only 2 positive signals → insufficient evidence
 ];
 
-/** Recall inflation: ≥4 S1, zero S2 → cap at 4.3 */
+/** Recall inflation (v1.1): Developing+ with ≥4 S1, exactly 1 clear S2, no strong S2/S3+ → cap at 4.3 */
 export const EDGE_RECALL_INFLATION = [
+  sig('S2', 1.0, 'developing'),
+  sig('S1', 1.5, 'developing'),
   sig('S1', 1.0, 'foundational'),
   sig('S1', 1.0, 'foundational'),
-  sig('S1', 1.0, 'developing'),
-  sig('S1', 1.0, 'developing'),
-  // 4 S1, 0 S2 → recall inflation
-  // Base tier: foundational (no ≥2 clear at developing, plus no S2 for developing requirement)
-  // Foundational strength: 2.0, all strength: 4.0, K=4.0 → position=1.0
-  // Score: 1.0 + 1.0 * 2.0 = 3.0
-  // Recall inflation cap: 4.3. 3.0 < 4.3 so stays 3.0. BUT integrity flag still set.
-  // Actually wait — anchorTier developing signals still count for foundational position calc...
-  // position uses "base tier and above". Base is foundational → all signals count.
-  // 4 signals × 1.0 = 4.0 strength, K=4.0 → pos=1.0 → 3.0
-  // cap to 4.3 → min(3.0, 4.3) = 3.0, plus integrity flag
+  sig('S1', 1.0, 'foundational'),
+  sig('S1', 1.0, 'foundational'),
+  // Base tier: developing (S2 clear at developing + S1 strong at developing = 2 clear-or-stronger; ≥1 S2 ✓)
+  // v1.1 recall inflation: Developing+ ✓, 5 S1 ≥ 4 ✓, exactly 1 clear S2 ✓, no strong S2/S3+ ✓
+  // Developing+ strength: S2(1.0) + S1(1.5) = 2.5; Q=2.0, K=4.0
+  // position = (2.5−2.0)/(4.0−2.0) = 0.25 → score = 3.1 + 0.25×2.4 = 3.7
+  // Recall inflation cap: min(3.7, 4.3) = 3.7 → score 3.7, flag set
 ];
 
 /** Generic answer detection: S2+ without first-person specificity → downgrade to S1 */

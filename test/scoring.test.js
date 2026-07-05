@@ -59,7 +59,7 @@ describe('tierFor', () => {
 describe('§8 Output contract', () => {
   it('emits rubricVersion, dimensions[], overall, integrityFlags', () => {
     const result = scoreAssessment(fullProficientAssessment());
-    assert.equal(result.rubricVersion, '1.0');
+    assert.equal(result.rubricVersion, '1.1');
     assert.equal(result.dimensions.length, 6);
     assert.ok(Array.isArray(result.integrityFlags));
     assert.ok(result.overall);
@@ -319,22 +319,14 @@ describe('§6.4 Overall-tier Expert constraint', () => {
 // ── §7 Integrity checks ────────────────────────────────────────────
 
 describe('§7.1 Recall inflation', () => {
-  it('flags when ≥4 S1 and zero S2', () => {
-    const d = scoreDim('D1', EDGE_RECALL_INFLATION);
+  it('flags when Developing+ with ≥4 S1, exactly 1 clear S2, no strong S2/S3+', () => {
     const result = scoreAssessment({ dimensions: { D1: EDGE_RECALL_INFLATION, D2: [], D3: [], D4: [], D5: [], D6: [] } });
     const flag = result.integrityFlags.find(f => f.rule === 'recall_inflation');
     assert.ok(flag, 'Expected recall_inflation flag');
     assert.equal(flag.dimension, 'D1');
   });
 
-  it('caps score at 4.3 (Developing midpoint)', () => {
-    // Need ≥4 S1 and no S2, and enough to place above 4.3 for cap to matter
-    // With foundational base, max score is 3.0 which is already below 4.3
-    // So let's test a case where it would be higher without the cap:
-    // If signals place at developing (but that needs S2...) — catch-22!
-    // Recall inflation by definition means no S2 → max tier is Foundational.
-    // So the cap at 4.3 is a safety net; score won't exceed 3.0 for Foundational.
-    // The flag is still emitted.
+  it('caps score at ≤4.3 (Developing lower third)', () => {
     const d = scoreDim('D1', EDGE_RECALL_INFLATION);
     assert.ok(d.score <= 4.3, `Expected ≤4.3, got ${d.score}`);
   });

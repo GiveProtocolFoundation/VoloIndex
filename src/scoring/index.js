@@ -10,5 +10,6 @@ export {
   DIMENSION_IDS,
   STRENGTH,
   K_VALUES,
+  Q_VALUES,
   TIER_BY_ID,
 } from './config.js';

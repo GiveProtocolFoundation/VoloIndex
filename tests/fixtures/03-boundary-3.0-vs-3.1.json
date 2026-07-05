@@ -25,7 +25,7 @@
           "id": "D1",
           "baseTier": "Foundational",
           "_rationale": "Developing requires ≥2 clear-or-stronger signals at Developing tier. The S2 here is weak (0.5), and we need ≥1 S2 at clear+ for Developing. Only 1 S2 total. Foundational is base tier.",
-          "_score_calc": "All signals count for Foundational: 1.5+1.5+0.5+1.0 = 4.5; position = min(1.0, 4.5/4.0) = 1.0; score = 1.0 + 1.0*2.0 = 3.0",
+          "_score_calc": "v1.1: All signals count for Foundational: 1.5+1.5+0.5+1.0 = 4.5; Q=0 → position = min(1.0, 4.5/4.0) = 1.0; score = 1.0 + 1.0*2.0 = 3.0",
           "score": 3.0,
           "tier": "Foundational",
           "insufficientEvidence": false
@@ -55,8 +55,8 @@
           "baseTier": "Developing",
           "_rationale": "≥2 clear-or-stronger Developing signals present (both S2 at clear). ≥1 S2 present. Developing qualifies.",
           "_score_calc": "Σstrength at Developing+: 1.0+1.0 = 2.0 (S1 weak is below Developing tier, excluded from position calc? CHECK: rubric says 'Σ signal_strength at base tier and above'). Actually S1 can count if it's at the base tier level — but the S1 is not a Developing-tier anchor behavior. Re-read: 'Σ signal_strength at base tier and above'. Developing is base tier, so signals at Developing and Expert tiers count. S1 signals are Foundational-tier signals. They do not count toward position.",
-          "_score_calc_corrected": "Σ = 1.0+1.0 = 2.0; position = min(1.0, 2.0/4.0) = 0.5; score = 3.1 + 0.5*(5.5-3.1) = 3.1 + 1.2 = 4.3",
-          "score": 4.3,
+          "_score_calc_corrected": "v1.1: Σ = 1.0+1.0 = 2.0; Q=2.0, K=4.0 → position = max(0, (2.0−2.0)/(4.0−2.0)) = 0; score = 3.1 + 0*(5.5-3.1) = 3.1 (band floor — minimal qualifying evidence lands at 3.1 per R2)",
+          "score": 3.1,
           "tier": "Developing",
           "insufficientEvidence": false
         }

@@ -24,7 +24,7 @@
           "id": "D3",
           "baseTier": "Proficient",
           "_rationale": "No S5 or S6 signals at all. Expert requires both. Proficient is the highest qualifying tier.",
-          "_score_calc": "Σ at Proficient+: 1.5+1.5+1.5+1.0+1.0 = 6.5; position = min(1.0, 6.5/5.0) = 1.0; score = 5.6 + 1.0*1.9 = 7.5",
+          "_score_calc": "v1.1: Σ at Proficient+: 1.5+1.5+1.5+1.0+1.0 = 6.5; Q=2.0, K=5.0 → position = min(1.0, (6.5−2.0)/3.0) = 1.0; score = 5.6 + 1.0*1.9 = 7.5",
           "score": 7.5,
           "tier": "Proficient",
           "insufficientEvidence": false
@@ -53,8 +53,8 @@
           "id": "D3",
           "baseTier": "Expert",
           "_rationale": "≥2 Expert-tier signals (S5+S6 at clear). ≥1 S5 ✓ at clear+. ≥1 S6 ✓ at clear+. Expert qualifies.",
-          "_score_calc": "Σ at Expert+: 1.0+1.0 = 2.0; position = min(1.0, 2.0/6.0) = 0.333; score = 7.6 + 0.333*(10.0-7.6) = 7.6 + 0.8 = 8.4",
-          "score": 8.4,
+          "_score_calc": "v1.1: Σ at Expert+: 1.0+1.0 = 2.0; Q=2.0, K=6.0 → position = max(0, (2.0−2.0)/4.0) = 0; score = 7.6 (band floor per R2)",
+          "score": 7.6,
           "tier": "Expert",
           "insufficientEvidence": false
         }

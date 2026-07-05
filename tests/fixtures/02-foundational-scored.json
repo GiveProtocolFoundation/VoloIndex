@@ -1,7 +1,7 @@
 {
   "_description": "D1 Foundational with ≥3 signals, all S1 — scores within 1.0–3.0. Tests position-within-tier formula.",
   "_rubric_refs": ["§5.1", "§5.2"],
-  "_formula": "position = min(1.0, Σstrength / K=4.0); score = 1.0 + position * 2.0",
+  "_formula": "v1.1: position = min(1, max(0, (Σstrength − Q) / (K − Q))); Foundational Q=0, K=4.0; score = 1.0 + position * 2.0",
   "input": {
     "dimensions": [
       {
@@ -20,7 +20,7 @@
     ]
   },
   "expected": {
-    "rubricVersion": "1.0",
+    "rubricVersion": "1.1",
     "dimensions": [
       {
         "id": "D1",
@@ -28,7 +28,7 @@
         "tier": "Foundational",
         "baseTier": "Foundational",
         "insufficientEvidence": false,
-        "_score_calc": "Σstrength = 1.0+1.0+0.5 = 2.5; position = min(1.0, 2.5/4.0) = 0.625; score = 1.0 + 0.625*2.0 = 2.3",
+        "_score_calc": "v1.1: Σstrength = 1.0+1.0+0.5 = 2.5; Q=0 for Foundational → position = (2.5−0)/(4.0−0) = 0.625; score = 1.0 + 0.625*2.0 = 2.3 (unchanged from v1.0)",
         "score": 2.3,
         "redFlags": [],
         "integrityFlags": []
