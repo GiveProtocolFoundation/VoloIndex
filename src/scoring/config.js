@@ -1,5 +1,5 @@
 /**
- * Volo Index Scoring Configuration v1.1
+ * Volo Index Scoring Configuration v1.2
  *
  * All parameterized constants from the scoring rubric.
  * Change these for config-level adjustments without rewriting engine logic.
@@ -124,7 +124,12 @@ export const DIMENSIONS = [
 
 export const DIMENSION_IDS = DIMENSIONS.map(d => d.id);
 
-export const RUBRIC_VERSION = '1.1';
+/**
+ * v1.2 (2026-07-05, GIV-579): minor bump per §9 — BUG-001 §5.5 gating-rule
+ * change (all recorded signals, including N, count toward the IE minimum;
+ * GIV-573 ruling, GIV-574 implementation). Formulas/constants unchanged.
+ */
+export const RUBRIC_VERSION = '1.2';
 
 /**
  * Go-live gate for public scoring (CTO-owned).
@@ -137,5 +142,8 @@ export const RUBRIC_VERSION = '1.1';
  * - 2026-07-04 (GIV-574): false — BUG-001 §5.5 ruling implemented (all
  *   recorded signals count toward the IE minimum, including N); pending
  *   Head of Data §9 spot re-validation of the behavior change.
+ * - 2026-07-05 (GIV-579): true — Head of Data §9 re-validation PASSED on
+ *   the updated engine (all suites green; scripts/revalidate-v1.1.mjs
+ *   33/33). Rubric bumped to v1.2 per §9 (gating-rule change).
  */
-export const PUBLIC_SCORING_ENABLED = false;
+export const PUBLIC_SCORING_ENABLED = true;

@@ -59,7 +59,7 @@ describe('tierFor', () => {
 describe('§8 Output contract', () => {
   it('emits rubricVersion, dimensions[], overall, integrityFlags', () => {
     const result = scoreAssessment(fullProficientAssessment());
-    assert.equal(result.rubricVersion, '1.1');
+    assert.equal(result.rubricVersion, '1.2');
     assert.equal(result.dimensions.length, 6);
     assert.ok(Array.isArray(result.integrityFlags));
     assert.ok(result.overall);

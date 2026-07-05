@@ -721,10 +721,10 @@ describe('§7.4 Uniform maximum', () => {
 
 describe('§8 Output contract', () => {
 
-  it('rubricVersion = "1.1" (string)', () => {
+  it('rubricVersion = "1.2" (string)', () => {
     const result = scoreAssessment({ dimensions: {} });
     assert.equal(typeof result.rubricVersion, 'string', 'rubricVersion must be a string');
-    assert.equal(result.rubricVersion, '1.1');
+    assert.equal(result.rubricVersion, '1.2');
   });
 
   it('dimensions is an array with D1–D6', () => {

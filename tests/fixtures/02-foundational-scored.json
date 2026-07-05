@@ -20,7 +20,7 @@
     ]
   },
   "expected": {
-    "rubricVersion": "1.1",
+    "rubricVersion": "1.2",
     "dimensions": [
       {
         "id": "D1",

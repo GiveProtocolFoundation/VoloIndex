@@ -1,6 +1,6 @@
-# Volo Index — Scoring Rubric v1.1
+# Volo Index — Scoring Rubric v1.2
 
-**Status:** v1.1 — Head of Data §9 re-validation **PASSED** 2026-07-04 (see `docs/VALIDATION-v1.1.md`); public scoring **UN-GATED** by CTO 2026-07-04 (`PUBLIC_SCORING_ENABLED = true`, `src/scoring/config.js`)
+**Status:** v1.2 — minor bump per §9 for the BUG-001 §5.5 gating-rule change (GIV-573 ruling, GIV-574 engine change). Head of Data §9 re-validation of the updated engine **PASSED** 2026-07-05 (see `docs/VALIDATION-v1.1.md`); public scoring **UN-GATED** by CTO 2026-07-05 (`PUBLIC_SCORING_ENABLED = true`, `src/scoring/config.js`, GIV-579)
 **Owner:** Give Protocol Foundation — Volo Index
 **Applies to:** All six assessment dimensions, all four developmental tiers
 **Last updated:** 2026-07-04
@@ -187,7 +187,7 @@ If a dimension yields **< 3 total signals**, the dimension is reported as **Insu
 
 ## 6. Aggregation — The Volo Index
 
-1. **Overall score** = arithmetic mean of the six dimension scores, rounded to one decimal. Dimensions are equally weighted in v1.1. (Tier-specific weighting is a candidate for v2 after pilot data.)
+1. **Overall score** = arithmetic mean of the six dimension scores, rounded to one decimal. Dimensions are equally weighted in v1.2. (Tier-specific weighting is a candidate for v2 after pilot data.)
 2. If 1 dimension is Insufficient Evidence, the overall is the mean of the remaining 5, flagged "partial."
 3. If ≥ 2 dimensions are Insufficient Evidence, no overall index is issued; the assessment is reported incomplete and the credit is not consumed (product policy).
 4. **Overall tier** is derived from the overall score using §2 boundaries, with one constraint: **the overall tier cannot be classified Expert (overall score is capped at 7.5) unless ≥ 4 dimensions are individually Proficient+ and ≥ 2 are Expert.**
@@ -214,7 +214,7 @@ The scoring engine must emit, per assessment:
 
 ```json
 {
-  "rubricVersion": "1.1",
+  "rubricVersion": "1.2",
   "dimensions": [
     {
       "id": "D1",
@@ -249,7 +249,9 @@ The scoring engine must emit, per assessment:
 
 ## 9. Versioning & Validation
 
-- This is **v1.1**, applying R1–R7 from the GIV-565 methodology validation of v1.0. Head of Data §9 re-validation **passed on 2026-07-04** (independent numeric harness `scripts/revalidate-v1.1.mjs`, 33/33; report `docs/VALIDATION-v1.1.md`). Public scoring is cleared to un-gate; the gate flag is CTO-owned.
+- This is **v1.2**. Version history:
+  - **v1.1** applied R1–R7 from the GIV-565 methodology validation of v1.0. Head of Data §9 re-validation **passed 2026-07-04** (independent numeric harness `scripts/revalidate-v1.1.mjs`, 33/33; report `docs/VALIDATION-v1.1.md`).
+  - **v1.2** (2026-07-05) is a minor bump for the **BUG-001 §5.5 gating-rule change**: all recorded signals — including `N` red flags, any strength, corrected or not — count toward the 3-signal Insufficient-Evidence minimum (GIV-573 ruling, GIV-574 engine change). No formula or constant changes. Head of Data §9 re-validation of the updated engine passed (harness 33/33); gate re-opened in GIV-579.
 - Any change to anchors, boundaries, `K`/`Q` constants, or gating rules is a minor version bump; changes to the scale itself are major.
 - Scored assessments store `rubricVersion`; results are never re-scored retroactively without explicit re-assessment consent.
 - **Public-PII gate (R7 / §8):** verbatim `excerpt` values are excluded from the public leaderboard and from any shared/exported result. The evidence store retains excerpts under access control per the Volo Index data-governance policy, and candidates are notified at assessment start that verbatim excerpts are retained for scoring auditability.

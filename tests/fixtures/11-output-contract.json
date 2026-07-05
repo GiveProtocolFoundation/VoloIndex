@@ -3,7 +3,7 @@
   "_rubric_refs": ["§8"],
   "_contract": {
     "required_top_level_fields": ["rubricVersion", "dimensions", "overall", "integrityFlags"],
-    "rubricVersion": "must be '1.1' (string)",
+    "rubricVersion": "must be '1.2' (string)",
     "dimension_required_fields": ["id", "name", "score", "tier", "baseTier", "signals", "redFlags", "insufficientEvidence", "evidenceDensity", "appliedCaps"],
     "signal_required_fields": ["type", "strength", "excerpt", "anchor", "tier"],
     "evidenceDensity_fields": ["sumStrength", "K", "Q", "position"],
@@ -72,7 +72,7 @@
     ]
   },
   "expected": {
-    "rubricVersion": "1.1",
+    "rubricVersion": "1.2",
     "dimensions": [
       {
         "id": "D1",
@@ -178,7 +178,7 @@
     },
     "integrityFlags": [],
     "_contract_verification_checklist": [
-      "rubricVersion field present and equals '1.1' (string not number)",
+      "rubricVersion field present and equals '1.2' (string not number)",
       "All 6 dimension objects present with ids D1–D6",
       "Each dimension has: id, name, score, tier, baseTier, signals, redFlags, insufficientEvidence, evidenceDensity, appliedCaps",
       "Each signal has: type, strength (numeric), excerpt, anchor, tier (matched anchor tier label)",

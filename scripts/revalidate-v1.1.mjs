@@ -219,7 +219,8 @@ check('§5.2 Foundational Σ1.5 → 1.8',
     S('S3', 1.0, 'proficient', { anchor: 'x' }), S('S4', 1.0, 'proficient', { anchor: 'y' }),
     S('S1', 0.5, 'developing'),
   ] }});
-  check('§8 rubricVersion 1.1', r.rubricVersion, '1.1');
+  // v1.2 = v1.1 + BUG-001 §5.5 gating-rule bump (GIV-579); formulas unchanged.
+  check('§8 rubricVersion 1.2', r.rubricVersion, '1.2');
   const d = r.dimensions[0];
   check('§8 evidenceDensity present', d.evidenceDensity != null, true);
   check('§8 evidenceDensity has Q', d.evidenceDensity.Q, 2.0);

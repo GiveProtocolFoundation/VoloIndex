@@ -53,10 +53,10 @@ function near(actual, expected, tolerance = 0.06) {
 
 describe('R1 §5.4 Monotonic red-flag caps (v1.1)', () => {
 
-  it('rubricVersion output must be "1.1" (not "1.0")', () => {
+  it('rubricVersion output must be "1.2" (v1.2 = v1.1 + BUG-001 §5.5 gating-rule bump, GIV-579)', () => {
     const result = scoreAssessment({ dimensions: {} });
-    assert.equal(result.rubricVersion, '1.1',
-      `Engine reports rubricVersion "${result.rubricVersion}" but rubric is now v1.1`);
+    assert.equal(result.rubricVersion, '1.2',
+      `Engine reports rubricVersion "${result.rubricVersion}" but rubric is now v1.2`);
   });
 
   it('2 uncorrected N: cap is lowest of (midpoint 1 tier below) and (midpoint 2 tiers below)', () => {

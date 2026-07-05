@@ -1,9 +1,9 @@
 /**
- * Volo Index Scoring Engine v1.1
+ * Volo Index Scoring Engine v1.2
  *
  * Pure, deterministic: signals in → scores out.
  * Implements §5 (per-dimension), §6 (aggregation), §7 (integrity checks)
- * of docs/SCORING_RUBRIC.md (v1.1, R1–R4 applied).
+ * of docs/SCORING_RUBRIC.md (v1.2 = v1.1 R1–R7 + BUG-001 §5.5 ruling).
  */
 
 import {
