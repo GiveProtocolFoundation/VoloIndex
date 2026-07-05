@@ -1,0 +1,12 @@
+{
+  "name": "volo-index",
+  "version": "1.0.0",
+  "description": "Volo Index scoring engine — Give Protocol Foundation",
+  "type": "module",
+  "scripts": {
+    "test": "node --test test/*.test.js"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}
