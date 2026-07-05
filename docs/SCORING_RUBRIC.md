@@ -1,9 +1,11 @@
-# Volo Index — Scoring Rubric v1.0
+# Volo Index — Scoring Rubric v1.1
 
-**Status:** Draft for validation
+**Status:** v1.1 — pending Head of Data re-validation (§9) before public scoring go-live
 **Owner:** Give Protocol Foundation — Volo Index
 **Applies to:** All six assessment dimensions, all four developmental tiers
 **Last updated:** 2026-07-04
+
+**Changes since v1.0:** applied R1–R7 from GIV-565 methodology validation — monotonic red-flag caps (§5.4); rebased in-tier position on qualifying threshold `Q` so full tier ranges are reachable (§5.2); retargeted "Recall inflation" integrity check onto the one-token-S2 gaming vector (§7); expanded output contract with per-signal `tier`, per-dimension `evidenceDensity`/`appliedCaps`, `redFlags[].corrected`, and `overall.capReason` (§8); renamed §3 taxonomy column to "Gates Entry To" with corrected values (R5); fixed §6.4 "cannot be Expert" wording and specified the §5.3 expert-breadth cap action (R6); added PII/governance rules excluding verbatim `excerpt` from public leaderboard/exports and defining retention + access + assessment-start notice (R7).
 
 ---
 
@@ -38,14 +40,16 @@ Tier boundaries are inclusive of the upper bound (a 3.0 is Foundational; a 3.1 i
 
 Every scoring-relevant statement a candidate makes is classified as one or more **signals**. Signals are the atomic unit of evidence.
 
-| Signal Type | Code | What It Shows | Tier Ceiling Without It |
-|-------------|------|---------------|------------------------|
+| Signal Type | Code | What It Shows | Gates Entry To |
+|-------------|------|---------------|----------------|
 | **Recall** | `S1` | Knows terms, concepts, or best practices | — |
-| **Applied Practice** | `S2` | Has personally done the thing; concrete first-person examples with context and outcome | Developing |
-| **Reasoning** | `S3` | Explains *why* a practice works, trade-offs, when it fails | Proficient |
-| **Adaptation** | `S4` | Adjusts approach to context (org size, population served, volunteer motivation mix) | Proficient |
-| **Systems Design** | `S5` | Builds/evaluates programs, processes, or policies rather than individual interactions | Expert |
-| **Advocacy & Mentorship** | `S6` | Advances the volunteer function at org/field level; develops other practitioners | Expert |
+| **Applied Practice** | `S2` | Concrete first-person example with context and outcome | Developing |
+| **Reasoning** | `S3` | Explains *why*, trade-offs, when it fails | Proficient (with S4/2nd S3) |
+| **Adaptation** | `S4` | Adjusts approach to context | Proficient (with S3) |
+| **Systems Design** | `S5` | Builds/evaluates programs, processes, policies | Expert (with S6) |
+| **Advocacy & Mentorship** | `S6` | Advances the function; develops practitioners | Expert (with S5) |
+
+*Lacking a signal ceilings the candidate at the tier immediately below the one it gates.*
 
 **Signal strength** is rated per instance: `weak` (0.5), `clear` (1.0), `strong` (1.5). A strong signal includes specifics: real situation, action taken, observed result.
 
@@ -155,20 +159,23 @@ Each dimension is scored independently from the signals collected in that dimens
 Position within the tier's numeric range is set by evidence density:
 
 ```
-position = min(1.0, (Σ signal_strength at base tier and above) / K)
+position = min(1.0, max(0, (Σ signal_strength at base tier and above − Q) / (K − Q)))
 score    = tier_min + position × (tier_max − tier_min)
 ```
 
-Where `K` (evidence saturation constant) = **4.0** for Foundational/Developing, **5.0** for Proficient, **6.0** for Expert. Round to one decimal.
+Where `Q` is the tier's qualifying signal-strength minimum: `Q = 0` for Foundational, `Q = 2.0` for Developing/Proficient/Expert (the ≥2 `clear`+ signals needed to enter the tier). `K` (saturation) = **4.0** Foundational/Developing, **5.0** Proficient, **6.0** Expert. This maps the qualifying minimum to `tier_min` and saturation to `tier_max`, so the full tier range is reachable. Round to one decimal.
 
 ### 5.3 Expert gating
 
 Scores above 8.5 additionally require breadth: strong (1.5) signals in at least **three distinct anchor behaviors** of the Expert row. This keeps the top of the scale hard to reach by depth in a single niche.
 
+If the computed dimension score exceeds 8.5 but the breadth condition is not met, cap the dimension score at 8.5 and record an `expert-breadth-cap` in `appliedCaps`.
+
 ### 5.4 Red flags
 
-- Each `N` signal at `clear`+ strength caps the dimension score at the **midpoint of the tier below** the base tier (min 1.0), unless the candidate later self-corrects within the same assessment (correction removes the cap but not the record).
-- Two or more uncorrected `N` signals cap the dimension at Developing (≤ 5.5) regardless of other evidence.
+- Each uncorrected `N` signal at `clear`+ strength imposes a cap. With `n` uncorrected `N` signals, the cap is the **midpoint of the tier `n` steps below the base tier** (floor 1.0): one flag → midpoint of the tier immediately below base; two flags → midpoint two tiers below base; etc. Self-correction within the same assessment removes that signal from `n` (the record is retained).
+- In addition, **two or more uncorrected `N` signals cap the dimension at Developing (≤ 5.5)**.
+- The applied cap is the **lowest** of all caps triggered above. (This guarantees each additional red flag can only lower, never raise, the ceiling.)
 
 ### 5.5 Insufficient evidence
 
@@ -178,10 +185,10 @@ If a dimension yields **< 3 total signals**, the dimension is reported as **Insu
 
 ## 6. Aggregation — The Volo Index
 
-1. **Overall score** = arithmetic mean of the six dimension scores, rounded to one decimal. Dimensions are equally weighted in v1.0. (Tier-specific weighting is a candidate for v2 after pilot data.)
+1. **Overall score** = arithmetic mean of the six dimension scores, rounded to one decimal. Dimensions are equally weighted in v1.1. (Tier-specific weighting is a candidate for v2 after pilot data.)
 2. If 1 dimension is Insufficient Evidence, the overall is the mean of the remaining 5, flagged "partial."
 3. If ≥ 2 dimensions are Insufficient Evidence, no overall index is issued; the assessment is reported incomplete and the credit is not consumed (product policy).
-4. **Overall tier** is derived from the overall score using §2 boundaries, with one constraint: **overall tier cannot exceed Expert unless ≥ 4 dimensions are individually Proficient+ and ≥ 2 are Expert.** If the constraint fails, overall score is capped at 7.5.
+4. **Overall tier** is derived from the overall score using §2 boundaries, with one constraint: **the overall tier cannot be classified Expert (overall score is capped at 7.5) unless ≥ 4 dimensions are individually Proficient+ and ≥ 2 are Expert.**
 5. Leaderboard rank uses the overall score; ties break by (a) number of Expert dimensions, (b) most recent assessment date (older first).
 
 ---
@@ -192,7 +199,7 @@ The scoring engine must apply these checks before finalizing:
 
 | Check | Rule | Action |
 |-------|------|--------|
-| **Recall inflation** | Dimension has ≥ 4 `S1` but zero `S2` | Cap at Developing midpoint (4.3) |
+| **Recall inflation** | Dimension qualifies Developing+ but has ≥ 4 `S1`, exactly one `clear` `S2`, and no `S2`/`S3`+ signal at `strong` | Cap at Developing lower third (≤ 4.3) |
 | **Cross-dimension contradiction** | Statements in one section contradict another (e.g., claims outcome measurement in D4, states "we only track hours" in D1) | Flag for both dimensions; use the weaker evidence |
 | **Generic answer detection** | Signal instances with no first-person specificity | Downgrade `S2`+ claims to `S1` |
 | **Uniform maximum** | All six dimensions score ≥ 9.0 | Hold for review; require §5.3 breadth evidence in all six |
@@ -205,7 +212,7 @@ The scoring engine must emit, per assessment:
 
 ```json
 {
-  "rubricVersion": "1.0",
+  "rubricVersion": "1.1",
   "dimensions": [
     {
       "id": "D1",
@@ -213,27 +220,37 @@ The scoring engine must emit, per assessment:
       "score": 6.8,
       "tier": "Proficient",
       "baseTier": "Proficient",
-      "signals": [{ "type": "S3", "strength": 1.0, "excerpt": "...", "anchor": "outcome-linked goals" }],
-      "redFlags": [],
+      "evidenceDensity": { "sumStrength": 3.5, "K": 5.0, "Q": 2.0, "position": 0.5 },
+      "signals": [
+        { "type": "S3", "tier": "Proficient", "strength": 1.0, "excerpt": "...", "anchor": "outcome-linked goals" }
+      ],
+      "redFlags": [
+        { "type": "N", "strength": 1.0, "excerpt": "...", "corrected": false }
+      ],
+      "appliedCaps": [
+        { "rule": "§5.4", "capValue": 4.3, "reason": "1 uncorrected red flag" }
+      ],
       "insufficientEvidence": false
     }
   ],
-  "overall": { "score": 6.4, "tier": "Proficient", "partial": false, "capped": false },
+  "overall": { "score": 6.4, "tier": "Proficient", "partial": false, "capped": false, "capReason": null },
   "integrityFlags": []
 }
 ```
 
 - Dimension ids `D1`–`D6` map to §4 order.
-- `excerpt` is the candidate's own words supporting the signal (for the results page and auditability).
-- All caps/flags applied must be listed in `integrityFlags` with the rule name from §7.
+- Each `signals[]` entry records its classified `tier` (the tier of the anchor it matched) so §5.2 is reproducible; `excerpt` is the candidate's own words (results page + auditability).
+- **Every cap or adjustment applied — from §5.3, §5.4, §6, and §7 — must be listed**, per-dimension in `appliedCaps` (with rule ref, `capValue`, `reason`) and, for overall caps, in `overall.capReason`. `integrityFlags` lists §7 rule names plus the triggering excerpt id.
+- `excerpt` values are candidate-provided free text and may contain personal data. They are stored only in the access-controlled evidence record for audit; they MUST NOT appear on the public leaderboard or in any shared/exported result. Retention and access for the evidence store follow the Volo Index data-governance policy, and candidates are notified at assessment start that verbatim excerpts are retained for auditability.
 
 ---
 
 ## 9. Versioning & Validation
 
-- This is **v1.0 draft**. It requires methodology validation (Head of Data) before public scoring.
-- Any change to anchors, boundaries, `K` constants, or gating rules is a minor version bump; changes to the scale itself are major.
+- This is **v1.1**, applying R1–R7 from the GIV-565 methodology validation of v1.0. It requires Head of Data re-validation before public scoring is enabled; public scoring stays gated until re-validation passes.
+- Any change to anchors, boundaries, `K`/`Q` constants, or gating rules is a minor version bump; changes to the scale itself are major.
 - Scored assessments store `rubricVersion`; results are never re-scored retroactively without explicit re-assessment consent.
+- **Public-PII gate (R7 / §8):** verbatim `excerpt` values are excluded from the public leaderboard and from any shared/exported result. The evidence store retains excerpts under access control per the Volo Index data-governance policy, and candidates are notified at assessment start that verbatim excerpts are retained for scoring auditability.
 
 ---
 
