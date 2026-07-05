@@ -1,6 +1,6 @@
 # Volo Index — Scoring Rubric v1.1
 
-**Status:** v1.1 — pending Head of Data re-validation (§9) before public scoring go-live
+**Status:** v1.1 — Head of Data §9 re-validation **PASSED** 2026-07-04 (see `docs/VALIDATION-v1.1.md`); public scoring cleared to un-gate (gate action owned by CTO)
 **Owner:** Give Protocol Foundation — Volo Index
 **Applies to:** All six assessment dimensions, all four developmental tiers
 **Last updated:** 2026-07-04
@@ -247,7 +247,7 @@ The scoring engine must emit, per assessment:
 
 ## 9. Versioning & Validation
 
-- This is **v1.1**, applying R1–R7 from the GIV-565 methodology validation of v1.0. It requires Head of Data re-validation before public scoring is enabled; public scoring stays gated until re-validation passes.
+- This is **v1.1**, applying R1–R7 from the GIV-565 methodology validation of v1.0. Head of Data §9 re-validation **passed on 2026-07-04** (independent numeric harness `scripts/revalidate-v1.1.mjs`, 33/33; report `docs/VALIDATION-v1.1.md`). Public scoring is cleared to un-gate; the gate flag is CTO-owned.
 - Any change to anchors, boundaries, `K`/`Q` constants, or gating rules is a minor version bump; changes to the scale itself are major.
 - Scored assessments store `rubricVersion`; results are never re-scored retroactively without explicit re-assessment consent.
 - **Public-PII gate (R7 / §8):** verbatim `excerpt` values are excluded from the public leaderboard and from any shared/exported result. The evidence store retains excerpts under access control per the Volo Index data-governance policy, and candidates are notified at assessment start that verbatim excerpts are retained for scoring auditability.
