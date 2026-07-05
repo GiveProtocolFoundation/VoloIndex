@@ -1,0 +1,31 @@
+{
+  "_description": "Single dimension at Foundational tier. Only S1 signals, no S2+. Expects score in 1.0–3.0 range.",
+  "_rubric_refs": ["§5.1", "§5.2"],
+  "input": {
+    "dimensions": [
+      {
+        "id": "D1",
+        "signals": [
+          { "type": "S1", "strength": "clear",  "excerpt": "I know volunteers need role descriptions", "anchor": "role awareness" },
+          { "type": "S1", "strength": "weak",   "excerpt": "I've heard about volunteer management", "anchor": "basic recall" }
+        ]
+      },
+      { "id": "D2", "signals": [] },
+      { "id": "D3", "signals": [] },
+      { "id": "D4", "signals": [] },
+      { "id": "D5", "signals": [] },
+      { "id": "D6", "signals": [] }
+    ]
+  },
+  "expected": {
+    "dimensions": [
+      {
+        "id": "D1",
+        "tier": "Foundational",
+        "baseTier": "Foundational",
+        "insufficientEvidence": true,
+        "_note": "Only 2 signals total — < 3 required. Must be Insufficient Evidence regardless of tier placement."
+      }
+    ]
+  }
+}

@@ -1,0 +1,66 @@
+{
+  "_description": "BOUNDARY TEST: Foundational top (3.0) vs Developing bottom (3.1). Tests that tier assignment is inclusive of upper bound.",
+  "_rubric_refs": ["§2", "§5.1", "§5.2"],
+  "_key_rule": "§2 says 3.0 = Foundational; 3.1 = Developing. Tier boundaries are inclusive of upper bound.",
+
+  "case_A_foundational_max": {
+    "_description": "Score should be exactly 3.0 (Foundational), NOT Developing even though it has one S2.",
+    "_formula": "D1: Developing requires ≥2 clear-or-stronger signals at Developing tier WITH ≥1 S2. Here we have only 1 S2.",
+    "input": {
+      "dimensions": [
+        {
+          "id": "D1",
+          "signals": [
+            { "type": "S1", "strength": "strong", "excerpt": "I know best practices for volunteer role design.", "anchor": "role awareness" },
+            { "type": "S1", "strength": "strong", "excerpt": "I understand mission alignment theory.", "anchor": "mission theory" },
+            { "type": "S2", "strength": "weak",   "excerpt": "I once wrote a purpose statement for a food pantry volunteer role.", "anchor": "applied role design" },
+            { "type": "S1", "strength": "clear",  "excerpt": "I know about VIVA valuation methods.", "anchor": "valuation recall" }
+          ]
+        }
+      ]
+    },
+    "expected": {
+      "dimensions": [
+        {
+          "id": "D1",
+          "baseTier": "Foundational",
+          "_rationale": "Developing requires ≥2 clear-or-stronger signals at Developing tier. The S2 here is weak (0.5), and we need ≥1 S2 at clear+ for Developing. Only 1 S2 total. Foundational is base tier.",
+          "_score_calc": "All signals count for Foundational: 1.5+1.5+0.5+1.0 = 4.5; position = min(1.0, 4.5/4.0) = 1.0; score = 1.0 + 1.0*2.0 = 3.0",
+          "score": 3.0,
+          "tier": "Foundational",
+          "insufficientEvidence": false
+        }
+      ]
+    }
+  },
+
+  "case_B_developing_min": {
+    "_description": "Score should be 3.1+ (Developing) — meets minimum Developing criteria.",
+    "input": {
+      "dimensions": [
+        {
+          "id": "D1",
+          "signals": [
+            { "type": "S2", "strength": "clear", "excerpt": "At my last org I wrote role-specific purpose statements linking each volunteer role to our food security mission.", "anchor": "mission-linked role design" },
+            { "type": "S2", "strength": "clear", "excerpt": "I set basic program goals around headcount and hours at first.", "anchor": "activity-based goal setting" },
+            { "type": "S1", "strength": "weak",  "excerpt": "I know outcome-linked goals are the next step.", "anchor": "outcome goal awareness" }
+          ]
+        }
+      ]
+    },
+    "expected": {
+      "dimensions": [
+        {
+          "id": "D1",
+          "baseTier": "Developing",
+          "_rationale": "≥2 clear-or-stronger Developing signals present (both S2 at clear). ≥1 S2 present. Developing qualifies.",
+          "_score_calc": "Σstrength at Developing+: 1.0+1.0 = 2.0 (S1 weak is below Developing tier, excluded from position calc? CHECK: rubric says 'Σ signal_strength at base tier and above'). Actually S1 can count if it's at the base tier level — but the S1 is not a Developing-tier anchor behavior. Re-read: 'Σ signal_strength at base tier and above'. Developing is base tier, so signals at Developing and Expert tiers count. S1 signals are Foundational-tier signals. They do not count toward position.",
+          "_score_calc_corrected": "Σ = 1.0+1.0 = 2.0; position = min(1.0, 2.0/4.0) = 0.5; score = 3.1 + 0.5*(5.5-3.1) = 3.1 + 1.2 = 4.3",
+          "score": 4.3,
+          "tier": "Developing",
+          "insufficientEvidence": false
+        }
+      ]
+    }
+  }
+}

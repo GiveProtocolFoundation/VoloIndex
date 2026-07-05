@@ -1,0 +1,177 @@
+{
+  "_description": "INSUFFICIENT EVIDENCE tests per §5.5 and §6.2–6.3.",
+  "_rubric_refs": ["§5.5", "§6.2", "§6.3"],
+  "_key_rules": [
+    "< 3 total signals in a dimension → Insufficient Evidence (IE), no numeric score",
+    "1 IE dimension → overall is mean of remaining 5, flagged 'partial'",
+    "≥2 IE dimensions → no overall index, assessment reported incomplete"
+  ],
+
+  "case_A_zero_signals": {
+    "_description": "Dimension with 0 signals → Insufficient Evidence.",
+    "input": {
+      "dimensions": [
+        { "id": "D1", "signals": [] }
+      ]
+    },
+    "expected": {
+      "dimensions": [
+        {
+          "id": "D1",
+          "insufficientEvidence": true,
+          "score": null,
+          "tier": null,
+          "_note": "Must display as IE, not as score=0 or score=1.0"
+        }
+      ]
+    }
+  },
+
+  "case_B_exactly_2_signals": {
+    "_description": "2 signals → still Insufficient Evidence (need ≥3).",
+    "input": {
+      "dimensions": [
+        {
+          "id": "D2",
+          "signals": [
+            { "type": "S2", "strength": "clear", "excerpt": "I matched a volunteer to a tutoring role based on their background.", "anchor": "role matching" },
+            { "type": "S1", "strength": "clear", "excerpt": "I know motivation matters for placement.", "anchor": "motivation awareness" }
+          ]
+        }
+      ]
+    },
+    "expected": {
+      "dimensions": [
+        {
+          "id": "D2",
+          "insufficientEvidence": true,
+          "score": null,
+          "tier": null
+        }
+      ]
+    }
+  },
+
+  "case_C_exactly_3_signals": {
+    "_description": "Exactly 3 signals → eligible for scoring (≥3 threshold met).",
+    "input": {
+      "dimensions": [
+        {
+          "id": "D3",
+          "signals": [
+            { "type": "S2", "strength": "clear", "excerpt": "I provide structured initial training for all new volunteers in direct service roles.", "anchor": "structured initial training" },
+            { "type": "S1", "strength": "clear", "excerpt": "I know ongoing coaching is important.", "anchor": "coaching awareness" },
+            { "type": "S1", "strength": "weak",  "excerpt": "I've heard of development pathways for volunteers.", "anchor": "development pathway awareness" }
+          ]
+        }
+      ]
+    },
+    "expected": {
+      "dimensions": [
+        {
+          "id": "D3",
+          "insufficientEvidence": false,
+          "_note": "3 signals is exactly enough. Score should be computed normally."
+        }
+      ]
+    }
+  },
+
+  "case_D_one_ie_dimension_partial_overall": {
+    "_description": "5 scored dimensions + 1 IE → overall is mean of 5, partial=true.",
+    "input": {
+      "dimensions": [
+        {
+          "id": "D1",
+          "signals": [
+            { "type": "S2", "strength": "clear", "excerpt": "I linked volunteer roles to mission at my last org.", "anchor": "mission linkage" },
+            { "type": "S2", "strength": "clear", "excerpt": "I set outcome-linked goals for the program.", "anchor": "outcome goals" },
+            { "type": "S3", "strength": "clear", "excerpt": "Mission-linked roles recruit better because motivated volunteers apply.", "anchor": "mission-motivation reasoning" }
+          ]
+        },
+        {
+          "id": "D2",
+          "signals": [
+            { "type": "S2", "strength": "clear", "excerpt": "I recruit through targeted channels.", "anchor": "targeted recruitment" },
+            { "type": "S3", "strength": "clear", "excerpt": "Channel selection matters because the volunteer pool differs by source.", "anchor": "channel reasoning" },
+            { "type": "S4", "strength": "clear", "excerpt": "For high-sensitivity roles I add extra screening steps.", "anchor": "context-adapted screening" }
+          ]
+        },
+        {
+          "id": "D3",
+          "signals": [
+            { "type": "S2", "strength": "clear", "excerpt": "I provide structured initial training scaled to risk.", "anchor": "risk-calibrated training" },
+            { "type": "S3", "strength": "clear", "excerpt": "Training depth must match role responsibility.", "anchor": "risk reasoning" },
+            { "type": "S4", "strength": "weak",  "excerpt": "I adapt training style for different learners.", "anchor": "training adaptation" }
+          ]
+        },
+        {
+          "id": "D4",
+          "signals": [
+            { "type": "S2", "strength": "clear", "excerpt": "I set clear expectations at placement and revisit them.", "anchor": "expectation-setting" },
+            { "type": "S3", "strength": "clear", "excerpt": "Clear expectations reduce misalignment which is the main driver of volunteer underperformance.", "anchor": "expectation-performance reasoning" },
+            { "type": "S2", "strength": "clear", "excerpt": "I give specific, timely feedback on underperformance and document it.", "anchor": "performance feedback" }
+          ]
+        },
+        {
+          "id": "D5",
+          "signals": [
+            { "type": "S2", "strength": "clear", "excerpt": "I match recognition to individual motivation.", "anchor": "individualized recognition" },
+            { "type": "S3", "strength": "clear", "excerpt": "Generic recognition doesn't work because people have different motivational profiles.", "anchor": "motivation-recognition reasoning" },
+            { "type": "S4", "strength": "clear", "excerpt": "For longer-serving volunteers I shift from gratitude recognition to growth opportunities.", "anchor": "recognition adapted to tenure" }
+          ]
+        },
+        {
+          "id": "D6",
+          "signals": [
+            { "type": "S1", "strength": "weak", "excerpt": "I know there are ethical considerations in volunteer management.", "anchor": "ethics awareness" }
+          ]
+        }
+      ]
+    },
+    "expected": {
+      "overall": {
+        "partial": true,
+        "_note": "D6 is IE (only 1 signal). Overall = mean of D1–D5. Must be flagged partial=true."
+      }
+    }
+  },
+
+  "case_E_two_ie_dimensions_no_overall": {
+    "_description": "2 IE dimensions → no overall index issued. Assessment incomplete, credit not consumed.",
+    "input": {
+      "dimensions": [
+        { "id": "D1", "signals": [
+            { "type": "S2", "strength": "clear", "excerpt": "I linked roles to mission.", "anchor": "mission linkage" },
+            { "type": "S2", "strength": "clear", "excerpt": "I set outcome goals.", "anchor": "outcome goals" },
+            { "type": "S3", "strength": "clear", "excerpt": "Mission linkage improves recruitment quality.", "anchor": "mission reasoning" }
+          ]
+        },
+        { "id": "D2", "signals": [
+            { "type": "S2", "strength": "clear", "excerpt": "I use motivation-based matching.", "anchor": "motivation matching" },
+            { "type": "S3", "strength": "clear", "excerpt": "Motivation match predicts retention.", "anchor": "matching reasoning" },
+            { "type": "S4", "strength": "clear", "excerpt": "For corporate volunteers I adapt the intake process.", "anchor": "intake adaptation" }
+          ]
+        },
+        { "id": "D3", "signals": [] },
+        { "id": "D4", "signals": [] },
+        { "id": "D5", "signals": [
+            { "type": "S2", "strength": "clear", "excerpt": "I individualize recognition.", "anchor": "individualized recognition" },
+            { "type": "S3", "strength": "clear", "excerpt": "Generic recognition fails because motivation varies.", "anchor": "recognition reasoning" },
+            { "type": "S4", "strength": "clear", "excerpt": "For long-tenure volunteers I shift to growth recognition.", "anchor": "recognition adaptation" }
+          ]
+        },
+        { "id": "D6", "signals": [
+            { "type": "S2", "strength": "clear", "excerpt": "I design for access: cost, schedule, language.", "anchor": "access design" },
+            { "type": "S3", "strength": "clear", "excerpt": "Access barriers exclude qualified volunteers unfairly.", "anchor": "access reasoning" },
+            { "type": "S4", "strength": "clear", "excerpt": "For populations with transport barriers I ran a remote volunteer option.", "anchor": "access adaptation" }
+          ]
+        }
+      ]
+    },
+    "expected": {
+      "overall": null,
+      "_note": "D3 and D4 both have 0 signals (IE). ≥2 IE dims → no overall index. overall field must be null or absent."
+    }
+  }
+}

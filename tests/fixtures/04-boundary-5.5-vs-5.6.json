@@ -1,0 +1,63 @@
+{
+  "_description": "BOUNDARY TEST: Developing max (5.5) vs Proficient min (5.6). Tests Proficient gating: must have ≥1 S3 AND (≥1 S4 OR second distinct S3), with ≥2 clear-or-stronger Proficient signals.",
+  "_rubric_refs": ["§2", "§5.1", "§5.2"],
+
+  "case_A_developing_max": {
+    "_description": "Strong Developing candidate but missing S3 requirement for Proficient — must cap at Developing (5.5).",
+    "input": {
+      "dimensions": [
+        {
+          "id": "D2",
+          "signals": [
+            { "type": "S2", "strength": "strong", "excerpt": "I use functional motive theory to match volunteers: I ask about their motivation during intake.", "anchor": "motivation-based matching" },
+            { "type": "S2", "strength": "strong", "excerpt": "At CityHelps I ran staged onboarding: orientation, then role shadowing, then solo with check-in.", "anchor": "staged onboarding" },
+            { "type": "S2", "strength": "strong", "excerpt": "I track inquiry-to-active conversion rates monthly.", "anchor": "conversion tracking" },
+            { "type": "S2", "strength": "clear",  "excerpt": "I recruit through specific channels for the target volunteer demographic.", "anchor": "targeted recruitment" }
+          ]
+        }
+      ]
+    },
+    "expected": {
+      "dimensions": [
+        {
+          "id": "D2",
+          "baseTier": "Developing",
+          "_rationale": "Excellent S2 evidence but ZERO S3 (reasoning about why practices work). Proficient requires ≥1 S3. Base tier = Developing.",
+          "_score_calc": "Σ = 1.5+1.5+1.5+1.0 = 5.5; position = min(1.0, 5.5/4.0) = 1.0; score = 3.1 + 1.0*2.4 = 5.5",
+          "score": 5.5,
+          "tier": "Developing",
+          "insufficientEvidence": false
+        }
+      ]
+    }
+  },
+
+  "case_B_proficient_min": {
+    "_description": "Meets Proficient floor: ≥2 Proficient-tier signals + ≥1 S3 + ≥1 S4.",
+    "input": {
+      "dimensions": [
+        {
+          "id": "D2",
+          "signals": [
+            { "type": "S3", "strength": "clear", "excerpt": "Motivation-based matching matters because volunteers who find meaning in their role stay longer and perform better — the functional motives model explains retention, not just satisfaction.", "anchor": "motivation theory reasoning" },
+            { "type": "S4", "strength": "clear", "excerpt": "For high-responsibility roles like crisis line support I add a second screening conversation that smaller programs skip because the risk profile is different.", "anchor": "context-adapted screening" },
+            { "type": "S2", "strength": "weak",  "excerpt": "I do staged onboarding.", "anchor": "staged onboarding" }
+          ]
+        }
+      ]
+    },
+    "expected": {
+      "dimensions": [
+        {
+          "id": "D2",
+          "baseTier": "Proficient",
+          "_rationale": "≥2 Proficient signals (S3+S4 both at clear). ≥1 S3 ✓. ≥1 S4 ✓. Proficient qualifies.",
+          "_score_calc": "Σ at Proficient+: 1.0+1.0 = 2.0 (S2 weak is Developing tier, excluded). position = min(1.0, 2.0/5.0) = 0.4; score = 5.6 + 0.4*(7.5-5.6) = 5.6 + 0.76 = 6.36 → rounds to 6.4",
+          "score": 6.4,
+          "tier": "Proficient",
+          "insufficientEvidence": false
+        }
+      ]
+    }
+  }
+}

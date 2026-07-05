@@ -1,0 +1,64 @@
+{
+  "_description": "BOUNDARY TEST: Proficient max (7.5) vs Expert min (7.6). Tests Expert gating: requires ≥1 S5 AND ≥1 S6, both at clear+.",
+  "_rubric_refs": ["§2", "§5.1", "§5.3"],
+
+  "case_A_proficient_max": {
+    "_description": "Strong Proficient evidence but no S5/S6 — must stay at Proficient (≤7.5).",
+    "input": {
+      "dimensions": [
+        {
+          "id": "D3",
+          "signals": [
+            { "type": "S3", "strength": "strong", "excerpt": "Training depth must match role risk: I scale from a 30-min orientation for low-touch roles to 12 hours for direct client contact roles because the failure modes are completely different.", "anchor": "risk-calibrated training design" },
+            { "type": "S3", "strength": "strong", "excerpt": "Adult learning works through problem-centered practice, not lecture — so our training uses case simulations.", "anchor": "adult learning application" },
+            { "type": "S4", "strength": "strong", "excerpt": "For tech-averse volunteers I redesign training to use paper job aids; for expert volunteers I skip basics and focus on org-specific nuance.", "anchor": "training adaptation by learner" },
+            { "type": "S4", "strength": "clear",  "excerpt": "Crisis-line volunteers get trauma-informed support debriefs that we don't run for event volunteers.", "anchor": "context-adapted support" },
+            { "type": "S2", "strength": "clear",  "excerpt": "I proactively identify volunteers who seem disengaged and schedule check-ins before they quit.", "anchor": "proactive support" }
+          ]
+        }
+      ]
+    },
+    "expected": {
+      "dimensions": [
+        {
+          "id": "D3",
+          "baseTier": "Proficient",
+          "_rationale": "No S5 or S6 signals at all. Expert requires both. Proficient is the highest qualifying tier.",
+          "_score_calc": "Σ at Proficient+: 1.5+1.5+1.5+1.0+1.0 = 6.5; position = min(1.0, 6.5/5.0) = 1.0; score = 5.6 + 1.0*1.9 = 7.5",
+          "score": 7.5,
+          "tier": "Proficient",
+          "insufficientEvidence": false
+        }
+      ]
+    }
+  },
+
+  "case_B_expert_min": {
+    "_description": "Meets Expert floor with exactly 1 S5 (clear) + 1 S6 (clear) + ≥2 Expert signals total.",
+    "input": {
+      "dimensions": [
+        {
+          "id": "D3",
+          "signals": [
+            { "type": "S5", "strength": "clear", "excerpt": "I designed a three-level development pathway: frontline → team lead → trainer, with competency gates at each transition that I review annually against role performance data.", "anchor": "tiered development system design" },
+            { "type": "S6", "strength": "clear", "excerpt": "I trained two staff members to become volunteer trainers themselves — now they run onboarding without me.", "anchor": "developing other practitioners" },
+            { "type": "S3", "strength": "weak",  "excerpt": "Adult learning principles guide my approach.", "anchor": "adult learning recall" }
+          ]
+        }
+      ]
+    },
+    "expected": {
+      "dimensions": [
+        {
+          "id": "D3",
+          "baseTier": "Expert",
+          "_rationale": "≥2 Expert-tier signals (S5+S6 at clear). ≥1 S5 ✓ at clear+. ≥1 S6 ✓ at clear+. Expert qualifies.",
+          "_score_calc": "Σ at Expert+: 1.0+1.0 = 2.0; position = min(1.0, 2.0/6.0) = 0.333; score = 7.6 + 0.333*(10.0-7.6) = 7.6 + 0.8 = 8.4",
+          "score": 8.4,
+          "tier": "Expert",
+          "insufficientEvidence": false
+        }
+      ]
+    }
+  }
+}

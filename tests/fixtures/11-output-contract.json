@@ -1,0 +1,186 @@
+{
+  "_description": "OUTPUT CONTRACT (§8): a complete scored assessment that verifies ALL required output fields, rounding rules, and integrityFlags naming.",
+  "_rubric_refs": ["§8"],
+  "_contract": {
+    "required_top_level_fields": ["rubricVersion", "dimensions", "overall", "integrityFlags"],
+    "rubricVersion": "must be '1.0' (string)",
+    "dimension_required_fields": ["id", "name", "score", "tier", "baseTier", "signals", "redFlags", "insufficientEvidence"],
+    "signal_required_fields": ["type", "strength", "excerpt", "anchor"],
+    "overall_required_fields": ["score", "tier", "partial", "capped"],
+    "rounding": "all scores rounded to one decimal place (not two, not zero)",
+    "dimension_ids": "D1 through D6 in §4 order",
+    "integrityFlags_names": {
+      "recall_inflation": "must be exactly 'recall_inflation'",
+      "cross_dimension_contradiction": "must be exactly 'cross_dimension_contradiction'",
+      "generic_answer_detection": "must be exactly 'generic_answer_detection'",
+      "uniform_maximum": "must be exactly 'uniform_maximum'"
+    }
+  },
+  "input": {
+    "dimensions": [
+      {
+        "id": "D1",
+        "signals": [
+          { "type": "S3", "strength": "clear", "excerpt": "Mission-linked roles attract more motivated volunteers because the values alignment is explicit from day one.", "anchor": "mission-motivation reasoning" },
+          { "type": "S4", "strength": "clear", "excerpt": "For smaller orgs I simplify the strategic planning to a one-page framework instead of a full business case.", "anchor": "scale-adapted strategy" },
+          { "type": "S2", "strength": "clear", "excerpt": "I assessed organizational readiness before we expanded the tutoring program at UrbanReach last year.", "anchor": "readiness assessment" }
+        ]
+      },
+      {
+        "id": "D2",
+        "signals": [
+          { "type": "S3", "strength": "clear", "excerpt": "Motivation-based matching works because functional motives predict persistence — a volunteer with career motive will disengage if the role offers no skill development.", "anchor": "motivation-based matching reasoning" },
+          { "type": "S4", "strength": "clear", "excerpt": "For high-responsibility roles like crisis support I add a second screening conversation that lower-risk roles don't need.", "anchor": "context-adapted screening" },
+          { "type": "S2", "strength": "clear", "excerpt": "At Greenway I ran staged onboarding: orientation, then role training, then 30-day check-in.", "anchor": "staged onboarding applied" }
+        ]
+      },
+      {
+        "id": "D3",
+        "signals": [
+          { "type": "S3", "strength": "clear", "excerpt": "Training depth must match role risk — a crisis-line volunteer needs 12 hours minimum; an event greeter needs 30 minutes.", "anchor": "risk-calibrated training reasoning" },
+          { "type": "S4", "strength": "clear", "excerpt": "For tech-averse older volunteers I redesign training materials to use paper job aids.", "anchor": "learner-adapted training" },
+          { "type": "S2", "strength": "clear", "excerpt": "I create growth options for experienced volunteers: skill expansion, leadership roles, mentoring assignments.", "anchor": "development pathways applied" }
+        ]
+      },
+      {
+        "id": "D4",
+        "signals": [
+          { "type": "S3", "strength": "clear", "excerpt": "Setting expectations at the start prevents most performance issues — ambiguity is the root cause of volunteer underperformance more often than unwillingness.", "anchor": "expectation-performance reasoning" },
+          { "type": "S2", "strength": "clear", "excerpt": "I released a volunteer from a direct-service role respectfully last year after documented coaching didn't resolve the pattern.", "anchor": "respectful release" },
+          { "type": "S4", "strength": "weak", "excerpt": "For short-term volunteers I simplify the accountability conversation.", "anchor": "tenure-adapted accountability" }
+        ]
+      },
+      {
+        "id": "D5",
+        "signals": [
+          { "type": "S3", "strength": "clear", "excerpt": "Generic recognition doesn't work because people have different motivational profiles — a career-motivated volunteer values skill endorsement more than a plaque.", "anchor": "motivation-recognition reasoning" },
+          { "type": "S4", "strength": "clear", "excerpt": "For long-tenure volunteers I shift from gratitude recognition to growth opportunities.", "anchor": "recognition adapted to tenure" },
+          { "type": "S2", "strength": "clear", "excerpt": "I run exit conversations with every departing volunteer and use the data to adjust our program.", "anchor": "exit interview practice" }
+        ]
+      },
+      {
+        "id": "D6",
+        "signals": [
+          { "type": "S3", "strength": "clear", "excerpt": "Access barriers systematically exclude volunteers from lower-income backgrounds — if we require daytime availability we're effectively selecting for the already-privileged.", "anchor": "access barrier reasoning" },
+          { "type": "S4", "strength": "clear", "excerpt": "For a population with transport barriers I ran a remote volunteer option — different ethics calculus for in-person vs. remote roles.", "anchor": "context-adapted access design" },
+          { "type": "S2", "strength": "clear", "excerpt": "I applied ethical frameworks to a boundary situation last year when a volunteer developed a personal relationship with a client.", "anchor": "boundary ethics applied" }
+        ]
+      }
+    ]
+  },
+  "expected": {
+    "rubricVersion": "1.0",
+    "dimensions": [
+      {
+        "id": "D1",
+        "name": "Strategic Engagement Design",
+        "baseTier": "Proficient",
+        "tier": "Proficient",
+        "_score_calc": "Σ Proficient+: 1.0+1.0+1.0 = 3.0; position = min(1.0, 3.0/5.0) = 0.6; score = 5.6 + 0.6*1.9 = 6.74 → 6.7",
+        "score": 6.7,
+        "insufficientEvidence": false,
+        "redFlags": [],
+        "signals": [
+          { "type": "S3", "strength": 1.0, "excerpt": "Mission-linked roles attract more motivated volunteers because the values alignment is explicit from day one.", "anchor": "mission-motivation reasoning" },
+          { "type": "S4", "strength": 1.0, "excerpt": "For smaller orgs I simplify the strategic planning to a one-page framework instead of a full business case.", "anchor": "scale-adapted strategy" },
+          { "type": "S2", "strength": 1.0, "excerpt": "I assessed organizational readiness before we expanded the tutoring program at UrbanReach last year.", "anchor": "readiness assessment" }
+        ]
+      },
+      {
+        "id": "D2",
+        "name": "Recruitment, Matching & Onboarding",
+        "baseTier": "Proficient",
+        "tier": "Proficient",
+        "_score_calc": "Σ Proficient+: 1.0+1.0+1.0 = 3.0; position = 3.0/5.0 = 0.6; score = 5.6 + 0.6*1.9 = 6.74 → 6.7",
+        "score": 6.7,
+        "insufficientEvidence": false,
+        "redFlags": [],
+        "signals": [
+          { "type": "S3", "strength": 1.0, "excerpt": "Motivation-based matching works because functional motives predict persistence — a volunteer with career motive will disengage if the role offers no skill development.", "anchor": "motivation-based matching reasoning" },
+          { "type": "S4", "strength": 1.0, "excerpt": "For high-responsibility roles like crisis support I add a second screening conversation that lower-risk roles don't need.", "anchor": "context-adapted screening" },
+          { "type": "S2", "strength": 1.0, "excerpt": "At Greenway I ran staged onboarding: orientation, then role training, then 30-day check-in.", "anchor": "staged onboarding applied" }
+        ]
+      },
+      {
+        "id": "D3",
+        "name": "Training, Development & Role Support",
+        "baseTier": "Proficient",
+        "tier": "Proficient",
+        "_score_calc": "Σ Proficient+: 1.0+1.0+1.0 = 3.0; position = 0.6; score = 6.74 → 6.7",
+        "score": 6.7,
+        "insufficientEvidence": false,
+        "redFlags": [],
+        "signals": [
+          { "type": "S3", "strength": 1.0, "excerpt": "Training depth must match role risk — a crisis-line volunteer needs 12 hours minimum; an event greeter needs 30 minutes.", "anchor": "risk-calibrated training reasoning" },
+          { "type": "S4", "strength": 1.0, "excerpt": "For tech-averse older volunteers I redesign training materials to use paper job aids.", "anchor": "learner-adapted training" },
+          { "type": "S2", "strength": 1.0, "excerpt": "I create growth options for experienced volunteers: skill expansion, leadership roles, mentoring assignments.", "anchor": "development pathways applied" }
+        ]
+      },
+      {
+        "id": "D4",
+        "name": "Performance, Impact & Accountability",
+        "baseTier": "Proficient",
+        "tier": "Proficient",
+        "_score_calc": "Σ Proficient+: S3 clear=1.0, S2 clear=1.0 (S4 weak=0.5 counts — it's at Proficient tier). Σ=2.5; position=2.5/5.0=0.5; score=5.6+0.5*1.9=6.55→6.6",
+        "_note_on_S4_weak": "S4 at 'weak' (0.5) — if at Proficient tier level it contributes. If only Proficient+ signals count for position: S3 clear + S2 clear = 2.0. position=0.4; score=5.6+0.4*1.9=6.36→6.4. AMBIGUITY: rubric says 'Σ signal_strength at base tier and above'. S2 is Developing-tier signal type. Does it count toward Proficient position? Engine must decide.",
+        "score": 6.4,
+        "insufficientEvidence": false,
+        "redFlags": [],
+        "signals": [
+          { "type": "S3", "strength": 1.0, "excerpt": "Setting expectations at the start prevents most performance issues — ambiguity is the root cause of volunteer underperformance more often than unwillingness.", "anchor": "expectation-performance reasoning" },
+          { "type": "S2", "strength": 1.0, "excerpt": "I released a volunteer from a direct-service role respectfully last year after documented coaching didn't resolve the pattern.", "anchor": "respectful release" },
+          { "type": "S4", "strength": 0.5, "excerpt": "For short-term volunteers I simplify the accountability conversation.", "anchor": "tenure-adapted accountability" }
+        ]
+      },
+      {
+        "id": "D5",
+        "name": "Recognition, Retention & Culture",
+        "baseTier": "Proficient",
+        "tier": "Proficient",
+        "_score_calc": "Σ Proficient+: 1.0+1.0+1.0=3.0; position=0.6; score=6.74→6.7",
+        "score": 6.7,
+        "insufficientEvidence": false,
+        "redFlags": [],
+        "signals": [
+          { "type": "S3", "strength": 1.0, "excerpt": "Generic recognition doesn't work because people have different motivational profiles — a career-motivated volunteer values skill endorsement more than a plaque.", "anchor": "motivation-recognition reasoning" },
+          { "type": "S4", "strength": 1.0, "excerpt": "For long-tenure volunteers I shift from gratitude recognition to growth opportunities.", "anchor": "recognition adapted to tenure" },
+          { "type": "S2", "strength": 1.0, "excerpt": "I run exit conversations with every departing volunteer and use the data to adjust our program.", "anchor": "exit interview practice" }
+        ]
+      },
+      {
+        "id": "D6",
+        "name": "Ethics, Equity & Advocacy",
+        "baseTier": "Proficient",
+        "tier": "Proficient",
+        "_score_calc": "Σ Proficient+: 1.0+1.0+1.0=3.0; position=0.6; score=6.74→6.7",
+        "score": 6.7,
+        "insufficientEvidence": false,
+        "redFlags": [],
+        "signals": [
+          { "type": "S3", "strength": 1.0, "excerpt": "Access barriers systematically exclude volunteers from lower-income backgrounds — if we require daytime availability we're effectively selecting for the already-privileged.", "anchor": "access barrier reasoning" },
+          { "type": "S4", "strength": 1.0, "excerpt": "For a population with transport barriers I ran a remote volunteer option — different ethics calculus for in-person vs. remote roles.", "anchor": "context-adapted access design" },
+          { "type": "S2", "strength": 1.0, "excerpt": "I applied ethical frameworks to a boundary situation last year when a volunteer developed a personal relationship with a client.", "anchor": "boundary ethics applied" }
+        ]
+      }
+    ],
+    "overall": {
+      "_mean_calc": "(6.7+6.7+6.7+6.4+6.7+6.7)/6 = 39.9/6 = 6.65 → 6.7",
+      "score": 6.7,
+      "tier": "Proficient",
+      "partial": false,
+      "capped": false
+    },
+    "integrityFlags": [],
+    "_contract_verification_checklist": [
+      "rubricVersion field present and equals '1.0' (string not number)",
+      "All 6 dimension objects present with ids D1–D6",
+      "Each dimension has: id, name, score, tier, baseTier, signals, redFlags, insufficientEvidence",
+      "Each signal has: type, strength (numeric), excerpt, anchor",
+      "strength in output is numeric (weak=0.5, clear=1.0, strong=1.5), not string",
+      "All scores rounded to exactly 1 decimal place",
+      "overall has: score, tier, partial (bool), capped (bool)",
+      "integrityFlags is array (empty array when no flags, not null/absent)",
+      "No extra fields that are not in the §8 contract"
+    ]
+  }
+}

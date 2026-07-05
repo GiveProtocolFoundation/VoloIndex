@@ -1,0 +1,39 @@
+{
+  "_description": "D1 Foundational with ≥3 signals, all S1 — scores within 1.0–3.0. Tests position-within-tier formula.",
+  "_rubric_refs": ["§5.1", "§5.2"],
+  "_formula": "position = min(1.0, Σstrength / K=4.0); score = 1.0 + position * 2.0",
+  "input": {
+    "dimensions": [
+      {
+        "id": "D1",
+        "signals": [
+          { "type": "S1", "strength": "clear",  "excerpt": "Volunteers need purpose statements in their role descriptions.", "anchor": "role awareness" },
+          { "type": "S1", "strength": "clear",  "excerpt": "We recruit when short-handed mainly.", "anchor": "reactive recruitment" },
+          { "type": "S1", "strength": "weak",   "excerpt": "I know mission alignment is something experts talk about.", "anchor": "mission awareness" }
+        ]
+      },
+      { "id": "D2", "signals": [] },
+      { "id": "D3", "signals": [] },
+      { "id": "D4", "signals": [] },
+      { "id": "D5", "signals": [] },
+      { "id": "D6", "signals": [] }
+    ]
+  },
+  "expected": {
+    "rubricVersion": "1.0",
+    "dimensions": [
+      {
+        "id": "D1",
+        "name": "Strategic Engagement Design",
+        "tier": "Foundational",
+        "baseTier": "Foundational",
+        "insufficientEvidence": false,
+        "_score_calc": "Σstrength = 1.0+1.0+0.5 = 2.5; position = min(1.0, 2.5/4.0) = 0.625; score = 1.0 + 0.625*2.0 = 2.3",
+        "score": 2.3,
+        "redFlags": [],
+        "integrityFlags": []
+      }
+    ],
+    "_note": "D2–D6 have 0 signals each — all must be Insufficient Evidence. Overall index = none (≥2 IE dims → §6.3)."
+  }
+}

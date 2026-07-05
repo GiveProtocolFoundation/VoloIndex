@@ -1,0 +1,163 @@
+{
+  "_description": "INTEGRITY CHECKS (§7): all four rules — recall inflation, cross-dimension contradiction, generic answer detection, uniform maximum.",
+  "_rubric_refs": ["§7"],
+
+  "case_A_recall_inflation": {
+    "_description": "≥4 S1 signals and zero S2 in a dimension → cap at Developing midpoint (4.3).",
+    "_key_rule": "Recall inflation: ≥4 S1, zero S2 → cap at 4.3",
+    "input": {
+      "dimensions": [
+        {
+          "id": "D4",
+          "signals": [
+            { "type": "S1", "strength": "strong", "excerpt": "Accountability means setting clear expectations up front.", "anchor": "expectation-setting concept" },
+            { "type": "S1", "strength": "strong", "excerpt": "You should document underperformance in writing.", "anchor": "documentation knowledge" },
+            { "type": "S1", "strength": "strong", "excerpt": "Releasing a volunteer should be done respectfully and privately.", "anchor": "exit process knowledge" },
+            { "type": "S1", "strength": "clear",  "excerpt": "Impact measurement should connect outputs to outcomes.", "anchor": "impact measurement concept" },
+            { "type": "S1", "strength": "clear",  "excerpt": "Feedback should be specific and timely.", "anchor": "feedback best practice recall" }
+          ]
+        }
+      ]
+    },
+    "expected": {
+      "dimensions": [
+        {
+          "id": "D4",
+          "baseTier": "Foundational",
+          "_raw_score": "Foundational range — lots of S1 strong, position high within Foundational",
+          "score": 4.3,
+          "tier": "Developing",
+          "integrityFlags": ["recall_inflation"],
+          "_cap_note": "recall_inflation flag caps score at Developing midpoint (4.3) per §7",
+          "insufficientEvidence": false
+        }
+      ]
+    }
+  },
+
+  "case_B_generic_answer_detection": {
+    "_description": "S2 claim with no first-person specificity → downgraded to S1.",
+    "_key_rule": "Generic answer detection: signal instances with no first-person specificity → downgrade S2+ to S1",
+    "input": {
+      "dimensions": [
+        {
+          "id": "D2",
+          "signals": [
+            {
+              "type": "S2",
+              "strength": "clear",
+              "excerpt": "Organizations should use motivation-based matching to place volunteers in the right roles.",
+              "anchor": "motivation-based matching",
+              "_flag": "generic — no first-person specificity, no 'I did X at org Y with outcome Z'"
+            },
+            {
+              "type": "S2",
+              "strength": "clear",
+              "excerpt": "Best practice is to conduct a staged onboarding that goes orientation → training → check-in.",
+              "anchor": "staged onboarding",
+              "_flag": "generic — describes a best practice, not a personal experience"
+            },
+            {
+              "type": "S2",
+              "strength": "clear",
+              "excerpt": "I matched volunteers to roles based on their motivation last year at Greenway Nonprofit and saw 6-month retention improve 20%.",
+              "anchor": "motivation-based matching applied",
+              "_flag": "specific — first-person, named org, quantified outcome. No downgrade."
+            }
+          ]
+        }
+      ]
+    },
+    "expected": {
+      "dimensions": [
+        {
+          "id": "D2",
+          "_treatment": "First two S2 signals are generic → downgraded to S1. Third S2 is specific → kept as S2.",
+          "integrityFlags": ["generic_answer_detection"],
+          "_effective_signals": [
+            { "type": "S1", "strength": "clear", "_downgraded_from": "S2" },
+            { "type": "S1", "strength": "clear", "_downgraded_from": "S2" },
+            { "type": "S2", "strength": "clear" }
+          ],
+          "_note": "After downgrade, only 1 S2 remains. Base tier must be re-evaluated with effective signals."
+        }
+      ]
+    }
+  },
+
+  "case_C_uniform_maximum": {
+    "_description": "All 6 dimensions score ≥9.0 → hold for review, require §5.3 breadth evidence in all six.",
+    "_key_rule": "Uniform maximum: all six dimensions ≥ 9.0 → flag for review",
+    "input": {
+      "precomputedDimensions": [
+        { "id": "D1", "score": 9.2, "tier": "Expert" },
+        { "id": "D2", "score": 9.0, "tier": "Expert" },
+        { "id": "D3", "score": 9.1, "tier": "Expert" },
+        { "id": "D4", "score": 9.3, "tier": "Expert" },
+        { "id": "D5", "score": 9.0, "tier": "Expert" },
+        { "id": "D6", "score": 9.2, "tier": "Expert" }
+      ]
+    },
+    "expected": {
+      "integrityFlags": ["uniform_maximum"],
+      "_note": "integrityFlags at the assessment level (not per-dimension) must include 'uniform_maximum'. Assessment held for review."
+    }
+  },
+
+  "case_D_uniform_max_boundary_one_below_9": {
+    "_description": "5 dims ≥9.0 and 1 dim at 8.9 → NOT uniform maximum (all six must be ≥9.0).",
+    "input": {
+      "precomputedDimensions": [
+        { "id": "D1", "score": 9.2, "tier": "Expert" },
+        { "id": "D2", "score": 9.0, "tier": "Expert" },
+        { "id": "D3", "score": 9.1, "tier": "Expert" },
+        { "id": "D4", "score": 9.3, "tier": "Expert" },
+        { "id": "D5", "score": 8.9, "tier": "Expert" },
+        { "id": "D6", "score": 9.2, "tier": "Expert" }
+      ]
+    },
+    "expected": {
+      "_integrityFlags_should_NOT_contain": "uniform_maximum",
+      "_note": "D5 is 8.9 < 9.0. Rule requires ALL SIX ≥9.0. This does not trigger uniform_maximum."
+    }
+  },
+
+  "case_E_cross_dimension_contradiction": {
+    "_description": "Candidate claims outcome measurement in D4, but says 'we only track hours' in D1 — both dims must be flagged and weaker evidence used.",
+    "_key_rule": "Cross-dimension contradiction: statements contradict across dims → flag both, use weaker evidence",
+    "input": {
+      "dimensions": [
+        {
+          "id": "D1",
+          "signals": [
+            { "type": "S1", "strength": "weak", "excerpt": "We only track hours volunteered — that's our metric.", "anchor": "hour-only tracking", "_contradiction": true },
+            { "type": "S2", "strength": "clear", "excerpt": "I set program goals around headcount.", "anchor": "headcount goals" },
+            { "type": "S2", "strength": "clear", "excerpt": "I write role descriptions with purpose statements.", "anchor": "purpose statements" }
+          ]
+        },
+        {
+          "id": "D4",
+          "signals": [
+            { "type": "S3", "strength": "strong", "excerpt": "I connect our volunteer outputs to outcomes — meals delivered leads to reduced food insecurity, with a logic model.", "anchor": "outcome measurement", "_contradiction": true },
+            { "type": "S2", "strength": "clear", "excerpt": "I set expectations at placement and revisit them quarterly.", "anchor": "expectation-setting" },
+            { "type": "S2", "strength": "clear", "excerpt": "I give specific feedback on underperformance.", "anchor": "performance feedback" }
+          ]
+        }
+      ]
+    },
+    "expected": {
+      "dimensions": [
+        {
+          "id": "D1",
+          "integrityFlags": ["cross_dimension_contradiction"],
+          "_note": "Contradiction flagged. The 'hours only' claim in D1 contradicts outcome measurement claim in D4. Weaker evidence used: D1's 'hours only' S1 weak is already weak, but the contradiction weakens the D4 S3 strong claim. Engine must flag both and use conservative scoring."
+        },
+        {
+          "id": "D4",
+          "integrityFlags": ["cross_dimension_contradiction"],
+          "_note": "Contradiction flagged. Strong outcome measurement claim contradicted by D1 'hours only' statement. Weaker evidence preferred: S3 strong in D4 should be treated as lower confidence."
+        }
+      ]
+    }
+  }
+}

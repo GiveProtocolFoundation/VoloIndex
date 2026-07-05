@@ -1,0 +1,95 @@
+{
+  "_description": "EXPERT BREADTH GATE (§5.3): Score >8.5 requires STRONG (1.5) signals in at least 3 distinct Expert anchor behaviors.",
+  "_rubric_refs": ["§5.3"],
+  "_key_rule": "Scores above 8.5 additionally require breadth: strong (1.5) signals in at least three distinct anchor behaviors of the Expert row.",
+
+  "case_A_above_8.5_without_breadth": {
+    "_description": "High signal density → raw score >8.5 BUT only 2 distinct strong Expert anchors → must be capped at 8.5.",
+    "input": {
+      "dimensions": [
+        {
+          "id": "D1",
+          "signals": [
+            { "type": "S5", "strength": "strong", "excerpt": "I build full business cases for volunteer programs: cost per volunteer, VIVA-style value calculation, and ROI for board decks.", "anchor": "business case / ROI" },
+            { "type": "S5", "strength": "strong", "excerpt": "I write another business case variant for different boards.", "anchor": "business case / ROI" },
+            { "type": "S6", "strength": "strong", "excerpt": "I coach five other volunteer managers at partner nonprofits on strategic design.", "anchor": "mentors peers on strategic design" },
+            { "type": "S6", "strength": "strong", "excerpt": "I run workshops for peer volunteer managers on strategic alignment.", "anchor": "mentors peers on strategic design" }
+          ]
+        }
+      ]
+    },
+    "expected": {
+      "dimensions": [
+        {
+          "id": "D1",
+          "baseTier": "Expert",
+          "_raw_score_calc": "Σ = 1.5+1.5+1.5+1.5 = 6.0; position = min(1.0, 6.0/6.0) = 1.0; raw = 7.6 + 1.0*2.4 = 10.0",
+          "_breadth_check": "Strong signals in distinct anchors: 'business case/ROI' (strong) and 'mentors peers' (strong) = only 2 distinct. Gate requires 3. FAIL.",
+          "score": 8.5,
+          "tier": "Expert",
+          "insufficientEvidence": false,
+          "_cap_applied": "Expert breadth gate capped score from 10.0 to 8.5"
+        }
+      ]
+    }
+  },
+
+  "case_B_above_8.5_with_breadth": {
+    "_description": "High signal density + 3 distinct strong Expert anchors → score may exceed 8.5.",
+    "input": {
+      "dimensions": [
+        {
+          "id": "D1",
+          "signals": [
+            { "type": "S5", "strength": "strong", "excerpt": "I build full ROI business cases for the board with VIVA valuation.", "anchor": "business case / ROI" },
+            { "type": "S5", "strength": "strong", "excerpt": "I plan volunteer capacity and infrastructure 12 months ahead of program growth.", "anchor": "capacity and infrastructure planning" },
+            { "type": "S6", "strength": "strong", "excerpt": "I mentor five peer volunteer managers and have gotten two to redesign their programs.", "anchor": "mentors peers on strategic design" },
+            { "type": "S5", "strength": "clear",  "excerpt": "I align volunteer roles to our theory of change explicitly.", "anchor": "theory of change alignment" }
+          ]
+        }
+      ]
+    },
+    "expected": {
+      "dimensions": [
+        {
+          "id": "D1",
+          "baseTier": "Expert",
+          "_breadth_check": "Strong signals in distinct anchors: 'business case/ROI' (strong), 'capacity planning' (strong), 'mentors peers' (strong) = 3 distinct. Gate PASSES.",
+          "_score_calc": "Σ = 1.5+1.5+1.5+1.0 = 5.5; position = min(1.0, 5.5/6.0) = 0.917; score = 7.6 + 0.917*2.4 = 9.8",
+          "score": 9.8,
+          "tier": "Expert",
+          "insufficientEvidence": false
+        }
+      ]
+    }
+  },
+
+  "case_C_exactly_8.5_no_breadth_check_needed": {
+    "_description": "Score lands exactly at 8.5 via formula — breadth gate only applies ABOVE 8.5. Should NOT be capped.",
+    "input": {
+      "dimensions": [
+        {
+          "id": "D4",
+          "signals": [
+            { "type": "S5", "strength": "strong", "excerpt": "I built a full accountability system with expectations, feedback loops, escalation path, and dignified exit docs.", "anchor": "full accountability system" },
+            { "type": "S6", "strength": "clear", "excerpt": "I coach my staff on how to have volunteer performance conversations.", "anchor": "coaches staff on performance mgmt" },
+            { "type": "S5", "strength": "weak",  "excerpt": "I use outcomes-to-impact measurement in our annual report.", "anchor": "impact measurement framework" }
+          ]
+        }
+      ]
+    },
+    "expected": {
+      "dimensions": [
+        {
+          "id": "D4",
+          "baseTier": "Expert",
+          "_score_calc": "Σ at Expert+: 1.5+1.0+0.5 = 3.0; position = min(1.0, 3.0/6.0) = 0.5; score = 7.6 + 0.5*2.4 = 8.8",
+          "_breadth_check": "Score 8.8 > 8.5, so breadth gate applies. Strong signals in distinct Expert anchors: 'full accountability system' (strong) = 1 distinct only. Gate FAILS. Cap at 8.5.",
+          "score": 8.5,
+          "tier": "Expert",
+          "insufficientEvidence": false
+        }
+      ]
+    }
+  }
+}

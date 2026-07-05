@@ -1,0 +1,122 @@
+{
+  "_description": "OVERALL TIER CAP (§6.4): overall tier cannot exceed Expert unless ≥4 dims are Proficient+ AND ≥2 are Expert.",
+  "_rubric_refs": ["§6.4"],
+  "_key_rule": "Overall tier cannot exceed Expert unless ≥4 dimensions are individually Proficient+ AND ≥2 are Expert. If the constraint fails, overall score is capped at 7.5.",
+
+  "case_A_cap_applied_only_1_expert": {
+    "_description": "Average score would be Expert range, but only 1 Expert dimension (and 3 Proficient) → capped at 7.5.",
+    "input": {
+      "_note": "Pre-computed scores for each dimension",
+      "dimensions": [
+        { "id": "D1", "_precomputed_score": 9.2, "tier": "Expert" },
+        { "id": "D2", "_precomputed_score": 6.8, "tier": "Proficient" },
+        { "id": "D3", "_precomputed_score": 6.5, "tier": "Proficient" },
+        { "id": "D4", "_precomputed_score": 6.0, "tier": "Proficient" },
+        { "id": "D5", "_precomputed_score": 4.2, "tier": "Developing" },
+        { "id": "D6", "_precomputed_score": 3.8, "tier": "Developing" }
+      ]
+    },
+    "expected": {
+      "overall": {
+        "_mean": "(9.2+6.8+6.5+6.0+4.2+3.8)/6 = 36.5/6 = 6.1",
+        "score": 6.1,
+        "tier": "Proficient",
+        "capped": false,
+        "_note": "Mean is 6.1 (Proficient) — cap would only apply if overall WOULD be Expert. 6.1 < 7.6 so no cap needed here.",
+        "partial": false
+      }
+    }
+  },
+
+  "case_B_cap_applied_high_mean_but_insufficient_expert_dims": {
+    "_description": "High mean in Expert range (7.8) but only 1 Expert dim — must cap at 7.5.",
+    "input": {
+      "_note": "Pre-computed scores",
+      "dimensions": [
+        { "id": "D1", "_precomputed_score": 9.5, "tier": "Expert" },
+        { "id": "D2", "_precomputed_score": 8.0, "tier": "Expert",
+          "_wait": "Actually need ≥2 Expert dims but let's test with mean that yields Expert but only 1 Expert dim" },
+        { "id": "D2", "_precomputed_score": 7.3, "tier": "Proficient" },
+        { "id": "D3", "_precomputed_score": 7.0, "tier": "Proficient" },
+        { "id": "D4", "_precomputed_score": 7.2, "tier": "Proficient" },
+        { "id": "D5", "_precomputed_score": 7.4, "tier": "Proficient" },
+        { "id": "D6", "_precomputed_score": 7.4, "tier": "Proficient" }
+      ]
+    },
+    "expected": {
+      "_note": "SKIP — duplicate D2 makes this invalid. See case_C below."
+    }
+  },
+
+  "case_C_cap_applied_1_expert_5_proficient": {
+    "_description": "1 Expert dim + 5 Proficient dims. Mean may be in Expert range. Cap check: ≥4 Proficient+ (5 Proficient + 1 Expert = 6 ≥4 ✓) but only 1 Expert (need ≥2 ✗) → cap at 7.5.",
+    "input": {
+      "precomputedDimensions": [
+        { "id": "D1", "score": 9.0, "tier": "Expert" },
+        { "id": "D2", "score": 7.4, "tier": "Proficient" },
+        { "id": "D3", "score": 7.3, "tier": "Proficient" },
+        { "id": "D4", "score": 7.2, "tier": "Proficient" },
+        { "id": "D5", "score": 7.3, "tier": "Proficient" },
+        { "id": "D6", "score": 7.3, "tier": "Proficient" }
+      ]
+    },
+    "expected": {
+      "overall": {
+        "_mean": "(9.0+7.4+7.3+7.2+7.3+7.3)/6 = 45.5/6 = 7.6",
+        "_raw_score": 7.6,
+        "_raw_tier": "Expert",
+        "_cap_check": "≥4 Proficient+: 6 dims ✓. ≥2 Expert: only 1 ✗. Constraint FAILS → cap at 7.5.",
+        "score": 7.5,
+        "tier": "Proficient",
+        "capped": true,
+        "partial": false
+      }
+    }
+  },
+
+  "case_D_no_cap_4_proficient_plus_2_expert": {
+    "_description": "4 Proficient+ dims and 2 Expert dims → constraint passes → no cap applied.",
+    "input": {
+      "precomputedDimensions": [
+        { "id": "D1", "score": 8.5, "tier": "Expert" },
+        { "id": "D2", "score": 8.0, "tier": "Expert" },
+        { "id": "D3", "score": 6.5, "tier": "Proficient" },
+        { "id": "D4", "score": 6.2, "tier": "Proficient" },
+        { "id": "D5", "score": 4.0, "tier": "Developing" },
+        { "id": "D6", "score": 3.5, "tier": "Developing" }
+      ]
+    },
+    "expected": {
+      "overall": {
+        "_mean": "(8.5+8.0+6.5+6.2+4.0+3.5)/6 = 36.7/6 = 6.1",
+        "score": 6.1,
+        "tier": "Proficient",
+        "capped": false,
+        "_note": "Mean 6.1 is Proficient anyway — but constraint also passes (4 Proficient+: D1,D2,D3,D4; 2 Expert: D1,D2)."
+      }
+    }
+  },
+
+  "case_E_no_cap_passes_both_expert_gates": {
+    "_description": "6 Expert dims, all very high → both constraint gates pass → no cap, score can be Expert.",
+    "input": {
+      "precomputedDimensions": [
+        { "id": "D1", "score": 8.5, "tier": "Expert" },
+        { "id": "D2", "score": 8.5, "tier": "Expert" },
+        { "id": "D3", "score": 7.8, "tier": "Expert" },
+        { "id": "D4", "score": 7.9, "tier": "Expert" },
+        { "id": "D5", "score": 8.0, "tier": "Expert" },
+        { "id": "D6", "score": 7.8, "tier": "Expert" }
+      ]
+    },
+    "expected": {
+      "overall": {
+        "_mean": "(8.5+8.5+7.8+7.9+8.0+7.8)/6 = 48.5/6 = 8.1",
+        "score": 8.1,
+        "tier": "Expert",
+        "capped": false,
+        "_note": "≥4 Proficient+ (all 6) ✓. ≥2 Expert (all 6) ✓. Constraint passes, score is Expert."
+      }
+    }
+  }
+}

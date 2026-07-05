@@ -1,0 +1,164 @@
+{
+  "_description": "RED FLAG (N signal) cap tests per §5.4.",
+  "_rubric_refs": ["§5.4"],
+  "_key_rules": [
+    "1 N at clear+ → cap at midpoint of tier BELOW base tier (min 1.0)",
+    "2+ uncorrected N → cap at Developing (≤5.5) regardless of other evidence",
+    "Self-correction removes the cap but N signal is still recorded"
+  ],
+
+  "case_A_single_N_on_proficient": {
+    "_description": "Candidate earns Proficient base tier but has 1 uncorrected N (clear strength). Cap at Developing midpoint.",
+    "_developing_midpoint": "3.1 + (5.5-3.1)/2 = 3.1 + 1.2 = 4.3",
+    "input": {
+      "dimensions": [
+        {
+          "id": "D1",
+          "signals": [
+            { "type": "S3", "strength": "clear", "excerpt": "I understand outcome-linked goals and the difference from activity counts.", "anchor": "outcome-linked goal reasoning" },
+            { "type": "S4", "strength": "clear", "excerpt": "For small volunteer programs I adapt the planning approach — less formal infrastructure.", "anchor": "context adaptation" },
+            { "type": "S2", "strength": "clear", "excerpt": "I assessed organizational readiness before expanding our tutoring program.", "anchor": "readiness assessment" },
+            { "type": "N",  "strength": "clear", "excerpt": "Honestly, volunteers are free labor — that's the main value they bring.", "anchor": "volunteers are free" }
+          ]
+        }
+      ]
+    },
+    "expected": {
+      "dimensions": [
+        {
+          "id": "D1",
+          "baseTier": "Proficient",
+          "_raw_score": "would be Proficient range",
+          "score": 4.3,
+          "tier": "Developing",
+          "_cap_rule": "1 N at clear+ → cap at midpoint of tier below base (Developing midpoint = 4.3)",
+          "redFlags": [{ "excerpt": "Honestly, volunteers are free labor — that's the main value they bring.", "anchor": "volunteers are free", "capApplied": true }],
+          "insufficientEvidence": false
+        }
+      ]
+    }
+  },
+
+  "case_B_single_N_on_developing": {
+    "_description": "Candidate at Developing base with 1 N. Tier below Developing is Foundational. Cap at Foundational midpoint.",
+    "_foundational_midpoint": "1.0 + (3.0-1.0)/2 = 2.0",
+    "input": {
+      "dimensions": [
+        {
+          "id": "D4",
+          "signals": [
+            { "type": "S2", "strength": "clear", "excerpt": "I set written expectations for my key volunteer roles.", "anchor": "written expectations" },
+            { "type": "S2", "strength": "clear", "excerpt": "I give informal feedback to volunteers regularly.", "anchor": "informal feedback" },
+            { "type": "N",  "strength": "clear", "excerpt": "You can't really hold volunteers accountable — if you push them they just leave.", "anchor": "you can't hold volunteers accountable" }
+          ]
+        }
+      ]
+    },
+    "expected": {
+      "dimensions": [
+        {
+          "id": "D4",
+          "baseTier": "Developing",
+          "score": 2.0,
+          "tier": "Foundational",
+          "_cap_rule": "1 N at clear+ → cap at midpoint of Foundational (tier below Developing) = 2.0",
+          "redFlags": [{ "excerpt": "You can't really hold volunteers accountable — if you push them they just leave.", "anchor": "you can't hold volunteers accountable", "capApplied": true }],
+          "insufficientEvidence": false
+        }
+      ]
+    }
+  },
+
+  "case_C_single_N_on_foundational": {
+    "_description": "N on Foundational base tier. Tier below Foundational doesn't exist. Cap at minimum (1.0).",
+    "input": {
+      "dimensions": [
+        {
+          "id": "D5",
+          "signals": [
+            { "type": "S1", "strength": "clear", "excerpt": "I know you should thank volunteers regularly.", "anchor": "recognition awareness" },
+            { "type": "S1", "strength": "weak",  "excerpt": "I've heard of retention tracking.", "anchor": "retention awareness" },
+            { "type": "S1", "strength": "weak",  "excerpt": "Our annual banquet is how we recognize people.", "anchor": "recognition approach" },
+            { "type": "N",  "strength": "clear", "excerpt": "We just do the annual banquet for everyone — that's all the recognition you need.", "anchor": "one-size-fits-all recognition" }
+          ]
+        }
+      ]
+    },
+    "expected": {
+      "dimensions": [
+        {
+          "id": "D5",
+          "baseTier": "Foundational",
+          "score": 1.0,
+          "tier": "Foundational",
+          "_cap_rule": "1 N at clear+ → cap at midpoint of tier below base. Base is Foundational, no tier below — minimum cap = 1.0",
+          "redFlags": [{ "excerpt": "We just do the annual banquet for everyone — that's all the recognition you need.", "anchor": "one-size-fits-all recognition", "capApplied": true }],
+          "insufficientEvidence": false
+        }
+      ]
+    }
+  },
+
+  "case_D_two_N_signals": {
+    "_description": "2+ uncorrected N signals → cap at Developing (≤5.5) regardless of Expert-level evidence.",
+    "input": {
+      "dimensions": [
+        {
+          "id": "D6",
+          "signals": [
+            { "type": "S5", "strength": "strong", "excerpt": "I built a full equity audit framework and run it annually on our program.", "anchor": "equity audit infrastructure" },
+            { "type": "S6", "strength": "strong", "excerpt": "I mentor 10 VMs on ethical practice across the sector.", "anchor": "sector advocacy on ethics" },
+            { "type": "N",  "strength": "clear", "excerpt": "Access barriers aren't really our problem — volunteers choose to participate.", "anchor": "no awareness of access barriers" },
+            { "type": "N",  "strength": "clear", "excerpt": "We share volunteer info freely with partner orgs — no point in strict privacy rules.", "anchor": "cavalier handling of personal data" }
+          ]
+        }
+      ]
+    },
+    "expected": {
+      "dimensions": [
+        {
+          "id": "D6",
+          "baseTier": "Expert",
+          "score": 5.5,
+          "tier": "Developing",
+          "_cap_rule": "2+ uncorrected N → hard cap at Developing (≤5.5). Score capped at 5.5 even though Expert evidence is very strong.",
+          "redFlags": [
+            { "excerpt": "Access barriers aren't really our problem — volunteers choose to participate.", "anchor": "no awareness of access barriers", "capApplied": true },
+            { "excerpt": "We share volunteer info freely with partner orgs — no point in strict privacy rules.", "anchor": "cavalier handling of personal data", "capApplied": true }
+          ],
+          "insufficientEvidence": false
+        }
+      ]
+    }
+  },
+
+  "case_E_N_with_self_correction": {
+    "_description": "N signal followed by self-correction in same assessment → cap removed, N still recorded.",
+    "input": {
+      "dimensions": [
+        {
+          "id": "D1",
+          "signals": [
+            { "type": "S3", "strength": "clear", "excerpt": "I reason about strategic value of volunteers vs paid staff.", "anchor": "strategic value distinction" },
+            { "type": "S4", "strength": "clear", "excerpt": "I adapt engagement strategy to org size.", "anchor": "context adaptation" },
+            { "type": "S2", "strength": "clear", "excerpt": "I built a strategic plan for our volunteer program.", "anchor": "strategic plan execution" },
+            { "type": "N",  "strength": "clear", "excerpt": "I guess at first I thought of volunteers as free labor to be honest.", "anchor": "volunteers are free", "selfCorrected": true, "correctionExcerpt": "But I've learned that's wrong — volunteers have costs: time, training, coordination. The value they create is what justifies investment." }
+          ]
+        }
+      ]
+    },
+    "expected": {
+      "dimensions": [
+        {
+          "id": "D1",
+          "baseTier": "Proficient",
+          "_cap_rule": "N was self-corrected → no score cap applied. N still listed in redFlags but capApplied=false.",
+          "redFlags": [
+            { "excerpt": "I guess at first I thought of volunteers as free labor to be honest.", "anchor": "volunteers are free", "capApplied": false, "selfCorrected": true }
+          ],
+          "insufficientEvidence": false
+        }
+      ]
+    }
+  }
+}
