@@ -1,6 +1,6 @@
 # Volo Index — Scoring Rubric v1.1
 
-**Status:** v1.1 — Head of Data §9 re-validation **PASSED** 2026-07-04 (see `docs/VALIDATION-v1.1.md`); public scoring cleared to un-gate (gate action owned by CTO)
+**Status:** v1.1 — Head of Data §9 re-validation **PASSED** 2026-07-04 (see `docs/VALIDATION-v1.1.md`); public scoring **UN-GATED** by CTO 2026-07-04 (`PUBLIC_SCORING_ENABLED = true`, `src/scoring/config.js`)
 **Owner:** Give Protocol Foundation — Volo Index
 **Applies to:** All six assessment dimensions, all four developmental tiers
 **Last updated:** 2026-07-04
@@ -217,7 +217,7 @@ The scoring engine must emit, per assessment:
     {
       "id": "D1",
       "name": "Strategic Engagement Design",
-      "score": 6.8,
+      "score": 6.6,
       "tier": "Proficient",
       "baseTier": "Proficient",
       "evidenceDensity": { "sumStrength": 3.5, "K": 5.0, "Q": 2.0, "position": 0.5 },

@@ -125,3 +125,11 @@ export const DIMENSIONS = [
 export const DIMENSION_IDS = DIMENSIONS.map(d => d.id);
 
 export const RUBRIC_VERSION = '1.1';
+
+/**
+ * Go-live gate for public scoring (CTO-owned).
+ * Flipped to true 2026-07-04 (GIV-571): engine at rubric v1.1, Head of Data §9
+ * re-validation PASSED (docs/VALIDATION-v1.1.md, scripts/revalidate-v1.1.mjs 33/33).
+ * Any future rubric change must set this back to false until §9 re-validation passes again.
+ */
+export const PUBLIC_SCORING_ENABLED = true;

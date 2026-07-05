@@ -4,6 +4,7 @@
 export { scoreAssessment, tierFor } from './engine.js';
 export {
   RUBRIC_VERSION,
+  PUBLIC_SCORING_ENABLED,
   TIERS,
   TIER_ORDER,
   DIMENSIONS,
