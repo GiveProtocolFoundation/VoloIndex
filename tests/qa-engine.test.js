@@ -429,15 +429,19 @@ describe('§5.5 Insufficient Evidence', () => {
     assert.notEqual(d.score, null);
   });
 
-  it('N signals do NOT count toward the 3-signal minimum', () => {
-    // 2 positive + 2 N = 4 total, but only 2 positive → still IE
+  it('N signals DO count toward the 3-signal minimum (BUG-001 ruling, §5.5)', () => {
+    // 2 positive + 2 N = 4 total signals → scores (not IE); the observed
+    // misconceptions are decisive evidence, so the dimension scores low
+    // with the §5.4 cap applied rather than being suppressed as IE.
     const d = score('D1', [
       S('S1', CLEAR, 'foundational'),
       S('S2', CLEAR, 'developing'),
       S('N',  CLEAR, 'foundational', { corrected: false }),
       S('N',  CLEAR, 'foundational', { corrected: false }),
     ]);
-    assert.equal(d.insufficientEvidence, true, 'N signals should not count toward 3-signal minimum');
+    assert.equal(d.insufficientEvidence, false, 'all recorded signals count toward the 3-signal minimum');
+    assert.equal(d.score, 1.0, '2 uncorrected N on Foundational base → §5.4 floor 1.0');
+    assert.ok(d.appliedCaps.some(c => c.rule === '§5.4'), '§5.4 cap recorded in appliedCaps');
   });
 });
 

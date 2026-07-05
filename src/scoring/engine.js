@@ -307,9 +307,11 @@ function checkRecallInflation(signals, baseTierId) {
 // ── §5 complete: score one dimension ────────────────────────────────
 
 function scoreDimension(dimId, dimName, rawSignals) {
-  // §5.5 insufficient evidence
-  const positiveSignals = rawSignals.filter(s => s.type !== 'N');
-  if (positiveSignals.length < MIN_SIGNALS_FOR_SCORING) {
+  // §5.5 insufficient evidence — BUG-001 ruling (2026-07-04, Head of Data):
+  // ALL recorded signals count toward the minimum, including N red flags
+  // (any strength, corrected or not). An observed misconception is decisive
+  // evidence and must never be suppressed as "insufficient".
+  if (rawSignals.length < MIN_SIGNALS_FOR_SCORING) {
     return {
       id: dimId,
       name: dimName,

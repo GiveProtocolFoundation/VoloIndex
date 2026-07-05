@@ -128,8 +128,14 @@ export const RUBRIC_VERSION = '1.1';
 
 /**
  * Go-live gate for public scoring (CTO-owned).
- * Flipped to true 2026-07-04 (GIV-571): engine at rubric v1.1, Head of Data §9
- * re-validation PASSED (docs/VALIDATION-v1.1.md, scripts/revalidate-v1.1.mjs 33/33).
- * Any future rubric change must set this back to false until §9 re-validation passes again.
+ * Policy: any rubric BEHAVIOR change sets this to false until Head of Data
+ * §9 re-validation passes on the updated engine; doc-only edits do not gate.
+ *
+ * History:
+ * - 2026-07-04 (GIV-571): true — v1.1 parity, §9 re-validation PASSED
+ *   (docs/VALIDATION-v1.1.md, scripts/revalidate-v1.1.mjs 33/33).
+ * - 2026-07-04 (GIV-574): false — BUG-001 §5.5 ruling implemented (all
+ *   recorded signals count toward the IE minimum, including N); pending
+ *   Head of Data §9 spot re-validation of the behavior change.
  */
-export const PUBLIC_SCORING_ENABLED = true;
+export const PUBLIC_SCORING_ENABLED = false;
