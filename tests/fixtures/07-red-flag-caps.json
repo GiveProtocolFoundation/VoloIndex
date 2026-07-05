@@ -42,6 +42,7 @@
   "case_B_single_N_on_developing": {
     "_description": "Candidate at Developing base with 1 N. Tier below Developing is Foundational. Cap at Foundational midpoint.",
     "_foundational_midpoint": "1.0 + (3.0-1.0)/2 = 2.0",
+    "_bug001_ruling": "GIV-573 (2026-07-04): this case scores (not Insufficient Evidence) because the N counts toward the §5.5 3-signal minimum (2 S2 + 1 N = 3 total). Head of Data ruling: N signals COUNT toward the IE threshold. The current engine counts only positive signals and would mark this dimension Insufficient Evidence; an engine-change follow-up to CTO tracks alignment. Once the engine is updated this case becomes live-correct as written.",
     "input": {
       "dimensions": [
         {

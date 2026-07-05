@@ -50,9 +50,13 @@ defects**, and became confirming evidence once corrected:
 - **DOC-NIT-1 (§8 example):** the illustrative JSON shows `position 0.5` with `score 6.8`; the
   formula yields `5.6 + 0.5×1.9 = 6.55 → 6.6`. Cosmetic inconsistency in an example only — engine
   is correct. Recommend fixing the example number to `6.6` in a doc-only follow-up.
-- **BUG-001 (§5.5 ambiguity):** whether `N` signals count toward the 3-signal Insufficient-Evidence
-  minimum is unchanged in v1.1 and unresolved. Not triggered by any §9 case; needs a rubric ruling
-  as a separate follow-up. Does not block public scoring.
+- **BUG-001 (§5.5 ambiguity): RESOLVED 2026-07-04 (GIV-573).** Head of Data ruling: `N` signals **do
+  count** toward the 3-signal Insufficient-Evidence minimum (recorded in `docs/SCORING_RUBRIC.md`
+  §5.5). This contradicts the current engine (counts only positive signals), so an engine-change
+  follow-up is filed to CTO; fixture `07-red-flag-caps.json` case_B is annotated to match. Not
+  triggered by any §9 case, so public scoring is unaffected until the engine change deploys (which
+  will change scores for sparse-but-flagged transcripts and warrants a version bump + re-run of this
+  harness before release).
 
 ## Disposition
 

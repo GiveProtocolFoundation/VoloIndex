@@ -181,6 +181,8 @@ If the computed dimension score exceeds 8.5 but the breadth condition is not met
 
 If a dimension yields **< 3 total signals**, the dimension is reported as **Insufficient Evidence** (no numeric score) and is excluded from the overall index (see §6). The UI must display this state distinctly, not as a low score.
 
+**BUG-001 ruling (2026-07-04, Head of Data):** *total signals* here includes negative (`N`) red-flag signals — and all recorded signals regardless of strength or self-correction — because an observed misconception is decisive evidence about the dimension and must never be suppressed as "insufficient"; a dimension with, e.g., two positive signals and one uncorrected `N` therefore scores (with the §5.4 cap applied) rather than reporting Insufficient Evidence, consistent with fixture `tests/fixtures/07-red-flag-caps.json` case_B (this contradicts the current engine, which counts only positive signals — see engine-change follow-up).
+
 ---
 
 ## 6. Aggregation — The Volo Index
