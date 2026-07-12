@@ -90,7 +90,7 @@ Navigates the ethical complexities of leading unpaid contributors, ensures equit
 | D1 Strategic Engagement Design | 🟢 v0.1 | ✅ 4 tiers · 16/16 probes | None — pressure-test pending |
 | D2 Recruitment, Matching & Onboarding | 🟢 v0.3 · pressure-tested | ✅ 4 tiers · 16/16 probes | Structural upgrades identified before scored piloting |
 | D3 Training, Development & Role Support | 🟢 v0.1 (provisional) | ✅ 4 tiers · 16/16 probes | Adult-learning & role-design literature (post-pilot; sharpens leveling) |
-| D4 Performance, Impact & Accountability | 🟢 v0.1 | ⬜ Not yet | Groble Volunteer Authority Model corroboration; volunteer–staff conflict |
+| D4 Performance, Impact & Accountability | 🟢 v0.1 | ✅ 4 tiers · 16/16 probes (pending CEO sign-off) | Post-pilot volunteer–staff conflict resolution literature (out of T2-H scope) |
 | D5 Recognition, Retention & Culture | 🟢 v0.1 | ⬜ Not yet | Psychological-contract literature (post-pilot) |
 | D6 Ethics, Equity & Advocacy | 🟢 v0.1 (deepest-sourced) | ⬜ Not yet | None — all probes fully sourced |
 
