@@ -64,6 +64,49 @@ router.post('/:sessionId/release', async (req, res, next) => {
   } catch (err) { next(err); }
 });
 
+// ── GET /api/publication/pending — list pending entries for QA review ─
+
+router.get('/pending', async (req, res, next) => {
+  try {
+    const { rows } = await query(`
+      SELECT
+        pq.session_id,
+        pq.candidate_id,
+        pq.status,
+        pq.score_result_id,
+        pq.enqueued_at,
+        sr.signals,
+        sr.dimension_scores,
+        sr.overall_score,
+        sr.overall_tier,
+        sr.rubric_version,
+        t.transcript
+      FROM publication_queue pq
+      LEFT JOIN score_results sr ON sr.session_id = pq.session_id
+      LEFT JOIN transcripts t ON t.session_id = pq.session_id
+      WHERE pq.status = 'pending_review'
+      ORDER BY pq.enqueued_at ASC
+    `);
+
+    res.json({
+      entries: rows.map(row => ({
+        sessionId: row.session_id,
+        candidateId: row.candidate_id,
+        status: row.status,
+        scoreResultId: row.score_result_id,
+        enqueuedAt: row.enqueued_at?.toISOString?.() ?? row.enqueued_at,
+        signals: row.signals,
+        dimensionScores: row.dimension_scores,
+        overallScore: row.overall_score != null ? parseFloat(row.overall_score) : null,
+        overallTier: row.overall_tier,
+        rubricVersion: row.rubric_version,
+        transcript: row.transcript,
+      })),
+      count: rows.length,
+    });
+  } catch (err) { next(err); }
+});
+
 // ── GET /api/publication/:sessionId — check publication status ────────
 
 router.get('/:sessionId', async (req, res, next) => {

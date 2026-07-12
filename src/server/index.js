@@ -5,6 +5,8 @@
  * Starts listening only when run directly (not when imported for testing).
  */
 
+import { fileURLToPath } from 'node:url';
+import path from 'node:path';
 import express from 'express';
 import helmet from 'helmet';
 import cors from 'cors';
@@ -42,6 +44,12 @@ export function createApp({ transcriptStore } = {}) {
 
   const store = transcriptStore || new PostgresTranscriptStore({ pool });
   app.use('/api/transcripts', createTranscriptRoutes(store));
+
+  // ── QA review UI (internal) ─────────────────────────────────────
+  const webDir = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../../web');
+  app.get('/qa/review', (_req, res) => {
+    res.sendFile(path.join(webDir, 'qa-review.html'));
+  });
 
   // ── Error handler (must be last) ──────────────────────────────────
   app.use(errorHandler);
