@@ -1,0 +1,1339 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Volo Index — Assessment</title>
+  <link rel="icon" type="image/svg+xml" href="/assets/volo-icon.svg">
+  <link rel="icon" type="image/png" sizes="32x32" href="/assets/favicon-32.png">
+  <style>
+    /* ── Design tokens ── */
+    :root {
+      --primary:      #b0542c;
+      --primary-dk:   #7a2e10;
+      --secondary:    #cd8a4f;
+      --light:        #e0d4c0;
+      --lighter:      #ede5d8;
+      --bg:           #faf9f5;
+      --paper:        #f4efe5;
+      --text:         #2c1d13;
+      --muted:        #7a6252;
+      --white:        #ffffff;
+      --green:        #3d7a4a;
+      --shadow:       0 2px 16px rgba(44,29,19,.09);
+      --r:            12px;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      line-height: 1.5;
+    }
+
+    /* ── Screen switcher ── */
+    .screen { display: none; }
+    .screen.active { display: flex; }
+
+    /* ── Shared components ── */
+    .btn-primary {
+      display: block;
+      width: 100%;
+      padding: 13px;
+      background: var(--primary);
+      color: var(--white);
+      border: none;
+      border-radius: 8px;
+      font-size: 15px;
+      font-weight: 600;
+      cursor: pointer;
+      text-align: center;
+      transition: background .15s, opacity .15s;
+    }
+    .btn-primary:hover:not(:disabled) { background: var(--primary-dk); }
+    .btn-primary:disabled { opacity: .45; cursor: default; }
+
+    .btn-ghost {
+      background: none;
+      border: none;
+      color: var(--muted);
+      font-size: 13px;
+      cursor: pointer;
+      padding: 8px 0;
+      text-decoration: underline;
+      text-underline-offset: 2px;
+    }
+    .btn-ghost:hover { color: var(--text); }
+
+    /* ── START SCREEN ── */
+    #s-start {
+      min-height: 100vh;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 32px 20px;
+      gap: 28px;
+    }
+    .logo-mark svg { display: block; }
+    .logo-name {
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 3.5px;
+      text-transform: uppercase;
+      color: var(--muted);
+      text-align: center;
+      margin-top: 10px;
+    }
+    .start-card {
+      background: var(--white);
+      border-radius: var(--r);
+      box-shadow: var(--shadow);
+      padding: 40px;
+      max-width: 460px;
+      width: 100%;
+    }
+    .start-card h1 { font-size: 21px; font-weight: 700; margin-bottom: 10px; }
+    .start-card .desc {
+      font-size: 14px;
+      color: var(--muted);
+      margin-bottom: 26px;
+      line-height: 1.65;
+    }
+    .field { margin-bottom: 20px; }
+    .field label {
+      display: block;
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--muted);
+      letter-spacing: .4px;
+      text-transform: uppercase;
+      margin-bottom: 7px;
+    }
+    .field input {
+      width: 100%;
+      padding: 11px 14px;
+      border: 1.5px solid var(--lighter);
+      border-radius: 8px;
+      font-size: 15px;
+      color: var(--text);
+      background: var(--bg);
+      outline: none;
+      transition: border-color .15s;
+      font-family: inherit;
+    }
+    .field input:focus { border-color: var(--secondary); }
+    .start-footnote {
+      font-size: 12px;
+      color: var(--muted);
+      text-align: center;
+      margin-top: 14px;
+      opacity: .8;
+    }
+
+    /* ── LOADING SCREEN ── */
+    #s-loading {
+      min-height: 100vh;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 18px;
+    }
+    .spinner {
+      width: 38px; height: 38px;
+      border: 3px solid var(--lighter);
+      border-top-color: var(--primary);
+      border-radius: 50%;
+      animation: spin .85s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .loading-label { font-size: 14px; color: var(--muted); }
+
+    /* ── CONSENT SCREEN ── */
+    #s-consent {
+      min-height: 100vh;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 32px 20px;
+    }
+    .consent-card {
+      background: var(--white);
+      border-radius: var(--r);
+      box-shadow: var(--shadow);
+      padding: 40px;
+      max-width: 520px;
+      width: 100%;
+    }
+    .consent-card h2 { font-size: 20px; font-weight: 700; margin-bottom: 18px; }
+    .consent-notice {
+      background: var(--paper);
+      border-left: 3px solid var(--secondary);
+      border-radius: 0 7px 7px 0;
+      padding: 14px 16px;
+      font-size: 14px;
+      line-height: 1.65;
+      margin-bottom: 20px;
+    }
+    .consent-list {
+      font-size: 14px;
+      color: var(--muted);
+      margin-bottom: 26px;
+      line-height: 1.7;
+    }
+    .consent-list ul { margin: 8px 0 0 18px; }
+    .consent-actions { display: flex; flex-direction: column; gap: 8px; }
+
+    /* ── CHAT SCREEN ── */
+    #s-chat {
+      flex-direction: column;
+      height: 100dvh;
+      height: 100vh;
+    }
+
+    /* Header */
+    .chat-header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px 20px;
+      background: var(--white);
+      border-bottom: 1px solid var(--lighter);
+      flex-shrink: 0;
+      min-height: 54px;
+    }
+    .chat-header .title {
+      flex: 1;
+      font-size: 14px;
+      font-weight: 600;
+    }
+    .dim-badge {
+      font-size: 11px;
+      padding: 3px 10px;
+      background: var(--paper);
+      color: var(--muted);
+      border-radius: 100px;
+      font-weight: 500;
+      white-space: nowrap;
+      max-width: 200px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    /* Body */
+    .chat-body {
+      display: flex;
+      flex: 1;
+      overflow: hidden;
+    }
+
+    /* Sidebar */
+    .dim-sidebar {
+      width: 210px;
+      flex-shrink: 0;
+      background: var(--paper);
+      border-right: 1px solid var(--lighter);
+      padding: 20px 14px;
+      overflow-y: auto;
+    }
+    @media (max-width: 600px) { .dim-sidebar { display: none; } }
+    .sidebar-label {
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 14px;
+    }
+    .dim-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 9px;
+      padding: 7px 0;
+      font-size: 12px;
+      color: var(--muted);
+      line-height: 1.4;
+    }
+    .dim-item.active  { color: var(--primary); font-weight: 600; }
+    .dim-item.covered { color: var(--text); }
+    .dim-item.soon    { opacity: .38; }
+    .dim-dot {
+      width: 12px; height: 12px;
+      border-radius: 50%;
+      border: 2px solid currentColor;
+      flex-shrink: 0;
+      margin-top: 1px;
+      transition: background .2s;
+    }
+    .dim-item.active .dim-dot  { background: var(--primary); border-color: var(--primary); }
+    .dim-item.covered .dim-dot { background: var(--green); border-color: var(--green); }
+    .sidebar-divider { height: 1px; background: var(--lighter); margin: 10px 0; }
+    .sidebar-soon-label {
+      font-size: 10px; color: var(--muted); opacity: .6;
+      font-weight: 600; letter-spacing: .5px;
+      margin-bottom: 4px;
+    }
+
+    /* Messages */
+    .chat-main {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      min-width: 0;
+    }
+    .messages {
+      flex: 1;
+      overflow-y: auto;
+      padding: 20px 22px;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+    .msg {
+      max-width: 84%;
+      padding: 11px 16px;
+      border-radius: 16px;
+      font-size: 14px;
+      line-height: 1.6;
+      animation: fadeUp .22s ease;
+      word-break: break-word;
+    }
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(7px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    .msg-interviewer {
+      align-self: flex-start;
+      background: var(--white);
+      border: 1px solid var(--lighter);
+      border-bottom-left-radius: 4px;
+    }
+    .msg-candidate {
+      align-self: flex-end;
+      background: var(--primary);
+      color: var(--white);
+      border-bottom-right-radius: 4px;
+    }
+    .msg-system {
+      align-self: center;
+      background: var(--paper);
+      color: var(--muted);
+      font-size: 12px;
+      padding: 5px 14px;
+      border-radius: 100px;
+      max-width: none;
+    }
+
+    /* Typing indicator */
+    .typing-wrap {
+      padding: 0 22px 8px;
+    }
+    .typing-indicator {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 10px 14px;
+      background: var(--white);
+      border: 1px solid var(--lighter);
+      border-radius: 16px;
+      border-bottom-left-radius: 4px;
+    }
+    .typing-indicator span {
+      width: 7px; height: 7px;
+      border-radius: 50%;
+      background: var(--secondary);
+      animation: bounce 1.2s infinite ease;
+    }
+    .typing-indicator span:nth-child(2) { animation-delay: .18s; }
+    .typing-indicator span:nth-child(3) { animation-delay: .36s; }
+    @keyframes bounce {
+      0%, 80%, 100% { transform: scale(.5); opacity: .35; }
+      40%           { transform: scale(1);  opacity: 1; }
+    }
+
+    /* Input bar */
+    .input-bar {
+      padding: 14px 18px;
+      border-top: 1px solid var(--lighter);
+      background: var(--white);
+      display: flex;
+      gap: 10px;
+      align-items: flex-end;
+      flex-shrink: 0;
+    }
+    #resp-input {
+      flex: 1;
+      padding: 10px 14px;
+      border: 1.5px solid var(--lighter);
+      border-radius: 10px;
+      font-size: 14px;
+      line-height: 1.5;
+      font-family: inherit;
+      resize: none;
+      outline: none;
+      color: var(--text);
+      background: var(--bg);
+      min-height: 44px;
+      max-height: 130px;
+      transition: border-color .15s;
+      overflow-y: auto;
+    }
+    #resp-input:focus { border-color: var(--secondary); }
+    #resp-input::placeholder { color: var(--muted); opacity: .6; }
+    #resp-input:disabled { opacity: .5; }
+    .btn-send {
+      width: 44px; height: 44px;
+      flex-shrink: 0;
+      border-radius: 10px;
+      background: var(--primary);
+      color: var(--white);
+      border: none;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background .15s, opacity .15s;
+    }
+    .btn-send:hover:not(:disabled) { background: var(--primary-dk); }
+    .btn-send:disabled { opacity: .38; cursor: default; }
+
+    /* ── RESULTS SCREEN ── */
+    #s-results {
+      min-height: 100vh;
+      flex-direction: column;
+      align-items: center;
+      padding: 48px 20px 60px;
+    }
+    .results-card {
+      background: var(--white);
+      border-radius: var(--r);
+      box-shadow: var(--shadow);
+      padding: 44px 38px;
+      max-width: 560px;
+      width: 100%;
+    }
+    .results-top {
+      text-align: center;
+      margin-bottom: 34px;
+    }
+    .results-top h2 { font-size: 22px; font-weight: 700; margin-top: 12px; margin-bottom: 6px; }
+    .results-top .subtitle { font-size: 13px; color: var(--muted); }
+
+    /* Score arc */
+    .arc-wrap { text-align: center; margin-bottom: 6px; }
+    .score-center { text-align: center; margin-bottom: 28px; }
+    .score-num  { font-size: 52px; font-weight: 800; color: var(--text); line-height: 1; }
+    .score-band { font-size: 16px; font-weight: 600; margin-top: 5px; }
+    .score-pending { font-size: 14px; color: var(--muted); margin: 14px 0 28px; text-align: center; }
+
+    /* Dimension table */
+    .dim-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+    }
+    .dim-table th {
+      text-align: left;
+      color: var(--muted);
+      font-weight: 700;
+      font-size: 10px;
+      letter-spacing: .6px;
+      text-transform: uppercase;
+      padding: 8px 10px;
+      border-bottom: 1px solid var(--lighter);
+    }
+    .dim-table td { padding: 9px 10px; border-bottom: 1px solid var(--paper); vertical-align: middle; }
+    .dim-table tr:last-child td { border-bottom: none; }
+
+    .score-bar-wrap { display: flex; align-items: center; gap: 8px; }
+    .score-bar-bg { flex: 1; height: 4px; background: var(--lighter); border-radius: 2px; overflow: hidden; }
+    .score-bar-fill { height: 100%; border-radius: 2px; transition: width .6s ease; }
+    .score-val-label { font-size: 12px; font-weight: 600; color: var(--muted); min-width: 28px; text-align: right; }
+
+    .band-pill {
+      display: inline-block;
+      padding: 2px 9px;
+      border-radius: 100px;
+      font-size: 11px;
+      font-weight: 600;
+    }
+    .pill-foundational { background: #f0ece6; color: #7a5230; }
+    .pill-developing   { background: #fdf0e5; color: #9c5e1a; }
+    .pill-proficient   { background: #fde8de; color: var(--primary); }
+    .pill-expert       { background: #3d1505; color: #fde0cc; }
+    .pill-pending      { background: var(--paper); color: var(--muted); }
+
+    /* CTAs */
+    .cta-row {
+      display: flex;
+      gap: 12px;
+      margin-top: 30px;
+    }
+    .cta-row .btn-primary { font-size: 14px; }
+    .btn-outline {
+      flex: 1;
+      padding: 13px;
+      border: 1.5px solid var(--lighter);
+      border-radius: 8px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      background: var(--white);
+      color: var(--muted);
+      transition: border-color .15s, color .15s;
+    }
+    .btn-outline:hover:not(:disabled) { border-color: var(--primary); color: var(--primary); }
+    .btn-outline:disabled { opacity: .4; cursor: default; }
+    .pending-note {
+      text-align: center;
+      font-size: 11px;
+      color: var(--muted);
+      margin-top: 12px;
+      line-height: 1.5;
+      opacity: .85;
+    }
+
+    /* ── Demo banner ── */
+    .demo-banner {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      background: var(--primary-dk);
+      color: #fde0cc;
+      font-size: 11px;
+      font-weight: 700;
+      text-align: center;
+      padding: 5px;
+      z-index: 9999;
+      letter-spacing: .5px;
+    }
+  </style>
+</head>
+<body>
+
+<!-- ══ START SCREEN ══════════════════════════════════════════════════════════ -->
+<div id="s-start" class="screen active">
+  <div class="logo-mark">
+    <!-- Volo arc logo (concentric semi-arcs) -->
+    <svg viewBox="0 0 160 100" width="160" height="100" xmlns="http://www.w3.org/2000/svg">
+      <path d="M10 80 A70 70 0 0 1 150 80"  fill="none" stroke="#e0d4c0" stroke-width="10" stroke-linecap="round"/>
+      <path d="M33 80 A47 47 0 0 1 127 80"  fill="none" stroke="#cd8a4f" stroke-width="10" stroke-linecap="round"/>
+      <path d="M56 80 A24 24 0 0 1 104 80"  fill="none" stroke="#b0542c" stroke-width="10" stroke-linecap="round"/>
+      <circle cx="80" cy="80" r="10" fill="#b0542c"/>
+    </svg>
+    <div class="logo-name">Volo Index</div>
+  </div>
+
+  <div class="start-card">
+    <h1>Volunteer Leadership Assessment</h1>
+    <p class="desc">A structured, AI-mediated assessment of your volunteer management competencies across six practice dimensions. Estimated time: 25–35 minutes.</p>
+
+    <div class="field">
+      <label for="name-input">Your name</label>
+      <input id="name-input" type="text" placeholder="Full name" autocomplete="name" />
+    </div>
+
+    <button id="btn-start" class="btn-primary">Begin Assessment</button>
+    <p class="start-footnote">Practice mode coming soon — try one dimension without scoring</p>
+  </div>
+</div>
+
+<!-- ══ LOADING SCREEN ════════════════════════════════════════════════════════ -->
+<div id="s-loading" class="screen">
+  <div class="spinner"></div>
+  <p class="loading-label" id="loading-msg">Preparing your session…</p>
+</div>
+
+<!-- ══ CONSENT SCREEN ════════════════════════════════════════════════════════ -->
+<div id="s-consent" class="screen">
+  <div class="consent-card">
+    <h2>Before we begin</h2>
+
+    <div class="consent-notice">
+      <strong>Transcript storage:</strong> This assessment records a complete transcript of your conversation with the AI interviewer. The transcript is required for accurate signal extraction and scoring.
+    </div>
+
+    <div class="consent-list">
+      <p>By proceeding you agree that your interview transcript may be:</p>
+      <ul>
+        <li>Retained and used for evaluation and scoring</li>
+        <li>Reviewed by a trained Give Protocol Foundation evaluator as part of early QA</li>
+        <li>Associated with your assessment record</li>
+      </ul>
+    </div>
+
+    <div class="consent-actions">
+      <button id="btn-consent-accept" class="btn-primary">I understand and consent — begin interview</button>
+      <button id="btn-consent-decline" class="btn-ghost">Decline — do not proceed with this assessment</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ CHAT SCREEN ════════════════════════════════════════════════════════════ -->
+<div id="s-chat" class="screen">
+
+  <div class="chat-header">
+    <!-- Small logo -->
+    <svg viewBox="0 0 60 40" width="52" height="34" xmlns="http://www.w3.org/2000/svg" flex-shrink="0">
+      <path d="M3 32 A27 27 0 0 1 57 32" fill="none" stroke="#e0d4c0" stroke-width="5" stroke-linecap="round"/>
+      <path d="M11 32 A19 19 0 0 1 49 32" fill="none" stroke="#cd8a4f" stroke-width="5" stroke-linecap="round"/>
+      <path d="M21 32 A9 9 0 0 1 39 32"  fill="none" stroke="#b0542c" stroke-width="5" stroke-linecap="round"/>
+      <circle cx="30" cy="32" r="4" fill="#b0542c"/>
+    </svg>
+    <span class="title">Volunteer Leadership Assessment</span>
+    <span class="dim-badge" id="dim-badge">Starting…</span>
+  </div>
+
+  <div class="chat-body">
+
+    <!-- Progress sidebar (hidden on mobile) -->
+    <aside class="dim-sidebar">
+      <p class="sidebar-label">Dimensions</p>
+      <div id="dim-list">
+        <!-- Rendered by JS for D1-D3 -->
+      </div>
+      <div class="sidebar-divider"></div>
+      <p class="sidebar-soon-label">Coming soon</p>
+      <div class="dim-item soon"><span class="dim-dot"></span><span>Performance, Impact &amp; Accountability</span></div>
+      <div class="dim-item soon"><span class="dim-dot"></span><span>Recognition, Retention &amp; Culture</span></div>
+      <div class="dim-item soon"><span class="dim-dot"></span><span>Ethics, Equity &amp; Advocacy</span></div>
+    </aside>
+
+    <!-- Chat area -->
+    <div class="chat-main">
+      <div class="messages" id="messages"></div>
+
+      <div class="typing-wrap" id="typing-wrap" style="display:none;">
+        <div class="typing-indicator">
+          <span></span><span></span><span></span>
+        </div>
+      </div>
+
+      <div class="input-bar">
+        <textarea id="resp-input" placeholder="Type your response…" rows="2" disabled></textarea>
+        <button class="btn-send" id="btn-send" disabled>
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M22 2 11 13"/><polygon points="22 2 15 22 11 13 2 9"/>
+          </svg>
+        </button>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ══ RESULTS SCREEN ═════════════════════════════════════════════════════════ -->
+<div id="s-results" class="screen">
+  <div class="results-card">
+
+    <div class="results-top">
+      <svg viewBox="0 0 60 40" width="56" height="38" xmlns="http://www.w3.org/2000/svg">
+        <path d="M3 32 A27 27 0 0 1 57 32" fill="none" stroke="#e0d4c0" stroke-width="5" stroke-linecap="round"/>
+        <path d="M11 32 A19 19 0 0 1 49 32" fill="none" stroke="#cd8a4f" stroke-width="5" stroke-linecap="round"/>
+        <path d="M21 32 A9 9 0 0 1 39 32"  fill="none" stroke="#b0542c" stroke-width="5" stroke-linecap="round"/>
+        <circle cx="30" cy="32" r="4" fill="#b0542c"/>
+      </svg>
+      <h2>Assessment Complete</h2>
+      <p class="subtitle" id="results-subtitle">Volunteer Leadership Assessment</p>
+    </div>
+
+    <!-- Score arc (rendered by JS) -->
+    <div class="arc-wrap" id="arc-wrap"></div>
+    <div class="score-center">
+      <div class="score-num" id="score-num">—</div>
+      <div class="score-band" id="score-band"></div>
+    </div>
+
+    <!-- Dimension breakdown -->
+    <table class="dim-table">
+      <thead>
+        <tr>
+          <th>Dimension</th>
+          <th>Score</th>
+          <th style="width:110px">Band</th>
+        </tr>
+      </thead>
+      <tbody id="dim-tbody"></tbody>
+    </table>
+
+    <div class="cta-row">
+      <button id="btn-cert"  class="btn-primary" disabled style="flex:1">View Certificate</button>
+      <button id="btn-share" class="btn-outline" disabled>Share on LinkedIn</button>
+    </div>
+    <p class="pending-note" id="cert-note">
+      Certificate issuance and LinkedIn sharing require T2-D (in progress).<br>
+      Your score has been saved to your assessment record.
+    </p>
+
+  </div>
+</div>
+
+<script>
+// ══════════════════════════════════════════════════════════════════════════════
+// Volo Index Assessment Web App — T2-B
+// ══════════════════════════════════════════════════════════════════════════════
+
+// ── Mode selection ───────────────────────────────────────────────────────────
+//
+// ?mode=mock   Browser-side simulation, no server (default for demos)
+// ?mode=dev    Dev server (node src/web/dev-server.js) — simple long-poll API
+// ?mode=prod   T2-A production server — SSE-based, requires userId URL param
+//              e.g. ?mode=prod&userId=550e8400-...
+//
+// No param → defaults to 'mock' so the page works out of the box.
+
+const PARAMS    = new URLSearchParams(location.search);
+const APP_MODE  = PARAMS.get('mode') ?? 'mock';
+const MOCK_MODE = APP_MODE === 'mock';   // back-compat for demo banner
+
+// ── Constants ────────────────────────────────────────────────────────────────
+
+const ACTIVE_DIMS = [
+  { id: 'D1', name: 'Strategic Engagement Design' },
+  { id: 'D2', name: 'Recruitment, Matching & Onboarding' },
+  { id: 'D3', name: 'Training, Development & Role Support' },
+];
+
+const ALL_DIMS = [
+  ...ACTIVE_DIMS,
+  { id: 'D4', name: 'Performance, Impact & Accountability' },
+  { id: 'D5', name: 'Recognition, Retention & Culture' },
+  { id: 'D6', name: 'Ethics, Equity & Advocacy' },
+];
+
+const BANDS = [
+  { id: 'foundational', label: 'Foundational', min: 1.0, max: 3.0,  color: '#b39270', pillClass: 'pill-foundational' },
+  { id: 'developing',   label: 'Developing',   min: 3.1, max: 5.5,  color: '#cd8a4f', pillClass: 'pill-developing'   },
+  { id: 'proficient',   label: 'Proficient',   min: 5.6, max: 7.5,  color: '#b0542c', pillClass: 'pill-proficient'   },
+  { id: 'expert',       label: 'Expert',        min: 7.6, max: 10.0, color: '#7a2e10', pillClass: 'pill-expert'       },
+];
+
+// ── App state ────────────────────────────────────────────────────────────────
+
+const state = {
+  sessionId:    null,
+  candidateName: '',
+  currentDim:   null,
+  coveredDims:  new Set(),
+  // Populated from score.cert* once T2-D issues a certificate
+  certId:       null,
+  certUrl:      null,
+  certTier:     null,
+  certIssuedAt: null,
+};
+
+// ── DOM helpers ──────────────────────────────────────────────────────────────
+
+function show(id) {
+  document.querySelectorAll('.screen').forEach(el => el.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+}
+
+function setLoading(msg) {
+  show('s-loading');
+  document.getElementById('loading-msg').textContent = msg;
+}
+
+// ── Chat helpers ─────────────────────────────────────────────────────────────
+
+function addMsg(role, content) {
+  const el = Object.assign(document.createElement('div'), {
+    className: `msg msg-${role}`,
+    textContent: content,
+  });
+  document.getElementById('messages').appendChild(el);
+  scrollBottom();
+}
+
+function addSystemMsg(text) {
+  addMsg('system', text);
+}
+
+function scrollBottom() {
+  const m = document.getElementById('messages');
+  m.scrollTop = m.scrollHeight;
+}
+
+function setTyping(visible) {
+  document.getElementById('typing-wrap').style.display = visible ? 'block' : 'none';
+  if (visible) scrollBottom();
+}
+
+function setInputEnabled(on) {
+  document.getElementById('resp-input').disabled = !on;
+  document.getElementById('btn-send').disabled   = !on;
+  if (on) setTimeout(() => document.getElementById('resp-input').focus(), 50);
+}
+
+// ── Dimension progress ────────────────────────────────────────────────────────
+
+function onNewDim(dimId) {
+  if (state.currentDim && state.currentDim !== dimId) {
+    state.coveredDims.add(state.currentDim);
+  }
+  state.currentDim = dimId;
+  renderDimSidebar();
+
+  const dim = ACTIVE_DIMS.find(d => d.id === dimId);
+  document.getElementById('dim-badge').textContent = dim ? dim.name : dimId ?? 'Wrapping up…';
+}
+
+function renderDimSidebar() {
+  const list = document.getElementById('dim-list');
+  list.innerHTML = '';
+  for (const d of ACTIVE_DIMS) {
+    const isCovered = state.coveredDims.has(d.id);
+    const isActive  = state.currentDim === d.id && !isCovered;
+    const el = document.createElement('div');
+    el.className = `dim-item${isActive ? ' active' : ''}${isCovered ? ' covered' : ''}`;
+    el.innerHTML = `<span class="dim-dot"></span><span>${d.name}</span>`;
+    list.appendChild(el);
+  }
+}
+
+// ── Score arc SVG ─────────────────────────────────────────────────────────────
+
+function bandFor(score) {
+  return BANDS.find(b => score >= b.min && score <= b.max) ?? BANDS[0];
+}
+
+function renderArc(score) {
+  const R   = 70;
+  const CX  = 100, CY = 92;
+  const len = Math.PI * R;
+  const filled = Math.max(0, Math.min(1, score / 10)) * len;
+  const band = bandFor(score);
+
+  return `<svg viewBox="0 0 200 105" width="230" height="118" xmlns="http://www.w3.org/2000/svg">
+    <path d="M ${CX - R} ${CY} A ${R} ${R} 0 0 1 ${CX + R} ${CY}"
+          fill="none" stroke="#ede5d8" stroke-width="14" stroke-linecap="round"/>
+    <path d="M ${CX - R} ${CY} A ${R} ${R} 0 0 1 ${CX + R} ${CY}"
+          fill="none" stroke="${band.color}" stroke-width="14" stroke-linecap="round"
+          stroke-dasharray="${filled.toFixed(1)} ${len.toFixed(1)}"
+          style="transition:stroke-dasharray .9s ease"/>
+  </svg>`;
+}
+
+// ── Results page ──────────────────────────────────────────────────────────────
+
+function showResults(score) {
+  show('s-results');
+
+  // Mark last dimension covered
+  if (state.currentDim) state.coveredDims.add(state.currentDim);
+
+  const overall = score?.overall?.score ?? null;
+
+  if (overall != null) {
+    const band = bandFor(overall);
+    // Delay arc render slightly so CSS transition plays on entry
+    setTimeout(() => {
+      document.getElementById('arc-wrap').innerHTML = renderArc(overall);
+    }, 100);
+    document.getElementById('score-num').textContent  = overall.toFixed(1);
+    document.getElementById('score-band').textContent = score?.overall?.tier ?? band.label;
+    document.getElementById('score-band').style.color = band.color;
+  } else {
+    document.getElementById('arc-wrap').innerHTML = `<p class="score-pending">Score pending evaluation review</p>`;
+    document.getElementById('score-num').textContent  = '—';
+    document.getElementById('score-band').textContent = 'Pending review';
+    document.getElementById('score-band').style.color = 'var(--muted)';
+  }
+
+  document.getElementById('results-subtitle').textContent =
+    `${state.candidateName || 'Candidate'} · ` +
+    new Date().toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
+
+  // Dimension table
+  const tbody = document.getElementById('dim-tbody');
+  tbody.innerHTML = '';
+
+  // Build lookup from array or object
+  const dimLookup = {};
+  if (Array.isArray(score?.dimensions)) {
+    for (const d of score.dimensions) dimLookup[d.id] = d;
+  } else if (score?.dimensions && typeof score.dimensions === 'object') {
+    Object.assign(dimLookup, score.dimensions);
+  }
+
+  for (const d of ALL_DIMS) {
+    const ds  = dimLookup[d.id];
+    const tr  = document.createElement('tr');
+    const dimScore = ds?.score ?? null;
+    const dimTier  = ds?.tier  ?? null;
+    const ie       = ds?.insufficientEvidence ?? (dimScore == null);
+
+    if (ie || dimScore == null) {
+      tr.innerHTML = `
+        <td>${d.name}</td>
+        <td>—</td>
+        <td><span class="band-pill pill-pending">Not assessed</span></td>`;
+    } else {
+      const band = dimTier
+        ? (BANDS.find(b => b.label.toLowerCase() === dimTier.toLowerCase()) ?? bandFor(dimScore))
+        : bandFor(dimScore);
+      const pct  = Math.min(100, (dimScore / 10) * 100).toFixed(0);
+      tr.innerHTML = `
+        <td>${d.name}</td>
+        <td>
+          <div class="score-bar-wrap">
+            <div class="score-bar-bg">
+              <div class="score-bar-fill" style="width:${pct}%;background:${band.color}"></div>
+            </div>
+            <span class="score-val-label">${dimScore.toFixed(1)}</span>
+          </div>
+        </td>
+        <td><span class="band-pill ${band.pillClass}">${band.label}</span></td>`;
+    }
+    tbody.appendChild(tr);
+  }
+
+  // ── Certificate & sharing ─────────────────────────────────────────────────
+  // score.certId / score.certUrl are set by T2-D once a certificate is issued.
+  // In mock/dev mode they're populated in MOCK_SCORE for preview purposes.
+  state.certId       = score?.certId       ?? null;
+  state.certUrl      = score?.certUrl      ?? null;
+  state.certTier     = score?.certTier     ?? score?.overall?.tier ?? null;
+  state.certIssuedAt = score?.certIssuedAt ?? new Date().toISOString();
+
+  const certReady = !!(state.certId && state.certUrl);
+  document.getElementById('btn-cert').disabled  = !certReady;
+  document.getElementById('btn-share').disabled = !certReady;
+
+  const noteEl = document.getElementById('cert-note');
+  if (certReady) {
+    noteEl.style.display = 'none';
+  } else if (score?.publicationStatus === 'pending_review') {
+    noteEl.innerHTML = 'Your certificate will be issued after evaluator review (typically 1–2 business days).<br>You\'ll be able to add it to LinkedIn once issued.';
+  }
+}
+
+// ══════════════════════════════════════════════════════════════════════════════
+// API clients
+//
+// All three clients expose the same interface:
+//   createSession(name)            → { sessionId, state }
+//   grantConsent(id, grant)        → { state, question, dimension }
+//   submitTurn(id, response)       → { state, question?, dimension?, score? }
+//
+// ── Mode=dev: DevApiClient (src/web/dev-server.js) ──────────────────────────
+//   Simple long-poll API. Run: node src/web/dev-server.js
+//   Then open: http://localhost:3000/?mode=dev
+//
+// ── Mode=prod: T2aApiClient (src/server/) ───────────────────────────────────
+//   SSE-based real-time API matching T2-A's Express server.
+//   Requires: T2-A server running + valid userId (from T2-C auth).
+//   T2-A still needs ChatInterviewController wiring in POST /api/sessions/:id/start
+//   before questions arrive via SSE. Track via GIV-621.
+//   Open: http://localhost:3000/?mode=prod&userId=<uuid>
+//
+// ── Mode=mock: MockApiClient ─────────────────────────────────────────────────
+//   Browser-side simulation, no server. Default when no ?mode= param.
+// ══════════════════════════════════════════════════════════════════════════════
+
+const _delay = (ms) => new Promise(r => setTimeout(r, ms));
+
+// ── DevApiClient: long-poll API matching dev-server.js ───────────────────────
+
+class DevApiClient {
+  async createSession(candidateName) {
+    const r = await fetch('/api/sessions', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ candidateName }),
+    });
+    if (!r.ok) throw new Error(`Dev server error ${r.status}: ${await r.text()}`);
+    return r.json(); // { sessionId, state: 'consent_pending' }
+  }
+
+  async grantConsent(sessionId, grant = true) {
+    const r = await fetch(`/api/sessions/${sessionId}/consent`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ grant }),
+    });
+    if (!r.ok) throw new Error(`Dev server error ${r.status}: ${await r.text()}`);
+    return r.json(); // { state, question, dimension }
+  }
+
+  async submitTurn(sessionId, response) {
+    const r = await fetch(`/api/sessions/${sessionId}/turn`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ response }),
+    });
+    if (!r.ok) throw new Error(`Dev server error ${r.status}: ${await r.text()}`);
+    return r.json(); // { state, question?, dimension?, score? }
+  }
+}
+
+// ── T2aApiClient: SSE-based T2-A production API ───────────────────────────────
+//
+// Wraps T2-A's SSE stream in Promises so the flow controller stays unchanged.
+//
+// Pending T2-A work (GIV-621):
+//   POST /api/sessions/:id/start must instantiate ChatInterviewController
+//   and wire its 'question' events to the SSE listeners. Until then,
+//   questions won't arrive and this client will time out.
+//
+// Pending T2-C work (GIV-623):
+//   POST /api/sessions requires userId (an authenticated user record).
+//   For early integration testing, pass ?userId=<uuid> in the URL.
+
+class T2aApiClient {
+  constructor(userId) {
+    if (!userId) throw new Error('T2aApiClient requires a userId (pass ?userId=<uuid> in URL). Requires T2-C auth.');
+    this._userId = userId;
+    this._sse    = null;  // EventSource per session
+    // Promise plumbing for question delivery via SSE
+    this._questionBuf  = [];
+    this._pendingFn    = null;
+    this._terminal     = false;
+  }
+
+  // Bridge SSE events → Promise so the flow controller stays unchanged
+  _onSseQuestion(data) {
+    if (this._pendingFn) {
+      const fn = this._pendingFn; this._pendingFn = null; fn(data);
+    } else if (data === null) {
+      this._terminal = true;
+    } else {
+      this._questionBuf.push(data);
+    }
+  }
+
+  _waitForSseQuestion(timeoutMs = 90_000) {
+    if (this._questionBuf.length > 0) return Promise.resolve(this._questionBuf.shift());
+    if (this._terminal) return Promise.resolve(null);
+    return new Promise((resolve, reject) => {
+      let settled = false;
+      const timer = setTimeout(() => {
+        if (!settled) { settled = true; this._pendingFn = null; reject(new Error('SSE question timeout — is T2-A LLM wiring active?')); }
+      }, timeoutMs);
+      this._pendingFn = (v) => { if (!settled) { settled = true; clearTimeout(timer); resolve(v); } };
+    });
+  }
+
+  async createSession(candidateName) {
+    // T2-A: POST /api/sessions { userId }
+    const r = await fetch('/api/sessions', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ userId: this._userId }),
+    });
+    if (!r.ok) throw new Error(`T2-A error ${r.status}: ${await r.text()}`);
+    const { session } = await r.json();
+    // Open SSE stream
+    this._sse = new EventSource(`/api/sessions/${session.id}/stream`);
+    this._sse.addEventListener('interviewerTurn', (e) => {
+      const data = JSON.parse(e.data);
+      this._onSseQuestion({ question: data.content, dimension: data.dimension });
+    });
+    this._sse.addEventListener('end', () => this._onSseQuestion(null));
+    this._sse.addEventListener('error', () => this._onSseQuestion(null));
+    return { sessionId: session.id, state: 'consent_pending' };
+  }
+
+  async grantConsent(sessionId, grant = true) {
+    // T2-A: POST /api/sessions/:id/consent { granted }
+    const r = await fetch(`/api/sessions/${sessionId}/consent`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ granted: grant }),
+    });
+    if (!r.ok) throw new Error(`T2-A error ${r.status}: ${await r.text()}`);
+    if (!grant) return { state: 'abandoned', question: null, dimension: null };
+    // T2-A: POST /api/sessions/:id/start (triggers ChatInterviewController on server)
+    const r2 = await fetch(`/api/sessions/${sessionId}/start`, {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+    });
+    if (!r2.ok) throw new Error(`T2-A start error ${r2.status}: ${await r2.text()}`);
+    // First question arrives via SSE interviewerTurn event
+    const q = await this._waitForSseQuestion();
+    if (!q) return { state: 'abandoned', question: null, dimension: null };
+    return { state: 'interviewing', question: q.question, dimension: q.dimension };
+  }
+
+  async submitTurn(sessionId, response) {
+    // T2-A: POST /api/sessions/:id/respond { text }
+    const r = await fetch(`/api/sessions/${sessionId}/respond`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ text: response }),
+    });
+    if (!r.ok) throw new Error(`T2-A error ${r.status}: ${await r.text()}`);
+    // Next question (or end) arrives via SSE
+    const q = await this._waitForSseQuestion();
+    if (!q) {
+      if (this._sse) { this._sse.close(); this._sse = null; }
+      // Fetch score from results endpoint
+      const score = await this._fetchScore(sessionId);
+      return { state: 'completed', question: null, dimension: null, score };
+    }
+    return { state: 'interviewing', question: q.question, dimension: q.dimension };
+  }
+
+  async _fetchScore(sessionId) {
+    try {
+      const r = await fetch(`/api/results/${sessionId}`);
+      if (!r.ok) return null;
+      const { result } = await r.json();
+      // Reshape T2-A result → T2-B display contract
+      const dimScores = result.dimensionScores ?? {};
+      return {
+        overall: { score: result.overallScore, tier: result.overallTier, incomplete: false },
+        dimensions: ALL_DIMS.map(d => {
+          const ds = dimScores[d.id];
+          return ds ? { id: d.id, name: d.name, score: ds.score, tier: ds.tier, insufficientEvidence: !ds.score }
+                    : { id: d.id, name: d.name, score: null, tier: null, insufficientEvidence: true };
+        }),
+        rubricVersion: result.rubricVersion,
+        publicationStatus: result.publicationStatus ?? 'pending_review',
+      };
+    } catch { return null; }
+  }
+}
+
+// ── Mock client (browser-side, no server needed) ─────────────────────────────
+
+const MOCK_QUESTIONS = [
+  { dimension: 'D1', question: 'Tell me about a time you designed a volunteer engagement program. What was your strategic approach and what did you aim to achieve?' },
+  { dimension: 'D1', question: "How do you typically align volunteer programs with an organisation's broader strategic goals? Can you share a specific example where this alignment made a meaningful difference?" },
+  { dimension: 'D2', question: 'Describe your process for recruiting volunteers for a specific initiative or campaign. What channels and methods have you found most effective, and why?' },
+  { dimension: 'D2', question: 'Walk me through a situation where matching the right volunteer to the right role had a significant impact. What factors did you consider?' },
+  { dimension: 'D3', question: 'Walk me through a volunteer training program you developed or significantly improved. What learning needs did you identify, and how did you structure the experience?' },
+  { dimension: 'D3', question: 'Describe a situation where a volunteer needed additional support to succeed in their role. How did you identify the need and what support did you provide?' },
+];
+
+const MOCK_SCORE = {
+  overall: { score: 6.2, tier: 'Proficient', partial: false, capped: false, incomplete: false },
+  dimensions: [
+    { id: 'D1', name: 'Strategic Engagement Design',          score: 6.5, tier: 'Proficient', insufficientEvidence: false },
+    { id: 'D2', name: 'Recruitment, Matching & Onboarding',   score: 5.9, tier: 'Proficient', insufficientEvidence: false },
+    { id: 'D3', name: 'Training, Development & Role Support',  score: 6.1, tier: 'Proficient', insufficientEvidence: false },
+    { id: 'D4', name: 'Performance, Impact & Accountability',  score: null, tier: null, insufficientEvidence: true },
+    { id: 'D5', name: 'Recognition, Retention & Culture',      score: null, tier: null, insufficientEvidence: true },
+    { id: 'D6', name: 'Ethics, Equity & Advocacy',             score: null, tier: null, insufficientEvidence: true },
+  ],
+  rubricVersion: '1.2',
+  publicationStatus: 'published',            // mock: cert issued immediately
+  certId:      'mock-cert-preview-001',
+  certUrl:     '/credential/mock-cert-preview-001',
+  certTier:    'Proficient',
+  certIssuedAt: new Date().toISOString(),
+};
+
+class MockApiClient {
+  constructor() { this._sessions = new Map(); }
+
+  async createSession(candidateName) {
+    const id = 'mock-' + Math.random().toString(36).slice(2, 10);
+    this._sessions.set(id, { candidateName, idx: 0, state: 'consent_pending' });
+    return { sessionId: id, state: 'consent_pending' };
+  }
+
+  async grantConsent(sessionId, grant = true) {
+    const s = this._sessions.get(sessionId);
+    if (!s) throw new Error('Session not found');
+    if (!grant) { s.state = 'abandoned'; return { state: 'abandoned', question: null, dimension: null }; }
+    s.state = 'interviewing';
+    await _delay(700 + Math.random() * 400);
+    const q = MOCK_QUESTIONS[0];
+    return { state: 'interviewing', question: q.question, dimension: q.dimension };
+  }
+
+  async submitTurn(sessionId, _response) {
+    const s = this._sessions.get(sessionId);
+    if (!s) throw new Error('Session not found');
+    s.idx++;
+    await _delay(900 + Math.random() * 700);
+    if (s.idx >= MOCK_QUESTIONS.length) {
+      s.state = 'completed';
+      return { state: 'completed', question: null, dimension: null, score: MOCK_SCORE };
+    }
+    const q = MOCK_QUESTIONS[s.idx];
+    return { state: 'interviewing', question: q.question, dimension: q.dimension };
+  }
+}
+
+// ── Select client based on ?mode= ────────────────────────────────────────────
+
+function buildApiClient() {
+  switch (APP_MODE) {
+    case 'dev':  return new DevApiClient();
+    case 'prod': return new T2aApiClient(PARAMS.get('userId') ?? '');
+    default:     return new MockApiClient(); // 'mock' or no param
+  }
+}
+const api = buildApiClient();
+
+// ══════════════════════════════════════════════════════════════════════════════
+// Flow controllers
+// ══════════════════════════════════════════════════════════════════════════════
+
+// ── Start ─────────────────────────────────────────────────────────────────────
+
+document.getElementById('btn-start').addEventListener('click', async () => {
+  const input = document.getElementById('name-input');
+  const name  = input.value.trim();
+  if (!name) { input.focus(); return; }
+
+  state.candidateName = name;
+  document.getElementById('btn-start').disabled = true;
+  setLoading('Creating your session…');
+
+  try {
+    const { sessionId } = await api.createSession(name);
+    state.sessionId = sessionId;
+    show('s-consent');
+  } catch (err) {
+    alert(`Could not start session: ${err.message}\n\nTip: add ?mode=mock for browser demo mode, or ?mode=dev when running node src/web/dev-server.js`);
+    show('s-start');
+    document.getElementById('btn-start').disabled = false;
+  }
+});
+
+document.getElementById('name-input').addEventListener('keydown', (e) => {
+  if (e.key === 'Enter') document.getElementById('btn-start').click();
+});
+
+// ── Consent ───────────────────────────────────────────────────────────────────
+
+document.getElementById('btn-consent-accept').addEventListener('click', async () => {
+  document.getElementById('btn-consent-accept').disabled = true;
+  setLoading('Starting your interview…');
+
+  try {
+    const result = await api.grantConsent(state.sessionId, true);
+    if (result.state === 'interviewing' && result.question) {
+      beginChat(result.question, result.dimension);
+    } else {
+      alert('Unexpected server state: ' + result.state);
+      show('s-consent');
+      document.getElementById('btn-consent-accept').disabled = false;
+    }
+  } catch (err) {
+    alert('Error: ' + err.message);
+    show('s-consent');
+    document.getElementById('btn-consent-accept').disabled = false;
+  }
+});
+
+document.getElementById('btn-consent-decline').addEventListener('click', async () => {
+  api.grantConsent(state.sessionId, false).catch(() => {});
+  show('s-start');
+  document.getElementById('btn-start').disabled = false;
+  document.getElementById('name-input').value   = '';
+});
+
+// ── Chat ──────────────────────────────────────────────────────────────────────
+
+function beginChat(firstQuestion, firstDim) {
+  document.getElementById('messages').innerHTML = '';
+  state.currentDim  = null;
+  state.coveredDims = new Set();
+  renderDimSidebar();
+  show('s-chat');
+
+  addSystemMsg(`Interview started · ${state.candidateName}`);
+  setTimeout(() => {
+    onNewDim(firstDim);
+    addMsg('interviewer', firstQuestion);
+    setInputEnabled(true);
+  }, 280);
+}
+
+async function handleSend() {
+  const textarea = document.getElementById('resp-input');
+  const text     = textarea.value.trim();
+  if (!text) return;
+
+  textarea.value = '';
+  textarea.style.height = '';
+  setInputEnabled(false);
+  addMsg('candidate', text);
+  setTyping(true);
+
+  try {
+    const result = await api.submitTurn(state.sessionId, text);
+    setTyping(false);
+
+    switch (result.state) {
+      case 'completed':
+        addSystemMsg('Interview complete — evaluating your responses…');
+        setTimeout(() => showResults(result.score), 1400);
+        break;
+      case 'abandoned':
+      case 'cost_capped':
+        addSystemMsg(`Session ended: ${result.state.replace('_', ' ')}`);
+        break;
+      default:
+        if (result.question) {
+          onNewDim(result.dimension);
+          addMsg('interviewer', result.question);
+          setInputEnabled(true);
+        }
+    }
+  } catch (err) {
+    setTyping(false);
+    addSystemMsg('Connection error — ' + err.message);
+    setInputEnabled(true);
+  }
+}
+
+document.getElementById('btn-send').addEventListener('click', handleSend);
+
+document.getElementById('resp-input').addEventListener('keydown', (e) => {
+  if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleSend(); }
+});
+
+// Auto-grow textarea
+document.getElementById('resp-input').addEventListener('input', function () {
+  this.style.height = 'auto';
+  this.style.height = Math.min(this.scrollHeight, 130) + 'px';
+});
+
+// ── Certificate & sharing CTAs ────────────────────────────────────────────────
+//
+// btn-cert  → opens /credential/{certId} in a new tab (T2-D public page)
+// btn-share → opens LinkedIn Add-to-Profile prefill URL (no LinkedIn API needed)
+//
+// Both are disabled until T2-D populates score.certId + score.certUrl.
+// In ?mode=mock they're enabled via MOCK_SCORE.certId so the flow is previewable.
+
+document.getElementById('btn-cert').addEventListener('click', () => {
+  if (state.certUrl) window.open(state.certUrl, '_blank', 'noopener');
+});
+
+document.getElementById('btn-share').addEventListener('click', () => {
+  if (!state.certId || !state.certUrl) return;
+  const tier = state.certTier ?? 'Certificate';
+  const date = new Date(state.certIssuedAt ?? Date.now());
+  const params = new URLSearchParams({
+    startTask:        'CERTIFICATION_NAME',
+    name:             `Volo Index — ${tier} Certificate`,
+    organizationName: 'Give Protocol Foundation',
+    issueYear:        String(date.getFullYear()),
+    issueMonth:       String(date.getMonth() + 1),
+    certUrl:          state.certUrl,
+    certId:           state.certId,
+  });
+  window.open(`https://www.linkedin.com/profile/add?${params}`, '_blank', 'noopener');
+});
+
+// ── Mode banner ───────────────────────────────────────────────────────────────
+
+if (APP_MODE !== 'prod') {
+  const labels = {
+    mock: 'DEMO MODE — simulated interview, not a real assessment',
+    dev:  'DEV MODE — real engine via local dev server (node src/web/dev-server.js)',
+  };
+  const b = document.createElement('div');
+  b.className = 'demo-banner';
+  b.textContent = labels[APP_MODE] ?? 'DEMO MODE';
+  document.body.prepend(b);
+  document.body.style.paddingTop = '26px';
+}
+</script>
+</body>
+</html>
