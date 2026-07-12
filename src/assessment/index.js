@@ -22,6 +22,9 @@ export {
   DEFAULT_MAX_TURNS_PER_DIM,
 } from './interviewer.js';
 
+// P2c: Chat Interview Controller (D2/D4)
+export { ChatInterviewController, CONTROLLER_STATES } from './chat-controller.js';
+
 // P3: Transcript consent store (D4) + score publication queue (D5)
 export {
   TranscriptStore,
