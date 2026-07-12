@@ -1,0 +1,46 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 320" width="320" height="320" role="img" aria-label="Volo Index Expert Certificate Badge">
+  <!-- Background -->
+  <circle cx="160" cy="160" r="158" fill="#fdf0e8"/>
+  <!-- Outer border ring (double ring for premium feel) -->
+  <circle cx="160" cy="160" r="153" fill="none" stroke="#7a2e10" stroke-width="4.5"/>
+  <circle cx="160" cy="160" r="148" fill="none" stroke="#7a2e10" stroke-width="0.8" opacity="0.35"/>
+  <!-- Inner decorative ring -->
+  <circle cx="160" cy="160" r="143" fill="none" stroke="#7a2e10" stroke-width="0.8" opacity="0.12"/>
+
+  <!-- Top label: VOLO INDEX -->
+  <text x="160" y="108" text-anchor="middle"
+        font-family="Helvetica Neue, Helvetica, Arial, sans-serif"
+        font-size="11" font-weight="700" letter-spacing="4" fill="#4a1a08">VOLO INDEX</text>
+  <!-- Thin rule -->
+  <line x1="120" y1="116" x2="200" y2="116" stroke="#7a2e10" stroke-width="0.5" opacity="0.38"/>
+
+  <!-- Volo arcs (center: 160, 192) -->
+  <!-- Outer arc: radius 65, M95→M225 -->
+  <path d="M95 192 A65 65 0 0 1 225 192" fill="none" stroke="#e0d4c0" stroke-width="11.5" stroke-linecap="round"/>
+  <!-- Mid arc: radius 43, M117→M203 -->
+  <path d="M117 192 A43 43 0 0 1 203 192" fill="none" stroke="#b0542c" stroke-width="11.5" stroke-linecap="round"/>
+  <!-- Inner arc: radius 22, M138→M182 -->
+  <path d="M138 192 A22 22 0 0 1 182 192" fill="none" stroke="#7a2e10" stroke-width="11.5" stroke-linecap="round"/>
+  <!-- Center dot -->
+  <circle cx="160" cy="192" r="8" fill="#7a2e10"/>
+
+  <!-- Tier name -->
+  <text x="160" y="243" text-anchor="middle"
+        font-family="Helvetica Neue, Helvetica, Arial, sans-serif"
+        font-size="27" font-weight="800" fill="#7a2e10">EXPERT</text>
+
+  <!-- Assessment subtitle -->
+  <text x="160" y="261" text-anchor="middle"
+        font-family="Helvetica Neue, Helvetica, Arial, sans-serif"
+        font-size="8.5" font-weight="600" letter-spacing="2.3" fill="#4a1a08">VOLUNTEER LEADERSHIP</text>
+  <text x="160" y="273" text-anchor="middle"
+        font-family="Helvetica Neue, Helvetica, Arial, sans-serif"
+        font-size="8.5" font-weight="600" letter-spacing="2.3" fill="#4a1a08">ASSESSMENT</text>
+
+  <!-- Bottom rule -->
+  <line x1="92" y1="285" x2="228" y2="285" stroke="#7a2e10" stroke-width="0.5" opacity="0.25"/>
+  <!-- Foundation name -->
+  <text x="160" y="300" text-anchor="middle"
+        font-family="Helvetica Neue, Helvetica, Arial, sans-serif"
+        font-size="8" fill="#4a1a08" opacity="0.65">Give Protocol Foundation</text>
+</svg>

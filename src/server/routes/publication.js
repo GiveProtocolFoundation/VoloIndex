@@ -6,6 +6,7 @@
  */
 
 import { Router } from 'express';
+import { randomUUID } from 'node:crypto';
 import { query } from '../db.js';
 import { AppError } from '../middleware/error-handler.js';
 
@@ -40,6 +41,7 @@ router.post('/enqueue', async (req, res, next) => {
 });
 
 // ── POST /api/publication/:sessionId/release — QA releases an entry ──
+// T2-D: auto-issues a certificate on release (idempotent).
 
 router.post('/:sessionId/release', async (req, res, next) => {
   try {
@@ -60,7 +62,10 @@ router.post('/:sessionId/release', async (req, res, next) => {
       throw new AppError('Entry not found or already published', 404, 'ENTRY_NOT_FOUND');
     }
 
-    res.json({ entry: formatEntry(rows[0]) });
+    // T2-D: auto-issue certificate for the newly published session (idempotent)
+    const certRow = await issueCertificateForSession(req.params.sessionId);
+
+    res.json({ entry: formatEntry(rows[0]), cert: certRow });
   } catch (err) { next(err); }
 });
 
@@ -148,6 +153,73 @@ router.get('/', async (_req, res, next) => {
     });
   } catch (err) { next(err); }
 });
+
+// ── Certificate auto-issuance helper (T2-D) ────────────────────────────
+//
+// Called after QA releases a publication queue entry.
+// Idempotent: returns existing cert if already issued.
+
+async function issueCertificateForSession(sessionId) {
+  // Return existing cert if already issued
+  const { rows: existing } = await query(
+    'SELECT * FROM certificates WHERE session_id = $1',
+    [sessionId],
+  );
+  if (existing.length > 0) return formatCert(existing[0]);
+
+  // Lookup score result
+  const { rows: scoreRows } = await query(
+    'SELECT sr.*, s.user_id FROM score_results sr JOIN sessions s ON s.id = sr.session_id WHERE sr.session_id = $1',
+    [sessionId],
+  );
+  if (scoreRows.length === 0) return null; // no score stored yet — cert deferred
+
+  const score = scoreRows[0];
+
+  // Resolve holder name from user record
+  const { rows: userRows } = await query(
+    'SELECT email, display_name FROM users WHERE id = $1',
+    [score.user_id],
+  );
+  const holderName = userRows[0]?.display_name || userRows[0]?.email || 'Candidate';
+
+  const certId = randomUUID();
+  const { rows } = await query(
+    `INSERT INTO certificates
+       (id, session_id, user_id, holder_name, overall_score, overall_tier, dimension_scores, rubric_version)
+     VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+     ON CONFLICT (session_id) DO NOTHING
+     RETURNING *`,
+    [
+      certId,
+      sessionId,
+      score.user_id,
+      holderName,
+      score.overall_score,
+      score.overall_tier,
+      JSON.stringify(score.dimension_scores),
+      score.rubric_version,
+    ],
+  );
+
+  if (rows.length === 0) {
+    // Race — another request won; return what's there
+    const { rows: race } = await query('SELECT * FROM certificates WHERE session_id = $1', [sessionId]);
+    return race.length > 0 ? formatCert(race[0]) : null;
+  }
+
+  return formatCert(rows[0]);
+}
+
+function formatCert(row) {
+  return {
+    id:          row.id,
+    sessionId:   row.session_id,
+    holderName:  row.holder_name,
+    overallTier: row.overall_tier,
+    issuedAt:    row.issued_at?.toISOString?.() ?? row.issued_at,
+  };
+}
 
 function formatEntry(row) {
   return {
