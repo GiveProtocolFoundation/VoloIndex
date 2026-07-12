@@ -91,7 +91,7 @@ Navigates the ethical complexities of leading unpaid contributors, ensures equit
 | D2 Recruitment, Matching & Onboarding | 🟢 v0.3 · pressure-tested | ✅ 4 tiers · 16/16 probes | Structural upgrades identified before scored piloting |
 | D3 Training, Development & Role Support | 🟢 v0.1 (provisional) | ✅ 4 tiers · 16/16 probes | Adult-learning & role-design literature (post-pilot; sharpens leveling) |
 | D4 Performance, Impact & Accountability | 🟢 v0.1 | ✅ 4 tiers · 16/16 probes (pending CEO sign-off) | Post-pilot volunteer–staff conflict resolution literature (out of T2-H scope) |
-| D5 Recognition, Retention & Culture | 🟢 v0.1 | ⬜ Not yet | Psychological-contract literature (post-pilot) |
+| D5 Recognition, Retention & Culture | 🟢 v0.1 | ✅ 4 tiers · 16/16 probes (r1, CEO signed off) | Psychological-contract literature (post-pilot) |
 | D6 Ethics, Equity & Advocacy | 🟢 v0.1 (deepest-sourced) | ✅ 4 tiers · 16/16 probes · dual-axis (r1.1, CEO signed off) | None — all probes fully sourced |
 
 *Legend: 🟢 Drafted / ready · ✅ translated · ⬜ translation pending. D6 is a special case for translation — it runs scope boundary-awareness and relational boundary-awareness (Loftus taxonomy) simultaneously, scored on separate axes.*
@@ -100,9 +100,9 @@ Navigates the ethical complexities of leading unpaid contributors, ensures equit
 
 ## Immediate Priorities
 
-- [ ] Audience-tier translate **D5** next — it shares the autonomy / over-management second axis with D3, so that scoring machinery should recur
-- [ ] Audience-tier translate **D4** — corroborate the Groble Volunteer Authority Model on the cumulative source list first
-- [ ] Audience-tier translate **D6** last — dual boundary-awareness special case (scope + relational, scored separately)
+- [x] Audience-tier translate **D5** next — it shares the autonomy / over-management second axis with D3, so that scoring machinery should recur (r1 CEO signed off)
+- [x] Audience-tier translate **D4** — corroborate the Groble Volunteer Authority Model on the cumulative source list first (r1 CEO signed off)
+- [x] Audience-tier translate **D6** last — dual boundary-awareness special case (scope + relational, scored separately) (r1.1 CEO signed off)
 - [ ] Apply D2's identified structural upgrades and run the D1 pressure-test before scored piloting
 
 ### Post-Pilot Enhancements (not blocking v1.0)
