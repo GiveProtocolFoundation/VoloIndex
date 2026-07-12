@@ -65,6 +65,7 @@ describe('AssessmentSession lifecycle', () => {
 
   it('transitions created → in_progress on start()', () => {
     const s = new AssessmentSession({ id: 'sess-002', candidateId: 'cand-001' });
+    s.recordConsent();
     s.start();
     assert.equal(s.status, 'in_progress');
     assert.ok(s.startedAt);
@@ -73,6 +74,7 @@ describe('AssessmentSession lifecycle', () => {
 
   it('transitions in_progress → completed on complete()', () => {
     const s = new AssessmentSession({ id: 'sess-003', candidateId: 'cand-001' });
+    s.recordConsent();
     s.start();
     s.complete();
     assert.equal(s.status, 'completed');
@@ -81,6 +83,7 @@ describe('AssessmentSession lifecycle', () => {
 
   it('transitions in_progress → abandoned on abandon()', () => {
     const s = new AssessmentSession({ id: 'sess-004', candidateId: 'cand-001' });
+    s.recordConsent();
     s.start();
     s.abandon('candidate_ended');
     assert.equal(s.status, 'abandoned');
@@ -90,6 +93,7 @@ describe('AssessmentSession lifecycle', () => {
 
   it('throws if start() called twice', () => {
     const s = new AssessmentSession({ id: 'sess-005', candidateId: 'cand-001' });
+    s.recordConsent();
     s.start();
     assert.throws(() => s.start(), /Cannot start session in state: in_progress/);
   });
@@ -101,6 +105,7 @@ describe('AssessmentSession lifecycle', () => {
 
   it('throws if abandon() called on completed session', () => {
     const s = new AssessmentSession({ id: 'sess-007', candidateId: 'cand-001' });
+    s.recordConsent();
     s.start();
     s.complete();
     assert.throws(() => s.abandon(), /Cannot abandon session in state: completed/);
@@ -121,6 +126,7 @@ describe('AssessmentSession lifecycle', () => {
 describe('AssessmentSession transcript', () => {
   it('transcript getter returns AssessmentTranscript-compatible shape', () => {
     const s = new AssessmentSession({ id: 'sess-010', candidateId: 'cand-010' });
+    s.recordConsent();
     s.start();
     const t = s.transcript;
     assert.equal(t.id, 'sess-010');
@@ -131,6 +137,7 @@ describe('AssessmentSession transcript', () => {
 
   it('appending turns updates turnCount and transcript.turns', () => {
     const s = new AssessmentSession({ id: 'sess-011', candidateId: 'cand-011' });
+    s.recordConsent();
     s.start();
     s.appendTurn({ role: 'interviewer', content: 'Question 1', dimension: 'D1' });
     s.appendTurn({ role: 'candidate', content: 'Answer 1', dimension: 'D1' });
@@ -142,6 +149,7 @@ describe('AssessmentSession transcript', () => {
 
   it('transcript.turns is a defensive copy (no aliasing)', () => {
     const s = new AssessmentSession({ id: 'sess-012', candidateId: 'cand-012' });
+    s.recordConsent();
     s.start();
     s.appendTurn({ role: 'interviewer', content: 'Q' });
     const turns1 = s.transcript.turns;
@@ -152,6 +160,7 @@ describe('AssessmentSession transcript', () => {
 
   it('completedAt appears in transcript after complete()', () => {
     const s = new AssessmentSession({ id: 'sess-013', candidateId: 'cand-013' });
+    s.recordConsent();
     s.start();
     s.appendTurn({ role: 'interviewer', content: 'Q' });
     s.appendTurn({ role: 'candidate', content: 'A' });
@@ -161,12 +170,14 @@ describe('AssessmentSession transcript', () => {
 
   it('rejects invalid turn role', () => {
     const s = new AssessmentSession({ id: 'sess-014', candidateId: 'cand-014' });
+    s.recordConsent();
     s.start();
     assert.throws(() => s.appendTurn({ role: 'moderator', content: 'X' }), /Invalid turn role/);
   });
 
   it('rejects empty turn content', () => {
     const s = new AssessmentSession({ id: 'sess-015', candidateId: 'cand-015' });
+    s.recordConsent();
     s.start();
     assert.throws(() => s.appendTurn({ role: 'candidate', content: '' }), /content/);
   });
@@ -209,6 +220,7 @@ describe('AssessmentSession dimension progress', () => {
 describe('AssessmentSession serialization', () => {
   it('round-trips through toJSON / fromJSON', () => {
     const s = new AssessmentSession({ id: 'sess-030', candidateId: 'cand-030' });
+    s.recordConsent();
     s.start();
     s.appendTurn({ role: 'interviewer', content: 'Q1', dimension: 'D1' });
     s.appendTurn({ role: 'candidate', content: 'A1', dimension: 'D1' });
@@ -229,6 +241,7 @@ describe('AssessmentSession serialization', () => {
 
   it('fromJSON handles abandoned sessions', () => {
     const s = new AssessmentSession({ id: 'sess-031', candidateId: 'cand-031' });
+    s.recordConsent();
     s.start();
     s.abandon('test_reason');
     const restored = AssessmentSession.fromJSON(s.toJSON());
@@ -293,6 +306,7 @@ describe('Anti-gaming guardrail: prompt contains no rubric anchors', () => {
 describe('runInterview() orchestration', () => {
   it('happy path: completes session after one Q&A per dimension (maxTurnsPerDimension=1)', async () => {
     const session = new AssessmentSession({ id: 'iv-001', candidateId: 'cand-iv-001' });
+    session.recordConsent();
     session.start();
 
     const result = await runInterview(
@@ -319,6 +333,7 @@ describe('runInterview() orchestration', () => {
 
   it('candidate-end signal → session abandoned, no more dims processed', async () => {
     const session = new AssessmentSession({ id: 'iv-002', candidateId: 'cand-iv-002' });
+    session.recordConsent();
     session.start();
 
     // Candidate ends on D2
@@ -357,6 +372,7 @@ describe('runInterview() orchestration', () => {
 
   it('respects custom dimensionOrder', async () => {
     const session = new AssessmentSession({ id: 'iv-004', candidateId: 'cand-iv-004' });
+    session.recordConsent();
     session.start();
 
     const result = await runInterview(
@@ -376,6 +392,7 @@ describe('runInterview() orchestration', () => {
 
   it('LLM is called once per dimension (one interviewer turn, coverage met)', async () => {
     const session = new AssessmentSession({ id: 'iv-005', candidateId: 'cand-iv-005' });
+    session.recordConsent();
     session.start();
 
     const mock = makeInterviewerMock();
@@ -405,6 +422,7 @@ describe('E2E dry run: MockLlmAdapter interview → extractSignals → scoreAsse
       id: 'e2e-session-001',
       candidateId: 'cand-e2e-001',
     });
+    session.recordConsent();
     session.start();
 
     // Mock candidate gives a substantive answer every time

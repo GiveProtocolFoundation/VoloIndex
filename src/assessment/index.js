@@ -21,3 +21,11 @@ export {
   RUBRIC_ANCHOR_STRINGS,
   DEFAULT_MAX_TURNS_PER_DIM,
 } from './interviewer.js';
+
+// P3: Transcript consent store (D4) + score publication queue (D5)
+export {
+  TranscriptStore,
+  InMemoryTranscriptStore,
+  FileTranscriptStore,
+} from './consent-store.js';
+export { PublicationQueue } from './publication-queue.js';

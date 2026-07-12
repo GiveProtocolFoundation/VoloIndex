@@ -41,6 +41,10 @@ export class AssessmentSession {
     this._abandonedAt = null;
     this._abandonReason = null;
 
+    // D4: consent must be recorded before session can start
+    this._consentGiven = false;
+    this._consentAt = null;
+
     // Append-only transcript turns
     this._turns = [];
 
@@ -61,6 +65,8 @@ export class AssessmentSession {
   get abandonedAt() { return this._abandonedAt; }
   get abandonReason() { return this._abandonReason; }
   get turnCount()   { return this._turns.length; }
+  get consentGiven() { return this._consentGiven; }
+  get consentAt()   { return this._consentAt; }
 
   /**
    * Returns a snapshot compatible with AssessmentTranscript (P1 schema).
@@ -86,12 +92,29 @@ export class AssessmentSession {
       .map(([id]) => id);
   }
 
+  // ── Consent (D4) ──────────────────────────────────────────────────
+
+  /**
+   * Record candidate consent for transcript retention (D4 policy).
+   * Must be called before start(). Can only be called in 'created' state.
+   */
+  recordConsent() {
+    if (this._status !== 'created') {
+      throw new Error(`Cannot record consent in state: ${this._status}`);
+    }
+    this._consentGiven = true;
+    this._consentAt = new Date().toISOString();
+  }
+
   // ── Lifecycle ─────────────────────────────────────────────────────
 
-  /** Transition: created → in_progress */
+  /** Transition: created → in_progress. Requires consent (D4). */
   start() {
     if (this._status !== 'created') {
       throw new Error(`Cannot start session in state: ${this._status}`);
+    }
+    if (!this._consentGiven) {
+      throw new Error('Cannot start session without consent (D4 policy): call recordConsent() first');
     }
     this._status = 'in_progress';
     this._startedAt = new Date().toISOString();
@@ -172,6 +195,8 @@ export class AssessmentSession {
       id: this._id,
       candidateId: this._candidateId,
       status: this._status,
+      consentGiven: this._consentGiven,
+      consentAt: this._consentAt,
       startedAt: this._startedAt,
       completedAt: this._completedAt,
       abandonedAt: this._abandonedAt,
@@ -199,9 +224,11 @@ export class AssessmentSession {
     if (SESSION_STATES.includes(data.status)) {
       session._status = data.status;
     }
-    session._startedAt   = data.startedAt   ?? null;
-    session._completedAt = data.completedAt ?? null;
-    session._abandonedAt = data.abandonedAt ?? null;
+    session._consentGiven = data.consentGiven ?? false;
+    session._consentAt    = data.consentAt   ?? null;
+    session._startedAt    = data.startedAt   ?? null;
+    session._completedAt  = data.completedAt ?? null;
+    session._abandonedAt  = data.abandonedAt ?? null;
     session._abandonReason = data.abandonReason ?? null;
     session._turns = Array.isArray(data.turns) ? data.turns.map(t => ({ ...t })) : [];
     if (data.dimensionProgress && typeof data.dimensionProgress === 'object') {

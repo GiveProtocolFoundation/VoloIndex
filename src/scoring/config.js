@@ -147,3 +147,14 @@ export const RUBRIC_VERSION = '1.2';
  *   33/33). Rubric bumped to v1.2 per §9 (gating-rule change).
  */
 export const PUBLIC_SCORING_ENABLED = true;
+
+/**
+ * Go-live gate for the AI assessment engine (CTO-owned).
+ * Default: false — must remain false until QA sign-off + Head of Data §9-style
+ * extractor validation + explicit CTO gate flip (GIV-593, P3 acceptance criteria).
+ *
+ * History:
+ * - 2026-07-12 (GIV-593): false — initial P3 implementation; awaiting
+ *   QA sign-off and Head of Data extractor validation before flip.
+ */
+export const ASSESSMENT_ENGINE_ENABLED = false;
