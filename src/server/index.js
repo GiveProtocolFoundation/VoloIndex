@@ -1,5 +1,5 @@
 /**
- * Volo Index — HTTP Server (T2-A)
+ * Volo Index — HTTP Server (T2-A + T2-C auth)
  *
  * Express application wiring: middleware → routes → error handler.
  * Starts listening only when run directly (not when imported for testing).
@@ -13,11 +13,13 @@ import cors from 'cors';
 import { config } from './config.js';
 import { pool } from './db.js';
 import { apiLimiter } from './middleware/rate-limit.js';
+import { requireAuth } from './middleware/auth.js';
 import { errorHandler } from './middleware/error-handler.js';
 import { PostgresTranscriptStore } from './stores/postgres-transcript-store.js';
 
 // Routes
 import healthRoutes from './routes/health.js';
+import authRoutes from './routes/auth.js';
 import sessionRoutes from './routes/sessions.js';
 import chatRoutes from './routes/chat.js';
 import resultRoutes from './routes/results.js';
@@ -35,15 +37,20 @@ export function createApp({ transcriptStore } = {}) {
   app.use(express.json({ limit: '1mb' }));
   app.use(apiLimiter);
 
-  // ── Routes ────────────────────────────────────────────────────────
+  // ── Public routes (no auth required) ──────────────────────────────
   app.use('/api', healthRoutes);
-  app.use('/api/sessions', sessionRoutes);
-  app.use('/api/sessions', chatRoutes);
-  app.use('/api/results', resultRoutes);
-  app.use('/api/publication', publicationRoutes);
+  app.use('/auth', authRoutes);
+
+  // ── Protected routes (require auth) ───────────────────────────────
+  app.use('/api/sessions', requireAuth, sessionRoutes);
+  app.use('/api/sessions', requireAuth, chatRoutes);
+  app.use('/api/results', requireAuth, resultRoutes);
 
   const store = transcriptStore || new PostgresTranscriptStore({ pool });
-  app.use('/api/transcripts', createTranscriptRoutes(store));
+  app.use('/api/transcripts', requireAuth, createTranscriptRoutes(store));
+
+  // ── Internal routes (QA/ops — no user auth, separate access control) ─
+  app.use('/api/publication', publicationRoutes);
 
   // ── QA review UI (internal) ─────────────────────────────────────
   const webDir = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../../web');
