@@ -2,8 +2,8 @@
   "dimension": "D6",
   "dimensionTitle": "Ethics, Equity & Advocacy",
   "frameworkVersion": "1.0",
-  "draftRevision": "D6-v0.1-translation-r1",
-  "status": "pending-CEO-signoff",
+  "draftRevision": "D6-v0.1-translation-r1.1",
+  "status": "CEO-signed-off-2026-07-12",
   "author": "CPO",
   "parentIssue": "GIV-632",
   "sourceDoc": "content/dimensions/D6.md",
@@ -162,11 +162,11 @@
     },
     "relational": {
       "6.R1": ["TL-2", "C-1", "D-1"],
-      "6.R2": ["C-2", "PM-1", "D-2"],
+      "6.R2": ["TL-2", "C-2", "PM-1", "D-2"],
       "6.R3": ["C-1", "PM-2", "D-3"],
-      "6.R4": ["PM-2", "PM-4", "D-4"],
+      "6.R4": ["PM-2", "PM-4", "D-2", "D-4"],
       "6.R5": ["TL-3", "C-3", "PM-3", "D-3"],
-      "6.R6": ["TL-1", "C-2", "PM-3", "D-1"]
+      "6.R6": ["TL-1", "C-2", "PM-1", "PM-3", "D-1"]
     },
     "rActiveProbes": ["TL-1", "TL-2", "TL-3", "C-1", "C-2", "C-3", "PM-1", "PM-2", "PM-3", "PM-4", "D-1", "D-2", "D-3", "D-4"],
     "rSilentProbes": ["TL-4", "C-4"],
