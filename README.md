@@ -92,7 +92,7 @@ Navigates the ethical complexities of leading unpaid contributors, ensures equit
 | D3 Training, Development & Role Support | 🟢 v0.1 (provisional) | ✅ 4 tiers · 16/16 probes | Adult-learning & role-design literature (post-pilot; sharpens leveling) |
 | D4 Performance, Impact & Accountability | 🟢 v0.1 | ✅ 4 tiers · 16/16 probes (pending CEO sign-off) | Post-pilot volunteer–staff conflict resolution literature (out of T2-H scope) |
 | D5 Recognition, Retention & Culture | 🟢 v0.1 | ⬜ Not yet | Psychological-contract literature (post-pilot) |
-| D6 Ethics, Equity & Advocacy | 🟢 v0.1 (deepest-sourced) | ✅ 4 tiers · 16/16 probes · dual-axis (pending CEO sign-off) | None — all probes fully sourced |
+| D6 Ethics, Equity & Advocacy | 🟢 v0.1 (deepest-sourced) | ✅ 4 tiers · 16/16 probes · dual-axis (r1.1, CEO signed off) | None — all probes fully sourced |
 
 *Legend: 🟢 Drafted / ready · ✅ translated · ⬜ translation pending. D6 is a special case for translation — it runs scope boundary-awareness and relational boundary-awareness (Loftus taxonomy) simultaneously, scored on separate axes.*
 
