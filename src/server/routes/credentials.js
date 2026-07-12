@@ -11,18 +11,15 @@
 import { Router } from 'express';
 import { query } from '../db.js';
 import { AppError } from '../middleware/error-handler.js';
+import { DIMENSIONS } from '../../scoring/config.js';
 
 const router = Router();
 
-// Dimension display names (D1–D6)
-const DIMENSION_NAMES = {
-  D1: 'D1: Role Clarity & Onboarding',
-  D2: 'D2: Coaching & Development',
-  D3: 'D3: Motivation & Autonomy',
-  D4: 'D4: Performance Management',
-  D5: 'D5: Engagement & Retention',
-  D6: 'D6: Boundary & Relational Awareness',
-};
+// Dimension display names (D1–D6) — derived from the authoritative rubric
+// config so credential pages can never drift from the scoring engine.
+const DIMENSION_NAMES = Object.fromEntries(
+  DIMENSIONS.map(d => [d.id, `${d.id}: ${d.name}`]),
+);
 
 // ── GET /api/credentials/:certId — fetch public cert data ──────────
 
