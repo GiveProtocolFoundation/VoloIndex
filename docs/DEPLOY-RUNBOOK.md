@@ -11,9 +11,9 @@
 
 | # | Action | Owner | Gate |
 |---|--------|-------|------|
-| 1 | Confirm + register apex domain (rec: `voloindex.org`, org-owned, auto-renew, registrar lock) | Board/CEO | **Pending** (GIV-627 board input) |
+| 1 | Register apex domain **`voloindex.org`** — **CONFIRMED by CEO (GIV-641)**: GPF registrar account (org-owned, not personal), auto-renew ON, registrar lock ON, org WHOIS contact. Optional non-gating: defensively register `voloindex.com`, 301 → `.org` | Board/CEO | Decision done; registration pending |
 | 2 | Cloudflare account + zone, apex & `www` proxied | CTO after #1 | #1 |
-| 3 | LinkedIn Company Page (logo on profile entries; not launch-blocking) | Board/CEO | Pending |
+| 3 | LinkedIn Company Page — **CONFIRMED YES (GIV-641)**; until it exists, sharing uses `organizationName` fallback (no code change) | Board/CEO | Not launch-blocking |
 | 4 | Anthropic prod workspace + hard monthly cap; separate staging workspace + tiny cap | CTO | none |
 | 5 | Fly.io org account; `voloindex-staging` + `voloindex-prod` apps | CTO/Engineer | none |
 | 6 | Neon (or Fly) Postgres: staging + prod databases | CTO/Engineer | #5 |
@@ -58,12 +58,12 @@ docker compose -f deploy/docker-compose.staging.yml run --rm app node src/server
 curl -s http://localhost:3000/api/health   # {"status":"healthy",...}
 ```
 
-## 6. Production cutover (blocked on domain confirmation)
+## 6. Production cutover (domain confirmed: `voloindex.org` — GIV-641)
 
 1. Staging green ≥ 48h (checks + Sentry quiet).
-2. Cloudflare: apex + `www` → `voloindex-prod.fly.dev` via CNAME (proxied); Full (strict) TLS; HTTP→HTTPS redirect; HSTS after burn-in.
-3. `fly certs add <apex> -a voloindex-prod` (origin cert for Full-strict).
-4. Set `CORS_ORIGINS` to the apex in `deploy/fly.production.toml`, deploy.
+2. Cloudflare: `voloindex.org` + `www` → `voloindex-prod.fly.dev` via CNAME (proxied); Full (strict) TLS; HTTP→HTTPS redirect; HSTS after burn-in.
+3. `fly certs add voloindex.org -a voloindex-prod` (origin cert for Full-strict).
+4. Set `CORS_ORIGINS="https://voloindex.org,https://www.voloindex.org"` in `deploy/fly.production.toml`, deploy.
 5. Edge rate limits on `/api/*` (plan §6); verify credential page synthetic probe.
 
 ## 7. Verify after any deploy

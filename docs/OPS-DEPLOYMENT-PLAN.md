@@ -1,6 +1,6 @@
 # Volo Index — Ops & Deployment Plan (T2-G / GIV-627)
 
-**Date:** 2026-07-12 · **Author:** CTO · **Status:** T2-A (GIV-621) landed — deploy artifacts shipped (`Dockerfile`, `deploy/fly.{staging,production}.toml`, `deploy/docker-compose.staging.yml`, `docs/DEPLOY-RUNBOOK.md`); PaaS resolved to **Fly.io** (runbook §0). Remaining gate: board domain confirmation + human account provisioning (runbook §1).
+**Date:** 2026-07-12 · **Author:** CTO · **Status:** T2-A (GIV-621) landed — deploy artifacts shipped (`Dockerfile`, `deploy/fly.{staging,production}.toml`, `deploy/docker-compose.staging.yml`, `docs/DEPLOY-RUNBOOK.md`); PaaS resolved to **Fly.io** (runbook §0). Domain confirmed `voloindex.org` + LinkedIn Page yes (CEO, GIV-641). Remaining gate: human account provisioning (runbook §1) → staging deploy → cutover (runbook §6).
 **Scope source:** `docs/STOCK-TAKE-2026-07-12-launch-readiness.md` §4 (T2-G row) + board decision #3 (domain) and #4 (LinkedIn Company Page)
 
 ---
@@ -34,10 +34,10 @@ Anthropic API (Sonnet 4.6 interviewer/extractor)
 
 ## 2. Domain & DNS
 
-- **Board must confirm the permanent domain** (recommendation: `voloindex.org`, registered to Give Protocol Foundation — the org, not an individual; auto-renew on; registrar lock on).
+- **Permanent domain CONFIRMED: `voloindex.org`** (CEO decision, GIV-641) — registered to Give Protocol Foundation (the org, not an individual; auto-renew on; registrar lock on; org WHOIS contact). Optional non-gating: defensively register `voloindex.com` and 301 it to `.org`.
 - DNS at **Cloudflare** (free tier suffices): apex + `www` → app; proxied (orange-cloud) for TLS, WAF, and rate limiting at the edge.
 - Reserved paths from day one: `/credential/{id}` (public credential pages), `/api/*` (backend), `/verify/{id}` (verification endpoint, T2-D).
-- **LinkedIn Company Page** (board decision #4) is a parallel cheap prerequisite — needed only for the logo on profile entries; not launch-blocking.
+- **LinkedIn Company Page: CONFIRMED YES** (GIV-641) — needed only for the logo on profile entries; not launch-blocking. Until it exists, sharing uses the `organizationName` fallback (no code change).
 
 ## 3. TLS
 
@@ -82,12 +82,12 @@ Layered, mostly already designed:
 
 | Step | Depends on | Can start now? |
 |---|---|---|
-| Confirm domain + register + Cloudflare DNS | **Board decision** (interaction pending on GIV-627) | Yes — pure board input + purchase |
-| LinkedIn Company Page | Board decision #4 | Yes |
+| Register `voloindex.org` + Cloudflare DNS | ✅ Decision done (GIV-641) | Yes — registration + purchase (human, runbook §1 #1–2) |
+| LinkedIn Company Page | ✅ Decision done (GIV-641: yes) | Yes (human, runbook §1 #3) |
 | Anthropic prod/staging workspaces + caps | Nothing | Yes (account admin) |
 | Provision PaaS + Postgres + secret store | T2-A (GIV-621) service skeleton exists | ✅ T2-A done — artifacts shipped; account creation is a human action (runbook §1) |
 | Staging deploy + monitoring + Sentry wiring | T2-A deployable | Ready — runbook §§2–5 |
 | Edge rate limits + WAF tuning | Staging live | After staging deploy |
-| Production cutover on apex | Domain confirmed + staging green | **Blocked on board domain confirmation** — runbook §6 |
+| Production cutover on apex | Domain registered + staging green | Domain decision ✅ (GIV-641) — cutover per runbook §6 once staging green |
 
-**Bottom line (updated):** T2-A landed (main @ ddca0e6) and all deployment artifacts now exist in-repo; the deploy path is fully scripted in `docs/DEPLOY-RUNBOOK.md`. The single remaining decision gate is the board's domain confirmation (+ LinkedIn Company Page, non-blocking); the remaining execution is human account provisioning per runbook §1.
+**Bottom line (updated 2026-07-12, post-GIV-641):** All decisions are resolved — Fly.io (runbook §0), `voloindex.org` (GIV-641), LinkedIn Company Page yes (GIV-641) — and all deployment artifacts exist in-repo; the deploy path is fully scripted in `docs/DEPLOY-RUNBOOK.md`. The ONLY remaining work is human account provisioning per runbook §1 (registrar, Cloudflare, Anthropic workspaces + caps, Fly apps, Neon Postgres, Sentry/uptime, LinkedIn Page) followed by staging deploy → §6 cutover. No code or config gaps remain on the agent side.

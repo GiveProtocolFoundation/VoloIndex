@@ -1,7 +1,7 @@
 # Volo Index — Fly.io production app (T2-G / GIV-627)
 # Deploy: manual promote only (plan §7) — fly deploy -c deploy/fly.production.toml
-# Fronted by Cloudflare (DNS + TLS edge + WAF); apex domain pending board
-# confirmation (recommendation: voloindex.org). Credential URLs live on the
+# Fronted by Cloudflare (DNS + TLS edge + WAF); apex domain CONFIRMED:
+# voloindex.org (CEO decision, GIV-641). Credential URLs live on the
 # apex, never on *.fly.dev — the domain is the permanent contract (plan §0).
 #
 # Secrets: fly secrets set -a voloindex-prod ANTHROPIC_API_KEY=... DATABASE_URL=...
@@ -17,7 +17,8 @@ primary_region = "iad"
   NODE_ENV = "production"
   PORT = "3000"
   DB_SSL = "true"
-  # Set to the confirmed apex once the board answers (interaction on GIV-627):
+  # Confirmed apex (GIV-641) — enable at cutover (runbook §6 step 4), once
+  # Cloudflare fronts the app; leaving unset before cutover keeps CORS closed:
   # CORS_ORIGINS = "https://voloindex.org,https://www.voloindex.org"
 
 [http_service]
