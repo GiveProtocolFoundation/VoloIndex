@@ -120,8 +120,13 @@ export function createApp({ transcriptStore } = {}) {
  * Inject SSR OG meta into the credential.html template.
  * Targets <meta> tags by property/name attribute using simple regex substitution
  * on the static placeholder values. Only replaces known safe patterns.
+ *
+ * SECURITY: replacements are applied via a replacer FUNCTION so that `$&`,
+ * `$'`, `` $` `` etc. in user-controlled values (holder_name) are inert —
+ * a string replacement would let those patterns splice template HTML into
+ * the attribute and break out of it (stored XSS on the public page).
  */
-function injectOGMeta(html, ogMeta, certUrl) {
+export function injectOGMeta(html, ogMeta, certUrl) {
   const pairs = [
     [/property="og:title"\s+content="[^"]*"/, `property="og:title" content="${escAttr(ogMeta['og:title'])}"`],
     [/content="[^"]*"\s+property="og:title"/, `content="${escAttr(ogMeta['og:title'])}" property="og:title"`],
@@ -139,13 +144,17 @@ function injectOGMeta(html, ogMeta, certUrl) {
     [/content="[^"]*"\s+name="twitter:image"/, `content="${escAttr(ogMeta['twitter:image'])}" name="twitter:image"`],
   ];
   for (const [pattern, replacement] of pairs) {
-    html = html.replace(pattern, replacement);
+    html = html.replace(pattern, () => replacement);
   }
   return html;
 }
 
-function escAttr(str) {
-  return String(str ?? '').replace(/&/g, '&amp;').replace(/"/g, '&quot;');
+export function escAttr(str) {
+  return String(str ?? '')
+    .replace(/&/g, '&amp;')
+    .replace(/"/g, '&quot;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;');
 }
 
 // ── Start server when run directly ────────────────────────────────────

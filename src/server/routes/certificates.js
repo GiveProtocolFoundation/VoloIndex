@@ -8,8 +8,7 @@
  */
 
 import { Router } from 'express';
-import { randomUUID } from 'node:crypto';
-import { timingSafeEqual } from 'node:crypto';
+import { randomUUID, timingSafeEqual, createHash } from 'node:crypto';
 import { query } from '../db.js';
 import { AppError } from '../middleware/error-handler.js';
 import { config } from '../config.js';
@@ -94,6 +93,7 @@ router.post('/', async (req, res, next) => {
       `INSERT INTO certificates
          (id, session_id, user_id, holder_name, overall_score, overall_tier, dimension_scores, rubric_version)
        VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+       ON CONFLICT (session_id) DO NOTHING
        RETURNING *`,
       [
         certId,
@@ -106,6 +106,15 @@ router.post('/', async (req, res, next) => {
         score.rubric_version,
       ],
     );
+
+    // Concurrent-issue race: another request inserted first — return theirs.
+    if (rows.length === 0) {
+      const { rows: race } = await query(
+        'SELECT * FROM certificates WHERE session_id = $1',
+        [sessionId],
+      );
+      return res.status(200).json({ cert: formatCert(race[0]), created: false });
+    }
 
     res.status(201).json({ cert: formatCert(rows[0]), created: true });
   } catch (err) { next(err); }
@@ -145,10 +154,13 @@ router.get('/:certId', async (req, res, next) => {
 
 router.post('/:certId/revoke', async (req, res, next) => {
   try {
-    // Internal key check (timing-safe)
+    // Internal key check (timing-safe). Compare SHA-256 digests so buffers
+    // are always equal-length — timingSafeEqual THROWS on length mismatch,
+    // which would turn a bad key into a 500 instead of a 403.
     const supplied = req.headers['x-internal-key'];
     const expected = config.auth.internalKey;
-    if (!supplied || !timingSafeEqual(Buffer.from(supplied), Buffer.from(expected))) {
+    const digest = (v) => createHash('sha256').update(String(v)).digest();
+    if (!supplied || !expected || !timingSafeEqual(digest(supplied), digest(expected))) {
       throw new AppError('Forbidden', 403, 'FORBIDDEN');
     }
 
