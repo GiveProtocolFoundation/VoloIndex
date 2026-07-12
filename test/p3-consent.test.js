@@ -26,8 +26,12 @@ import { ASSESSMENT_ENGINE_ENABLED } from '../src/scoring/config.js';
 // ── 1. Go-live flag ────────────────────────────────────────────────────
 
 describe('ASSESSMENT_ENGINE_ENABLED flag', () => {
-  it('defaults to false (gate closed until QA + HoData sign-off)', () => {
-    assert.equal(ASSESSMENT_ENGINE_ENABLED, false);
+  // Gate flipped true 2026-07-12 (GIV-593/GIV-594) after QA sign-off
+  // (309/309) + Head of Data extractor validation PASS (47/47) + AE-P4
+  // pre-launch validation PASS (57/57). D5 PublicationQueue still holds
+  // the first 50 public assessments in pending_review regardless.
+  it('is true (CTO gate flip after QA + HoData sign-off, GIV-593/594)', () => {
+    assert.equal(ASSESSMENT_ENGINE_ENABLED, true);
   });
 });
 

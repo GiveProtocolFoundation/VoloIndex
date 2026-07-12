@@ -322,8 +322,10 @@ await (async () => {
   checkEq('5 fooled-LLM injection recorded as dropped', rf.dropped.length, 1);
 })();
 
-// ── 6. Go-live gate flag default-off ──────────────────────────────────
-check('6 ASSESSMENT_ENGINE_ENABLED default-off', ASSESSMENT_ENGINE_ENABLED === false);
+// ── 6. Go-live gate flag ──────────────────────────────────────────────
+// Default-off held at validation time (711d889). Flipped true 2026-07-12
+// by CTO gate decision (GIV-593/594) after this harness passed.
+check('6 ASSESSMENT_ENGINE_ENABLED is explicit boolean (flipped true post-validation, GIV-593/594)', typeof ASSESSMENT_ENGINE_ENABLED === 'boolean');
 
 // ── Report ────────────────────────────────────────────────────────────
 console.log(`\n§9-style extractor validation (P3 / GIV-593)`);

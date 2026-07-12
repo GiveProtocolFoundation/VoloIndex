@@ -156,5 +156,13 @@ export const PUBLIC_SCORING_ENABLED = true;
  * History:
  * - 2026-07-12 (GIV-593): false — initial P3 implementation; awaiting
  *   QA sign-off and Head of Data extractor validation before flip.
+ * - 2026-07-12 (GIV-593/GIV-594): true — CTO gate flip. QA sign-off
+ *   309/309 (dd41f7f); Head of Data §9-style extractor validation PASS
+ *   (docs/VALIDATION-P3-extractor.md, 47/47, 711d889); Head of Data
+ *   AE-P4 pre-launch pipeline validation PASS (docs/VALIDATION-AE-v1.md,
+ *   57/57, eb6a0dc). Note: this gate is orthogonal to the D5
+ *   PublicationQueue hold — the first 50 public assessments stay in
+ *   pending_review for QA regardless, and auto-publish flips only at
+ *   ≥50 reviews AND ≥95% extractor agreement.
  */
-export const ASSESSMENT_ENGINE_ENABLED = false;
+export const ASSESSMENT_ENGINE_ENABLED = true;

@@ -201,8 +201,11 @@ await (async () => {
 
 // ══ 2. D5 spot-check plumbing + gate-off invariant ═══════════════════
 (() => {
-  // Gate default-off is the load-bearing pre-launch invariant.
-  check('2 ASSESSMENT_ENGINE_ENABLED default-off (no live serving path)', ASSESSMENT_ENGINE_ENABLED === false);
+  // Gate default-off was the load-bearing PRE-launch invariant; it held at
+  // validation time (eb6a0dc). Flipped true 2026-07-12 by CTO gate decision
+  // (GIV-593/594) after this harness passed. Post-flip invariant: the flag
+  // is an explicit boolean and the D5 queue below still holds pending_review.
+  check('2 ASSESSMENT_ENGINE_ENABLED is explicit boolean (flipped true post-validation, GIV-593/594)', typeof ASSESSMENT_ENGINE_ENABLED === 'boolean');
 
   const score = { overall: { score: 6.2, tier: 'developing' } };
 
