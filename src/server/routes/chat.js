@@ -24,7 +24,12 @@ const activeSessions = new Map();
  * Called by the session /start endpoint when it initialises the controller.
  */
 export function registerController(sessionId, controller) {
-  activeSessions.set(sessionId, { controller, listeners: new Set() });
+  const existing = activeSessions.get(sessionId);
+  if (existing) {
+    existing.controller = controller;
+  } else {
+    activeSessions.set(sessionId, { controller, listeners: new Set() });
+  }
 }
 
 export function unregisterController(sessionId) {
@@ -35,6 +40,14 @@ export function unregisterController(sessionId) {
     }
     activeSessions.delete(sessionId);
   }
+}
+
+/**
+ * Expose the activeSessions map for session routes to relay events.
+ * @returns {Map}
+ */
+export function getActiveSessions() {
+  return activeSessions;
 }
 
 // ── POST /api/sessions/:id/respond ────────────────────────────────
@@ -81,6 +94,11 @@ router.post('/:id/respond', chatLimiter, async (req, res, next) => {
     if (entry) {
       for (const send of entry.listeners) {
         send({ event: 'candidateTurn', data: { turnIndex: candidateTurnIndex, text } });
+      }
+
+      // Feed to ChatInterviewController for next question generation
+      if (entry.controller?.awaitingResponse) {
+        entry.controller.submitResponse(text);
       }
     }
 

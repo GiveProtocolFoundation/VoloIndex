@@ -11,6 +11,9 @@ import { randomUUID } from 'node:crypto';
 import { query, withTransaction } from '../db.js';
 import { AppError } from '../middleware/error-handler.js';
 import { AssessmentSession } from '../../assessment/session.js';
+import { ChatInterviewController } from '../../assessment/chat-controller.js';
+import { AnthropicLlmAdapter } from '../../assessment/anthropic-adapter.js';
+import { registerController, unregisterController, getActiveSessions } from './chat.js';
 
 const router = Router();
 
@@ -157,6 +160,71 @@ router.post('/:id/start', async (req, res, next) => {
       [req.params.id],
     );
 
+    // ── Wire ChatInterviewController for this session ──────────────
+    const sessionId = req.params.id;
+    const adapterFactory = req.app.locals.llmAdapterFactory || (() => new AnthropicLlmAdapter());
+    const adapter = adapterFactory();
+    const ctrl = new ChatInterviewController({
+      candidateId: row.user_id,
+      llmAdapter: adapter,
+      sessionId,
+    });
+
+    // Persist interviewer turns to DB and relay via SSE
+    ctrl.on('question', async ({ question, dimension }) => {
+      try {
+        const { rows: turnRows } = await query(
+          'SELECT COALESCE(MAX(turn_index), -1) AS max_idx FROM transcript_turns WHERE session_id = $1',
+          [sessionId],
+        );
+        const turnIndex = turnRows[0].max_idx + 1;
+
+        await query(
+          `INSERT INTO transcript_turns (session_id, turn_index, role, content, dimension)
+           VALUES ($1, $2, 'interviewer', $3, $4)`,
+          [sessionId, turnIndex, question, dimension || null],
+        );
+
+        // Relay to SSE listeners
+        const entry = getActiveSessions().get(sessionId);
+        if (entry) {
+          for (const send of entry.listeners) {
+            send({ event: 'interviewerTurn', data: { turnIndex, content: question, dimension } });
+          }
+        }
+      } catch (err) {
+        console.error(`[sessions] failed to persist interviewer turn for ${sessionId}:`, err.message);
+      }
+    });
+
+    // Handle terminal state transitions
+    ctrl.on('stateChange', async ({ to }) => {
+      try {
+        if (to === 'completed') {
+          await query(
+            `UPDATE sessions SET status = 'completed', completed_at = NOW(), updated_at = NOW()
+             WHERE id = $1`,
+            [sessionId],
+          );
+          unregisterController(sessionId);
+        } else if (to === 'abandoned' || to === 'cost_capped') {
+          const reason = to === 'cost_capped' ? 'cost_cap_exceeded' : 'candidate_ended';
+          await query(
+            `UPDATE sessions SET status = 'abandoned', abandoned_at = NOW(), abandon_reason = $2, updated_at = NOW()
+             WHERE id = $1`,
+            [sessionId, reason],
+          );
+          unregisterController(sessionId);
+        }
+      } catch (err) {
+        console.error(`[sessions] failed to update state for ${sessionId}:`, err.message);
+      }
+    });
+
+    registerController(sessionId, ctrl);
+    ctrl.begin();
+    ctrl.grantConsent(); // consent already recorded in DB before /start
+
     res.json({ session: sessionFromRow(updated[0]) });
   } catch (err) { next(err); }
 });
@@ -177,6 +245,8 @@ router.post('/:id/complete', async (req, res, next) => {
        WHERE id = $1 RETURNING *`,
       [req.params.id],
     );
+
+    unregisterController(req.params.id);
 
     res.json({ session: sessionFromRow(updated[0]) });
   } catch (err) { next(err); }
@@ -201,6 +271,8 @@ router.post('/:id/abandon', async (req, res, next) => {
        WHERE id = $1 RETURNING *`,
       [req.params.id, reason || null],
     );
+
+    unregisterController(req.params.id);
 
     res.json({ session: sessionFromRow(updated[0]) });
   } catch (err) { next(err); }

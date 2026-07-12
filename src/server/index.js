@@ -26,8 +26,13 @@ import { createTranscriptRoutes } from './routes/transcripts.js';
 
 // ── App factory ───────────────────────────────────────────────────────
 
-export function createApp({ transcriptStore } = {}) {
+export function createApp({ transcriptStore, llmAdapterFactory } = {}) {
   const app = express();
+
+  // ── Dependency injection for testability ──────────────────────────
+  if (llmAdapterFactory) {
+    app.locals.llmAdapterFactory = llmAdapterFactory;
+  }
 
   // ── Global middleware ─────────────────────────────────────────────
   app.use(helmet());
