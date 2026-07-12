@@ -8,6 +8,7 @@ export {
 } from './schemas.js';
 
 export { LlmAdapter, MockLlmAdapter } from './llm-adapter.js';
+export { AnthropicLlmAdapter, CostCapExceededError, AnthropicApiError } from './anthropic-adapter.js';
 export { validateSignals, ErrorCodes } from './validator.js';
 export { extractSignals, ExtractionError, ExtractionErrorCodes } from './extractor.js';
 
