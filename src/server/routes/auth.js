@@ -74,6 +74,47 @@ router.post('/magic-link', magicLinkRateLimit, async (req, res, next) => {
   } catch (err) { next(err); }
 });
 
+// ── GET /auth/verify — magic-link landing page ───────────────────────
+// Emails link to GET /auth/verify?token=… — serve a small page that
+// POSTs the token, stores the JWT, and redirects to the app.
+
+router.get('/verify', (req, res) => {
+  res.set('Content-Type', 'text/html');
+  res.send(`<!DOCTYPE html>
+<html lang="en"><head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Volo Index — Signing in…</title>
+<style>
+  body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;display:flex;justify-content:center;align-items:center;min-height:100vh;margin:0;background:#faf9f5;color:#2c1d13}
+  .card{background:#fff;border-radius:12px;padding:32px 28px;box-shadow:0 2px 16px rgba(44,29,19,.09);max-width:400px;text-align:center}
+  h1{font-size:20px;margin-bottom:8px}
+  p{font-size:14px;color:#7a6252;margin-bottom:16px}
+  .err{color:#c0392b;background:#fdecea;padding:12px;border-radius:8px;font-size:13px;display:none}
+</style>
+</head><body>
+<div class="card">
+  <h1>Signing you in…</h1>
+  <p id="status">Verifying your sign-in link.</p>
+  <div id="error" class="err"></div>
+</div>
+<script>
+(async()=>{
+  const token=new URLSearchParams(location.search).get('token');
+  if(!token){show('No token found in the link.'); return;}
+  try{
+    const r=await fetch('/auth/verify',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({token})});
+    const d=await r.json();
+    if(!r.ok){show(d.error?.message||'Verification failed.');return;}
+    localStorage.setItem('volo-access-token',d.accessToken);
+    document.getElementById('status').textContent='Success! Redirecting…';
+    setTimeout(()=>{location.href='/';},500);
+  }catch(e){show('Network error — please try again.');}
+})();
+function show(msg){const el=document.getElementById('error');el.textContent=msg;el.style.display='block';document.getElementById('status').textContent='Something went wrong.';}
+</script>
+</body></html>`);
+});
+
 // ── POST /auth/verify — verify magic-link token, return JWT ──────────
 
 router.post('/verify', async (req, res, next) => {

@@ -6,6 +6,7 @@
  * requireInternal: validates X-Internal-Key header for server-only endpoints.
  */
 
+import { timingSafeEqual } from 'node:crypto';
 import { verifyJwt } from '../auth/jwt.js';
 import { config } from '../config.js';
 import { query } from '../db.js';
@@ -77,7 +78,10 @@ export function requireSessionOwnership(paramName = 'id') {
  */
 export function requireInternal(req, res, next) {
   const key = req.headers['x-internal-key'];
-  if (!key || key !== config.auth.internalKey) {
+  const expected = config.auth.internalKey;
+  if (!key || typeof key !== 'string' || !expected ||
+      key.length !== expected.length ||
+      !timingSafeEqual(Buffer.from(key), Buffer.from(expected))) {
     return res.status(403).json({
       error: { code: 'FORBIDDEN', message: 'This endpoint is server-internal only' },
     });
