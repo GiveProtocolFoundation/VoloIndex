@@ -1,12 +1,26 @@
 {
   "name": "volo-index",
-  "version": "1.0.0",
-  "description": "Volo Index scoring engine — Give Protocol Foundation",
+  "version": "2.0.0",
+  "description": "Volo Index — assessment engine + backend service (Give Protocol Foundation)",
   "type": "module",
   "scripts": {
-    "test": "node --test test/*.test.js"
+    "test": "node --test test/*.test.js",
+    "test:qa": "node --test tests/*.test.js",
+    "test:server": "node --test test/server/*.test.js",
+    "start": "node src/server/index.js",
+    "migrate": "node src/server/migrate.js"
   },
   "engines": {
     "node": ">=18.0.0"
+  },
+  "dependencies": {
+    "express": "^4.21.0",
+    "pg": "^8.13.0",
+    "express-rate-limit": "^7.4.0",
+    "helmet": "^8.0.0",
+    "cors": "^2.8.5"
+  },
+  "devDependencies": {
+    "supertest": "^7.0.0"
   }
 }
