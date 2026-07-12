@@ -4,9 +4,9 @@
   "description": "Volo Index — assessment engine + backend service (Give Protocol Foundation)",
   "type": "module",
   "scripts": {
-    "test": "node --test test/*.test.js",
+    "test": "node --test test/*.test.js && node --experimental-test-module-mocks --test test/server/*.test.js",
     "test:qa": "node --test tests/*.test.js",
-    "test:server": "node --test test/server/*.test.js",
+    "test:server": "node --experimental-test-module-mocks --test test/server/*.test.js",
     "start": "node src/server/index.js",
     "migrate": "node src/server/migrate.js"
   },

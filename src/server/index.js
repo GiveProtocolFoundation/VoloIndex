@@ -13,7 +13,7 @@ import cors from 'cors';
 import { config } from './config.js';
 import { pool } from './db.js';
 import { apiLimiter } from './middleware/rate-limit.js';
-import { requireAuth } from './middleware/auth.js';
+import { requireAuth, requireInternal } from './middleware/auth.js';
 import { errorHandler } from './middleware/error-handler.js';
 import { PostgresTranscriptStore } from './stores/postgres-transcript-store.js';
 
@@ -49,8 +49,8 @@ export function createApp({ transcriptStore } = {}) {
   const store = transcriptStore || new PostgresTranscriptStore({ pool });
   app.use('/api/transcripts', requireAuth, createTranscriptRoutes(store));
 
-  // ── Internal routes (QA/ops — no user auth, separate access control) ─
-  app.use('/api/publication', publicationRoutes);
+  // ── Internal routes (QA/ops — require X-Internal-Key header) ────────
+  app.use('/api/publication', requireInternal, publicationRoutes);
 
   // ── QA review UI (internal) ─────────────────────────────────────
   const webDir = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../../web');

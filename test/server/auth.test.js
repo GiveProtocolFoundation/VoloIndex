@@ -429,6 +429,54 @@ describe('Auth integration (T2-C, GIV-623)', () => {
     });
   });
 
+  // ── Publication routes require X-Internal-Key (GIV-645) ────────────
+
+  describe('Publication routes require X-Internal-Key (GIV-645)', () => {
+    it('POST /api/publication/:sessionId/release returns 403 without X-Internal-Key', async () => {
+      const res = await req(server, 'POST', '/api/publication/session-1/release',
+        { agreedWithExtractor: true },
+      );
+      assert.equal(res.status, 403);
+      assert.equal(res.body.error.code, 'FORBIDDEN');
+    });
+
+    it('GET /api/publication returns 403 without X-Internal-Key', async () => {
+      const res = await req(server, 'GET', '/api/publication');
+      assert.equal(res.status, 403);
+      assert.equal(res.body.error.code, 'FORBIDDEN');
+    });
+
+    it('GET /api/publication/pending returns 403 without X-Internal-Key', async () => {
+      const res = await req(server, 'GET', '/api/publication/pending');
+      assert.equal(res.status, 403);
+    });
+
+    it('POST /api/publication/enqueue returns 403 without X-Internal-Key', async () => {
+      const res = await req(server, 'POST', '/api/publication/enqueue',
+        { sessionId: 's1', candidateId: 'c1' },
+      );
+      assert.equal(res.status, 403);
+    });
+
+    it('POST /api/publication/:sessionId/release returns 403 with wrong key', async () => {
+      const res = await req(server, 'POST', '/api/publication/session-1/release',
+        { agreedWithExtractor: true },
+        { 'X-Internal-Key': 'wrong-key' },
+      );
+      assert.equal(res.status, 403);
+    });
+  });
+
+  // ── Magic-link verify landing page (GIV-645) ─────────────────────
+
+  describe('GET /auth/verify landing page (GIV-645)', () => {
+    it('returns HTML landing page', async () => {
+      const res = await req(server, 'GET', '/auth/verify?token=test');
+      assert.equal(res.status, 200);
+      assert.ok(typeof res.body === 'string' || res.body !== null);
+    });
+  });
+
   // ── Health endpoint remains public ────────────────────────────────
 
   describe('Public routes', () => {
