@@ -1,0 +1,41 @@
+# Volo Index — local staging-parity stack (T2-G / GIV-627)
+# Boots the production container + Postgres exactly as staging runs them.
+# Usage:
+#   docker compose -f deploy/docker-compose.staging.yml up --build
+#   curl http://localhost:3000/api/health          # expect 200 {"status":"healthy",...}
+# Migrations: docker compose -f deploy/docker-compose.staging.yml run --rm app node src/server/migrate.js
+
+services:
+  app:
+    build:
+      context: ..
+      dockerfile: Dockerfile
+    ports:
+      - "3000:3000"
+    environment:
+      NODE_ENV: production
+      PORT: "3000"
+      DATABASE_URL: postgresql://volo:volo@db:5432/voloindex
+      DB_SSL: "false"
+      ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY:?set a staging key in your shell or .env}
+      CORS_ORIGINS: http://localhost:3000
+    depends_on:
+      db:
+        condition: service_healthy
+
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: volo
+      POSTGRES_PASSWORD: volo
+      POSTGRES_DB: voloindex
+    volumes:
+      - voloindex-pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U volo -d voloindex"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+volumes:
+  voloindex-pgdata:

@@ -1,0 +1,42 @@
+# Volo Index — Fly.io staging app (T2-G / GIV-627)
+# Deploy: fly deploy -c deploy/fly.staging.toml
+# Secrets (never in git): fly secrets set -a voloindex-staging ANTHROPIC_API_KEY=... DATABASE_URL=...
+#
+# PaaS pick: Fly.io — chosen for SSE/streaming ergonomics (no proxy idle-buffering
+# on long-lived chat streams, the one hard runtime requirement per plan §1).
+
+app = "voloindex-staging"
+primary_region = "iad"
+
+[build]
+  dockerfile = "../Dockerfile"
+
+[env]
+  NODE_ENV = "production"      # staging runs production code paths; staging-ness is in the data/keys
+  PORT = "3000"
+  DB_SSL = "true"
+  # CORS_ORIGINS set via fly.toml env once staging hostname known, e.g.:
+  # CORS_ORIGINS = "https://voloindex-staging.fly.dev"
+
+[http_service]
+  internal_port = 3000
+  force_https = true
+  auto_stop_machines = "stop"    # staging can scale to zero
+  auto_start_machines = true
+  min_machines_running = 0
+
+  [http_service.concurrency]
+    type = "requests"
+    soft_limit = 200
+    hard_limit = 250
+
+[[http_service.checks]]
+  interval = "30s"
+  timeout = "5s"
+  grace_period = "15s"
+  method = "GET"
+  path = "/api/health"
+
+[[vm]]
+  size = "shared-cpu-1x"
+  memory = "512mb"

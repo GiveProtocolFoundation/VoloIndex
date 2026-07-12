@@ -1,0 +1,14 @@
+node_modules
+.git
+.env
+.env.*
+!.env.example
+test
+tests
+docs
+Assets
+index.html
+*.md
+.pc_env.tmp
+deploy
+scripts

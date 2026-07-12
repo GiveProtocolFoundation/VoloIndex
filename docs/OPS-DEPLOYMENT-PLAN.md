@@ -1,6 +1,6 @@
 # Volo Index — Ops & Deployment Plan (T2-G / GIV-627)
 
-**Date:** 2026-07-12 · **Author:** CTO · **Status:** Plan approved-pending-board-inputs; execution blocked on T2-A (GIV-621) backend existing
+**Date:** 2026-07-12 · **Author:** CTO · **Status:** T2-A (GIV-621) landed — deploy artifacts shipped (`Dockerfile`, `deploy/fly.{staging,production}.toml`, `deploy/docker-compose.staging.yml`, `docs/DEPLOY-RUNBOOK.md`); PaaS resolved to **Fly.io** (runbook §0). Remaining gate: board domain confirmation + human account provisioning (runbook §1).
 **Scope source:** `docs/STOCK-TAKE-2026-07-12-launch-readiness.md` §4 (T2-G row) + board decision #3 (domain) and #4 (LinkedIn Company Page)
 
 ---
@@ -85,9 +85,9 @@ Layered, mostly already designed:
 | Confirm domain + register + Cloudflare DNS | **Board decision** (interaction pending on GIV-627) | Yes — pure board input + purchase |
 | LinkedIn Company Page | Board decision #4 | Yes |
 | Anthropic prod/staging workspaces + caps | Nothing | Yes (account admin) |
-| Provision PaaS + Postgres + secret store | T2-A (GIV-621) service skeleton exists | **Blocked on T2-A** |
-| Staging deploy + monitoring + Sentry wiring | T2-A deployable | Blocked on T2-A |
-| Edge rate limits + WAF tuning | Staging live | Blocked on T2-A |
-| Production cutover on apex | Domain confirmed + staging green | Blocked on both |
+| Provision PaaS + Postgres + secret store | T2-A (GIV-621) service skeleton exists | ✅ T2-A done — artifacts shipped; account creation is a human action (runbook §1) |
+| Staging deploy + monitoring + Sentry wiring | T2-A deployable | Ready — runbook §§2–5 |
+| Edge rate limits + WAF tuning | Staging live | After staging deploy |
+| Production cutover on apex | Domain confirmed + staging green | **Blocked on board domain confirmation** — runbook §6 |
 
-**Bottom line:** everything infrastructure-shaped that can exist before code exists is decided here; the two live inputs are (a) the board's domain confirmation and (b) T2-A producing a deployable service. GIV-627 is blocked on GIV-621 with the board interaction pending in parallel.
+**Bottom line (updated):** T2-A landed (main @ ddca0e6) and all deployment artifacts now exist in-repo; the deploy path is fully scripted in `docs/DEPLOY-RUNBOOK.md`. The single remaining decision gate is the board's domain confirmation (+ LinkedIn Company Page, non-blocking); the remaining execution is human account provisioning per runbook §1.
