@@ -22,11 +22,21 @@
 ## 2. Secrets (plan §4 — never in git)
 
 ```
-fly secrets set -a voloindex-staging ANTHROPIC_API_KEY=<staging-key> DATABASE_URL=<staging-pg-url>
-fly secrets set -a voloindex-prod    ANTHROPIC_API_KEY=<prod-key>    DATABASE_URL=<prod-pg-url>
+fly secrets set -a voloindex-staging ANTHROPIC_API_KEY=<staging-key> DATABASE_URL=<staging-pg-url> \
+  JWT_SECRET=<staging-jwt-secret> INTERNAL_API_KEY=<staging-internal-key> \
+  AUTH_BASE_URL=https://voloindex-staging.fly.dev
+fly secrets set -a voloindex-prod    ANTHROPIC_API_KEY=<prod-key>    DATABASE_URL=<prod-pg-url> \
+  JWT_SECRET=<prod-jwt-secret> INTERNAL_API_KEY=<prod-internal-key> \
+  AUTH_BASE_URL=https://voloindex.org
 ```
 
+Generate `JWT_SECRET` / `INTERNAL_API_KEY` with `openssl rand -hex 32`; never share across environments.
+`AUTH_BASE_URL` MUST be set (T2-C, GIV-623) — unset falls back to the request Host header (host-header
+injection into magic-link emails). `EMAIL_PROVIDER` (+ provider key) required in prod once transactional
+email is provisioned; until then magic links log to console only.
+
 Rotation = re-run `fly secrets set` + automatic redeploy. Quarterly, or immediately on suspected exposure.
+Note: rotating `JWT_SECRET` invalidates all live sessions (24h JWTs) — acceptable; users re-request a link.
 
 ## 3. Migrations
 
