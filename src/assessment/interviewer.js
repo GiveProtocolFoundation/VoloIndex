@@ -172,6 +172,8 @@ export async function runInterview(session, llmAdapter, getCandidateResponse, op
     for (let turn = 0; turn < maxTurns; turn++) {
       // ── 1. LLM proposes question ───────────────────────────────────
       const systemPrompt = buildInterviewerSystemPrompt(dimId, turn, priorCandidateTurns);
+      // Defense-in-depth: verify no rubric codes leaked into the outbound prompt.
+      assertNoRubricLeakage(systemPrompt, `interviewer-system-prompt[${dimId}:${turn}]`);
       const llmResult = await llmAdapter.complete(
         [
           { role: 'system', content: systemPrompt },

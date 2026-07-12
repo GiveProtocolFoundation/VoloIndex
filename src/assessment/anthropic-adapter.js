@@ -22,6 +22,22 @@ const SONNET_OUTPUT_PRICE_PER_TOKEN = 15.0 / 1_000_000;   // $15/MTok
 const DEFAULT_TARGET_SPEND = 0.50;
 const DEFAULT_HARD_CAP     = 2.00;
 
+// ── Retry config ─────────────────────────────────────────────────────
+
+const DEFAULT_MAX_RETRIES      = 3;
+const RETRY_BASE_DELAY_MS      = 500;
+
+/**
+ * HTTP status codes that are transient infrastructure errors — safe to retry.
+ * 4xx codes are NOT included: they indicate caller mistakes and must not be retried.
+ */
+const RETRYABLE_STATUSES = new Set([500, 502, 503, 529]);
+
+/** @param {number} ms */
+async function defaultSleep(ms) {
+  return new Promise(resolve => setTimeout(resolve, ms));
+}
+
 // ── Error types ──────────────────────────────────────────────────────
 
 export class CostCapExceededError extends Error {
@@ -62,6 +78,8 @@ export class AnthropicLlmAdapter extends LlmAdapter {
    *   hardCap?: number,
    *   baseUrl?: string,
    *   fetch?: typeof globalThis.fetch,
+   *   maxRetries?: number,
+   *   sleep?: (ms: number) => Promise<void>,
    * }} [opts]
    */
   constructor(opts = {}) {
@@ -72,6 +90,8 @@ export class AnthropicLlmAdapter extends LlmAdapter {
     this._hardCap     = opts.hardCap ?? DEFAULT_HARD_CAP;
     this._baseUrl     = opts.baseUrl ?? 'https://api.anthropic.com';
     this._fetch       = opts.fetch ?? globalThis.fetch;
+    this._maxRetries  = opts.maxRetries ?? DEFAULT_MAX_RETRIES;
+    this._sleep       = opts.sleep ?? defaultSleep;
 
     if (!this._apiKey) {
       throw new Error('AnthropicLlmAdapter requires ANTHROPIC_API_KEY (env or constructor opt)');
@@ -124,7 +144,7 @@ export class AnthropicLlmAdapter extends LlmAdapter {
       body.system = system;
     }
 
-    const response = await this._fetch(`${this._baseUrl}/v1/messages`, {
+    const fetchOpts = {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -132,7 +152,9 @@ export class AnthropicLlmAdapter extends LlmAdapter {
         'anthropic-version': '2023-06-01',
       },
       body: JSON.stringify(body),
-    });
+    };
+
+    const response = await this._fetchWithRetry(`${this._baseUrl}/v1/messages`, fetchOpts);
 
     if (!response.ok) {
       let errBody;
@@ -178,6 +200,48 @@ export class AnthropicLlmAdapter extends LlmAdapter {
   }
 
   // ── Internal helpers ───────────────────────────────────────────────
+
+  /**
+   * Fetch with bounded exponential-backoff retries on transient 5xx errors.
+   * Network errors (fetch throws) are also retried.
+   * 4xx errors are never retried — they are caller mistakes.
+   *
+   * @param {string} url
+   * @param {object} fetchOpts
+   * @returns {Promise<Response>}  The last response (ok or not); caller checks .ok
+   */
+  async _fetchWithRetry(url, fetchOpts) {
+    let lastResponse;
+
+    for (let attempt = 0; attempt <= this._maxRetries; attempt++) {
+      if (attempt > 0) {
+        const delayMs = RETRY_BASE_DELAY_MS * (2 ** (attempt - 1));
+        await this._sleep(delayMs);
+      }
+
+      let resp;
+      try {
+        resp = await this._fetch(url, fetchOpts);
+      } catch (networkErr) {
+        // Transient network-level failure (DNS, TCP reset, etc.)
+        if (attempt >= this._maxRetries) throw networkErr;
+        continue;
+      }
+
+      // Success
+      if (resp.ok) return resp;
+
+      // 4xx — caller mistake, never retry
+      if (!RETRYABLE_STATUSES.has(resp.status)) return resp;
+
+      // Retryable 5xx
+      lastResponse = resp;
+      if (attempt >= this._maxRetries) break;
+      // else loop continues
+    }
+
+    return lastResponse;
+  }
 
   /**
    * Convert LlmMessage[] (system/user/assistant roles) to Anthropic API format.

@@ -263,6 +263,122 @@ describe('AnthropicLlmAdapter', () => {
     });
   });
 
+  describe('retry policy', () => {
+    const noSleep = async () => {};
+
+    function makeRetryAdapter(fetchFn, maxRetries = 3) {
+      return new AnthropicLlmAdapter({
+        apiKey: 'sk-test-key',
+        fetch: fetchFn,
+        maxRetries,
+        sleep: noSleep,
+      });
+    }
+
+    function okResponse(text = '{"signals":[]}') {
+      return {
+        ok: true,
+        json: async () => ({
+          content: [{ type: 'text', text }],
+          usage: { input_tokens: 10, output_tokens: 5 },
+        }),
+      };
+    }
+
+    function errResponse(status) {
+      return { ok: false, status, text: async () => `error ${status}` };
+    }
+
+    it('succeeds on first try when no errors', async () => {
+      let calls = 0;
+      const fetch = async () => { calls++; return okResponse('done'); };
+      const adapter = makeRetryAdapter(fetch);
+
+      const result = await adapter.complete([{ role: 'user', content: 'test' }]);
+      assert.equal(result.text, 'done');
+      assert.equal(calls, 1);
+    });
+
+    it('retries on transient 5xx and succeeds', async () => {
+      let calls = 0;
+      const fetch = async () => {
+        calls++;
+        return calls < 3 ? errResponse(503) : okResponse('recovered');
+      };
+      const adapter = makeRetryAdapter(fetch, 3);
+
+      const result = await adapter.complete([{ role: 'user', content: 'test' }]);
+      assert.equal(result.text, 'recovered');
+      assert.equal(calls, 3);
+    });
+
+    it('does not retry on 4xx — fails immediately after 1 attempt', async () => {
+      let calls = 0;
+      const fetch = async () => { calls++; return errResponse(400); };
+      const adapter = makeRetryAdapter(fetch, 3);
+
+      await assert.rejects(
+        () => adapter.complete([{ role: 'user', content: 'test' }]),
+        (err) => {
+          assert(err instanceof AnthropicApiError);
+          assert.equal(err.status, 400);
+          return true;
+        },
+      );
+      assert.equal(calls, 1);
+    });
+
+    it('does not retry on 429 (rate-limit is a 4xx client error)', async () => {
+      let calls = 0;
+      const fetch = async () => { calls++; return errResponse(429); };
+      const adapter = makeRetryAdapter(fetch, 3);
+
+      await assert.rejects(
+        () => adapter.complete([{ role: 'user', content: 'test' }]),
+        (err) => err instanceof AnthropicApiError && err.status === 429,
+      );
+      assert.equal(calls, 1);
+    });
+
+    it('throws after exhausting retries on persistent 5xx', async () => {
+      let calls = 0;
+      const fetch = async () => { calls++; return errResponse(500); };
+      const adapter = makeRetryAdapter(fetch, 2);
+
+      await assert.rejects(
+        () => adapter.complete([{ role: 'user', content: 'test' }]),
+        (err) => err instanceof AnthropicApiError && err.status === 500,
+      );
+      assert.equal(calls, 3); // 1 initial + 2 retries
+    });
+
+    it('retries on network errors (fetch throws)', async () => {
+      let calls = 0;
+      const fetch = async () => {
+        calls++;
+        if (calls < 3) throw new Error('ECONNRESET');
+        return okResponse('back-online');
+      };
+      const adapter = makeRetryAdapter(fetch, 3);
+
+      const result = await adapter.complete([{ role: 'user', content: 'test' }]);
+      assert.equal(result.text, 'back-online');
+      assert.equal(calls, 3);
+    });
+
+    it('throws network error after exhausting retries', async () => {
+      let calls = 0;
+      const fetch = async () => { calls++; throw new Error('network down'); };
+      const adapter = makeRetryAdapter(fetch, 2);
+
+      await assert.rejects(
+        () => adapter.complete([{ role: 'user', content: 'test' }]),
+        /network down/,
+      );
+      assert.equal(calls, 3); // 1 initial + 2 retries
+    });
+  });
+
   describe('drop-in compatibility', () => {
     it('implements LlmAdapter interface (same complete() signature and result shape)', async () => {
       const fetch = stubFetch({ text: '{"signals":[]}', inputTokens: 50, outputTokens: 25 });
