@@ -35,7 +35,9 @@ describe('migration files', () => {
       'score_results',
       'certificates',
       'publication_queue',
-      'schema_migrations',
+      // NOTE: schema_migrations is bootstrapped by migrate.js (CREATE TABLE IF
+      // NOT EXISTS) before any migration runs — see 34435a5 fresh-DB fix — so
+      // it intentionally does NOT appear in 001-initial-schema.sql.
     ];
 
     for (const table of requiredTables) {
