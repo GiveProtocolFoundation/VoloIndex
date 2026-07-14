@@ -5,6 +5,10 @@
  * Starts listening only when run directly (not when imported for testing).
  */
 
+// Sentry must be imported before any other module so it can instrument them.
+// No-op when SENTRY_DSN is unset (local dev / tests).
+import './sentry.js';
+
 import { fileURLToPath } from 'node:url';
 import { readFileSync } from 'node:fs';
 import path from 'node:path';

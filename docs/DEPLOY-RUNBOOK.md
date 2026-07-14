@@ -24,10 +24,12 @@
 ```
 fly secrets set -a voloindex-staging ANTHROPIC_API_KEY=<staging-key> DATABASE_URL=<staging-pg-url> \
   JWT_SECRET=<staging-jwt-secret> INTERNAL_API_KEY=<staging-internal-key> \
-  AUTH_BASE_URL=https://voloindex-staging.fly.dev
+  AUTH_BASE_URL=https://voloindex-staging.fly.dev \
+  SENTRY_DSN=<staging-sentry-dsn>
 fly secrets set -a voloindex-prod    ANTHROPIC_API_KEY=<prod-key>    DATABASE_URL=<prod-pg-url> \
   JWT_SECRET=<prod-jwt-secret> INTERNAL_API_KEY=<prod-internal-key> \
-  AUTH_BASE_URL=https://voloindex.org
+  AUTH_BASE_URL=https://voloindex.org \
+  SENTRY_DSN=<prod-sentry-dsn>
 ```
 
 Generate `JWT_SECRET` / `INTERNAL_API_KEY` with `openssl rand -hex 32`; never share across environments.
@@ -52,10 +54,10 @@ fly ssh console -a voloindex-staging -C "node src/server/migrate.js"
 
 ```
 # Staging (auto on merge to main once CI wired — plan §7)
-fly deploy -c deploy/fly.staging.toml
+fly deploy -c deploy/fly.staging.toml --build-arg RELEASE_SHA=$(git rev-parse HEAD)
 
 # Production (manual promote only, after staging green)
-fly deploy -c deploy/fly.production.toml
+fly deploy -c deploy/fly.production.toml --build-arg RELEASE_SHA=$(git rev-parse HEAD)
 ```
 
 Health gate: Fly checks `/api/health` — 200 `healthy` requires a live DB (`SELECT 1`); 503 `degraded` fails the check and blocks rollout. Rollback: `fly releases -a voloindex-prod` → `fly deploy --image <previous>`.
