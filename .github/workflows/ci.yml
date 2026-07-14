@@ -70,6 +70,17 @@ jobs:
             echo "No build script yet — skipping. Tracked by GIV-66 (F1)."
           fi
 
+      - name: Test
+        # Full engine + server suite. Added after PR #17 merged a
+        # server-boot-breaking regression through "green" CI that never
+        # ran tests. Do NOT remove or soft-skip this step.
+        run: |
+          if [ -f package.json ] && node -e "process.exit(require('./package.json').scripts?.test ? 0 : 1)"; then
+            npm test
+          else
+            echo "No test script — skipping."
+          fi
+
       - name: Validate static site (phase-0)
         # Until F1 lands, the "build" is the tracked index.html + Assets/.
         # These checks catch the failure mode called out in GIV-68:
