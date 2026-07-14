@@ -8,7 +8,9 @@ COPY package.json package-lock.json ./
 RUN npm ci --omit=dev
 
 FROM node:22-slim
+ARG RELEASE_SHA=unknown
 ENV NODE_ENV=production
+ENV RELEASE_SHA=$RELEASE_SHA
 WORKDIR /app
 
 COPY --from=deps /app/node_modules ./node_modules

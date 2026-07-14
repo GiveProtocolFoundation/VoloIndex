@@ -14,6 +14,7 @@ import { AssessmentSession } from '../../assessment/session.js';
 import { ChatInterviewController } from '../../assessment/chat-controller.js';
 import { AnthropicLlmAdapter } from '../../assessment/anthropic-adapter.js';
 import { registerController, unregisterController, getActiveSessions } from './chat.js';
+import { captureError } from '../sentry.js';
 
 const router = Router();
 
@@ -243,6 +244,9 @@ router.post('/:id/start', async (req, res, next) => {
     // abandoned (observed on staging: 401 from Anthropic, zero log lines).
     ctrl.on('error', ({ error }) => {
       console.error(`[sessions] interview controller error for ${sessionId}:`, error?.stack || error?.message || error);
+      if (error instanceof Error) {
+        captureError(error, { sessionId });
+      }
     });
 
     // Handle terminal state transitions
