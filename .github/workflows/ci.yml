@@ -26,7 +26,10 @@ jobs:
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          # Match the deploy runtime (Dockerfile: node:22-slim). Node 20's
+          # --experimental-test-module-mocks cannot intercept static ESM
+          # imports, which breaks the server test suite.
+          node-version: '22'
           # Cache is a no-op until a lockfile exists (post-F1 [GIV-66]);
           # wiring it now keeps the workflow forward-compatible.
           cache: 'npm'
