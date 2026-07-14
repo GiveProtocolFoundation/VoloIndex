@@ -1,0 +1,565 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Volo Index — QA Review Queue</title>
+  <style>
+    :root {
+      --primary:      #b0542c;
+      --primary-dk:   #7a2e10;
+      --secondary:    #cd8a4f;
+      --light:        #e0d4c0;
+      --lighter:      #ede5d8;
+      --bg:           #faf9f5;
+      --paper:        #f4efe5;
+      --text:         #2c1d13;
+      --muted:        #7a6252;
+      --white:        #ffffff;
+      --green:        #3d7a4a;
+      --green-light:  #e8f5e9;
+      --red:          #c0392b;
+      --red-light:    #fdecea;
+      --blue:         #2c6fbb;
+      --blue-light:   #e3f0ff;
+      --shadow:       0 2px 16px rgba(44,29,19,.09);
+      --r:            12px;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      line-height: 1.5;
+    }
+
+    /* ── Layout ── */
+    .container { max-width: 1080px; margin: 0 auto; padding: 24px 20px; }
+
+    header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 16px 20px;
+      background: var(--white);
+      border-bottom: 1px solid var(--light);
+    }
+    header h1 { font-size: 18px; font-weight: 700; }
+    header .badge {
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: .05em;
+      padding: 4px 10px;
+      border-radius: 4px;
+      background: var(--secondary);
+      color: var(--white);
+    }
+
+    /* ── Stats bar ── */
+    .stats-bar {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+      gap: 12px;
+      margin-bottom: 24px;
+    }
+    .stat-card {
+      background: var(--white);
+      border-radius: var(--r);
+      padding: 16px;
+      box-shadow: var(--shadow);
+      text-align: center;
+    }
+    .stat-card .value { font-size: 28px; font-weight: 700; color: var(--primary); }
+    .stat-card .label { font-size: 12px; color: var(--muted); text-transform: uppercase; letter-spacing: .04em; margin-top: 4px; }
+    .stat-card.latch-on .value { color: var(--green); }
+    .stat-card.latch-off .value { color: var(--muted); }
+
+    /* ── Entry list ── */
+    .entry-list { display: flex; flex-direction: column; gap: 12px; }
+
+    .entry-card {
+      background: var(--white);
+      border-radius: var(--r);
+      box-shadow: var(--shadow);
+      overflow: hidden;
+    }
+
+    .entry-header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 14px 18px;
+      cursor: pointer;
+      user-select: none;
+      transition: background .1s;
+    }
+    .entry-header:hover { background: var(--lighter); }
+
+    .entry-header .idx {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      background: var(--primary);
+      color: var(--white);
+      font-size: 12px;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+    .entry-header .info { flex: 1; min-width: 0; }
+    .entry-header .candidate { font-weight: 600; font-size: 14px; }
+    .entry-header .meta { font-size: 12px; color: var(--muted); }
+    .entry-header .score-badge {
+      padding: 4px 10px;
+      border-radius: 6px;
+      font-size: 13px;
+      font-weight: 600;
+      flex-shrink: 0;
+    }
+    .tier-Foundational { background: var(--red-light); color: var(--red); }
+    .tier-Developing   { background: #fff8e1; color: #e67c00; }
+    .tier-Proficient    { background: var(--blue-light); color: var(--blue); }
+    .tier-Expert        { background: var(--green-light); color: var(--green); }
+    .entry-header .chevron {
+      font-size: 18px;
+      color: var(--muted);
+      transition: transform .2s;
+      flex-shrink: 0;
+    }
+    .entry-card.open .chevron { transform: rotate(90deg); }
+
+    /* ── Detail panel ── */
+    .entry-detail {
+      display: none;
+      border-top: 1px solid var(--light);
+      padding: 18px;
+    }
+    .entry-card.open .entry-detail { display: block; }
+
+    .detail-section { margin-bottom: 18px; }
+    .detail-section:last-child { margin-bottom: 0; }
+    .detail-section h3 {
+      font-size: 13px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: .04em;
+      color: var(--muted);
+      margin-bottom: 8px;
+      padding-bottom: 4px;
+      border-bottom: 1px solid var(--lighter);
+    }
+
+    /* Dimension scores table */
+    .dim-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+    .dim-table th { text-align: left; padding: 6px 10px; font-weight: 600; background: var(--lighter); }
+    .dim-table td { padding: 6px 10px; border-bottom: 1px solid var(--lighter); }
+
+    /* Signals list */
+    .signal-list { list-style: none; }
+    .signal-item {
+      padding: 8px 10px;
+      border-bottom: 1px solid var(--lighter);
+      font-size: 13px;
+    }
+    .signal-item:last-child { border-bottom: none; }
+    .signal-dim { font-weight: 600; color: var(--primary); }
+    .signal-strength { font-size: 11px; padding: 2px 6px; border-radius: 4px; margin-left: 6px; }
+    .strength-strong  { background: var(--green-light); color: var(--green); }
+    .strength-clear   { background: var(--blue-light); color: var(--blue); }
+    .strength-partial { background: #fff8e1; color: #e67c00; }
+    .signal-neg { font-style: italic; color: var(--red); }
+
+    /* Transcript */
+    .transcript-box {
+      max-height: 400px;
+      overflow-y: auto;
+      background: var(--paper);
+      border-radius: 8px;
+      padding: 14px;
+    }
+    .turn {
+      margin-bottom: 12px;
+      padding-bottom: 12px;
+      border-bottom: 1px solid var(--light);
+    }
+    .turn:last-child { border-bottom: none; margin-bottom: 0; padding-bottom: 0; }
+    .turn-role {
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: .04em;
+      margin-bottom: 4px;
+    }
+    .turn-role.interviewer { color: var(--primary); }
+    .turn-role.candidate   { color: var(--blue); }
+    .turn-content { font-size: 13px; white-space: pre-wrap; word-break: break-word; }
+
+    /* ── Verdict buttons ── */
+    .verdict-bar {
+      display: flex;
+      gap: 12px;
+      padding-top: 14px;
+      border-top: 1px solid var(--light);
+      margin-top: 14px;
+    }
+    .btn {
+      flex: 1;
+      padding: 10px;
+      border: none;
+      border-radius: 8px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: opacity .15s;
+    }
+    .btn:disabled { opacity: .4; cursor: default; }
+    .btn-agree {
+      background: var(--green);
+      color: var(--white);
+    }
+    .btn-agree:hover:not(:disabled) { opacity: .85; }
+    .btn-disagree {
+      background: var(--red);
+      color: var(--white);
+    }
+    .btn-disagree:hover:not(:disabled) { opacity: .85; }
+
+    /* ── Status messages ── */
+    .empty-state {
+      text-align: center;
+      padding: 60px 20px;
+      color: var(--muted);
+    }
+    .empty-state .icon { font-size: 48px; margin-bottom: 12px; }
+    .empty-state p { font-size: 15px; }
+
+    .toast {
+      position: fixed;
+      bottom: 24px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: var(--text);
+      color: var(--white);
+      padding: 10px 20px;
+      border-radius: 8px;
+      font-size: 13px;
+      font-weight: 500;
+      opacity: 0;
+      transition: opacity .3s;
+      z-index: 100;
+      pointer-events: none;
+    }
+    .toast.show { opacity: 1; }
+
+    .loading { text-align: center; padding: 60px 20px; color: var(--muted); }
+
+    .error-banner {
+      background: var(--red-light);
+      color: var(--red);
+      padding: 12px 18px;
+      border-radius: 8px;
+      margin-bottom: 16px;
+      font-size: 13px;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>QA Review Queue</h1>
+    <span class="badge">Internal</span>
+  </header>
+
+  <div class="container">
+    <div id="stats-bar" class="stats-bar"></div>
+    <div id="error-banner"></div>
+    <div id="entry-list" class="entry-list">
+      <div class="loading">Loading queue...</div>
+    </div>
+  </div>
+
+  <div id="toast" class="toast"></div>
+
+  <script>
+    const API = window.location.origin;
+
+    // ── State ──
+    let stats = null;
+    let entries = [];
+    let internalKey = sessionStorage.getItem('qa-internal-key') || '';
+
+    // ── Boot ──
+    document.addEventListener('DOMContentLoaded', () => {
+      if (!internalKey) {
+        promptForKey();
+      } else {
+        refresh();
+      }
+    });
+
+    function promptForKey() {
+      const key = prompt('Enter Internal API Key to access the QA review queue:');
+      if (!key) {
+        document.querySelector('.container').innerHTML =
+          '<div class="empty-state"><p>Access denied — internal key required.</p></div>';
+        return;
+      }
+      internalKey = key;
+      sessionStorage.setItem('qa-internal-key', key);
+      refresh();
+    }
+
+    async function refresh() {
+      try {
+        const hdrs = { 'X-Internal-Key': internalKey };
+        const [statsRes, pendingRes] = await Promise.all([
+          fetch(`${API}/api/publication`, { headers: hdrs }).then(r => {
+            if (r.status === 403) { sessionStorage.removeItem('qa-internal-key'); promptForKey(); throw new Error('Invalid key'); }
+            return r.json();
+          }),
+          fetch(`${API}/api/publication/pending`, { headers: hdrs }).then(r => r.json()),
+        ]);
+        stats = statsRes;
+        entries = pendingRes.entries || [];
+        renderStats();
+        renderEntries();
+        clearError();
+      } catch (err) {
+        showError(`Failed to load queue: ${err.message}`);
+      }
+    }
+
+    // ── Render stats bar ──
+    function renderStats() {
+      if (!stats) return;
+      const rate = stats.reviewedCount > 0
+        ? (stats.agreementRate * 100).toFixed(1) + '%'
+        : '--';
+      const latchClass = stats.autoPublishEnabled ? 'latch-on' : 'latch-off';
+      document.getElementById('stats-bar').innerHTML = `
+        <div class="stat-card">
+          <div class="value">${stats.pendingCount}</div>
+          <div class="label">Pending review</div>
+        </div>
+        <div class="stat-card">
+          <div class="value">${stats.reviewedCount}</div>
+          <div class="label">Reviewed</div>
+        </div>
+        <div class="stat-card">
+          <div class="value">${stats.publishedCount}</div>
+          <div class="label">Published</div>
+        </div>
+        <div class="stat-card">
+          <div class="value">${rate}</div>
+          <div class="label">Agreement rate</div>
+        </div>
+        <div class="stat-card ${latchClass}">
+          <div class="value">${stats.autoPublishEnabled ? 'ON' : 'OFF'}</div>
+          <div class="label">Auto-publish latch</div>
+        </div>
+      `;
+    }
+
+    // ── Render entry list ──
+    function renderEntries() {
+      const el = document.getElementById('entry-list');
+      if (entries.length === 0) {
+        el.innerHTML = `
+          <div class="empty-state">
+            <div class="icon">&#10003;</div>
+            <p>No entries pending review.</p>
+          </div>`;
+        return;
+      }
+      el.innerHTML = entries.map((e, i) => entryCard(e, i)).join('');
+    }
+
+    function entryCard(entry, idx) {
+      const date = entry.enqueuedAt
+        ? new Date(entry.enqueuedAt).toLocaleString()
+        : 'Unknown';
+      const tier = entry.overallTier || 'Unknown';
+      const score = entry.overallScore != null
+        ? entry.overallScore.toFixed(1)
+        : '--';
+      const tierClass = `tier-${tier}`;
+
+      return `
+        <div class="entry-card" id="card-${idx}">
+          <div class="entry-header" onclick="toggleCard(${idx})">
+            <div class="idx">${idx + 1}</div>
+            <div class="info">
+              <div class="candidate">${esc(entry.candidateId)}</div>
+              <div class="meta">Session ${esc(entry.sessionId.slice(0,8))}... &middot; ${esc(date)}</div>
+            </div>
+            <div class="score-badge ${tierClass}">${score} &middot; ${esc(tier)}</div>
+            <div class="chevron">&#9654;</div>
+          </div>
+          <div class="entry-detail">
+            ${renderDimScores(entry)}
+            ${renderSignals(entry)}
+            ${renderTranscript(entry)}
+            <div class="verdict-bar">
+              <button class="btn btn-agree" onclick="release('${entry.sessionId}', true, ${idx})">
+                Agree with extractor
+              </button>
+              <button class="btn btn-disagree" onclick="release('${entry.sessionId}', false, ${idx})">
+                Disagree
+              </button>
+            </div>
+          </div>
+        </div>`;
+    }
+
+    function renderDimScores(entry) {
+      const ds = entry.dimensionScores;
+      if (!ds) return '<div class="detail-section"><h3>Dimension Scores</h3><p style="font-size:13px;color:var(--muted)">No score data available.</p></div>';
+
+      // Handle both object and array formats
+      const items = Array.isArray(ds) ? ds : Object.entries(ds).map(([id, v]) => {
+        if (typeof v === 'object' && v !== null) return { id, ...v };
+        return { id, score: v };
+      });
+
+      const rows = items.map(d => {
+        const dimId = d.id || d.dimension || '?';
+        const sc = d.score != null ? parseFloat(d.score).toFixed(1) : '--';
+        const ti = d.tier || d.overallTier || '--';
+        const ie = d.insufficientEvidence ? '<span style="color:var(--red)">(IE)</span>' : '';
+        return `<tr><td>${esc(dimId)}</td><td>${sc}</td><td>${esc(ti)} ${ie}</td></tr>`;
+      }).join('');
+
+      return `
+        <div class="detail-section">
+          <h3>Dimension Scores</h3>
+          <table class="dim-table">
+            <thead><tr><th>Dimension</th><th>Score</th><th>Tier</th></tr></thead>
+            <tbody>${rows}</tbody>
+          </table>
+        </div>`;
+    }
+
+    function renderSignals(entry) {
+      const sigs = entry.signals;
+      if (!sigs || !Array.isArray(sigs) || sigs.length === 0) {
+        return '<div class="detail-section"><h3>Extracted Signals</h3><p style="font-size:13px;color:var(--muted)">No signals available.</p></div>';
+      }
+
+      const items = sigs.map(s => {
+        const dim = s.dimension || s.anchorDimension || '?';
+        const str = s.strength || 'unknown';
+        const neg = s.isNegative || s.valence === 'negative';
+        const strClass = str === 'strong' ? 'strength-strong'
+          : str === 'clear' ? 'strength-clear'
+          : 'strength-partial';
+        const desc = s.description || s.text || s.observation || '';
+        return `
+          <li class="signal-item">
+            <span class="signal-dim">${esc(dim)}</span>
+            <span class="signal-strength ${strClass}">${esc(str)}</span>
+            ${neg ? '<span class="signal-neg">[negative]</span>' : ''}
+            <br>${esc(desc)}
+          </li>`;
+      }).join('');
+
+      return `
+        <div class="detail-section">
+          <h3>Extracted Signals (${sigs.length})</h3>
+          <ul class="signal-list">${items}</ul>
+        </div>`;
+    }
+
+    function renderTranscript(entry) {
+      const tx = entry.transcript;
+      if (!tx) {
+        return '<div class="detail-section"><h3>Transcript</h3><p style="font-size:13px;color:var(--muted)">No transcript available (D4 consent may not have been granted).</p></div>';
+      }
+
+      // Handle both array-of-turns and object formats
+      let turns = [];
+      if (Array.isArray(tx)) {
+        turns = tx;
+      } else if (tx.turns && Array.isArray(tx.turns)) {
+        turns = tx.turns;
+      } else if (tx.messages && Array.isArray(tx.messages)) {
+        turns = tx.messages;
+      }
+
+      if (turns.length === 0) {
+        return '<div class="detail-section"><h3>Transcript</h3><p style="font-size:13px;color:var(--muted)">Empty transcript.</p></div>';
+      }
+
+      const turnHtml = turns.map(t => {
+        const role = t.role || 'unknown';
+        const content = t.content || t.text || '';
+        return `
+          <div class="turn">
+            <div class="turn-role ${role}">${esc(role)}</div>
+            <div class="turn-content">${esc(content)}</div>
+          </div>`;
+      }).join('');
+
+      return `
+        <div class="detail-section">
+          <h3>Transcript (${turns.length} turns)</h3>
+          <div class="transcript-box">${turnHtml}</div>
+        </div>`;
+    }
+
+    // ── Actions ──
+    function toggleCard(idx) {
+      document.getElementById(`card-${idx}`).classList.toggle('open');
+    }
+
+    async function release(sessionId, agreed, idx) {
+      const card = document.getElementById(`card-${idx}`);
+      const btns = card.querySelectorAll('.btn');
+      btns.forEach(b => b.disabled = true);
+
+      try {
+        const res = await fetch(`${API}/api/publication/${sessionId}/release`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'X-Internal-Key': internalKey },
+          body: JSON.stringify({ agreedWithExtractor: agreed }),
+        });
+        if (!res.ok) {
+          const err = await res.json().catch(() => ({}));
+          throw new Error(err.error?.message || `HTTP ${res.status}`);
+        }
+        toast(agreed ? 'Released: agreed with extractor' : 'Released: disagreed with extractor');
+        await refresh();
+      } catch (err) {
+        showError(`Release failed: ${err.message}`);
+        btns.forEach(b => b.disabled = false);
+      }
+    }
+
+    // ── Helpers ──
+    function esc(s) {
+      if (s == null) return '';
+      const d = document.createElement('div');
+      d.textContent = String(s);
+      return d.innerHTML;
+    }
+
+    function toast(msg) {
+      const el = document.getElementById('toast');
+      el.textContent = msg;
+      el.classList.add('show');
+      setTimeout(() => el.classList.remove('show'), 2500);
+    }
+
+    function showError(msg) {
+      document.getElementById('error-banner').innerHTML =
+        `<div class="error-banner">${esc(msg)}</div>`;
+    }
+
+    function clearError() {
+      document.getElementById('error-banner').innerHTML = '';
+    }
+  </script>
+</body>
+</html>

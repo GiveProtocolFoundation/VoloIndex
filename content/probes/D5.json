@@ -1,0 +1,384 @@
+{
+  "dimension": "D5",
+  "dimensionTitle": "Recognition, Retention & Culture",
+  "frameworkVersion": "1.0",
+  "draftRevision": "D5-v0.1-translation-r1",
+  "status": "pending-CEO-signoff",
+  "author": "CPO",
+  "parentIssue": "GIV-630",
+  "sourceDoc": "content/dimensions/D5.md",
+  "subDomains": [
+    {
+      "id": "5.1",
+      "title": "Motivation-matched recognition",
+      "primaryAnchors": ["Clary & Snyder (VFI)", "Grossman & Furano"]
+    },
+    {
+      "id": "5.2",
+      "title": "Retention & flight-risk diagnosis",
+      "primaryAnchors": ["Vecina, Chacón & Marzana", "Bang & Ross", "Bidee et al."]
+    },
+    {
+      "id": "5.3",
+      "title": "Autonomy-preserving support (D3 axis carryover)",
+      "primaryAnchors": ["Deci & Ryan (SDT)", "Ellis"],
+      "axisReuse": "D3 autonomy / over-management second axis"
+    },
+    {
+      "id": "5.4",
+      "title": "Belonging & staff–volunteer culture",
+      "primaryAnchors": ["Rogelberg", "Studer & von Schnurbein", "Netting, Nesbitt & Kettner"]
+    }
+  ],
+  "scopeBoundaryAwareness": {
+    "version": "1.0",
+    "rules": [
+      "Substantive escalation protects the floor.",
+      "Uncorrected miscalibration caps a sub-domain at Proficient.",
+      "Probes may thin or drop at lower bands without breaking the dimension spine."
+    ]
+  },
+  "strengthMarkers": {
+    "S1": "Concrete instance with observable practice change",
+    "S2": "Pattern across cases with named mechanism/reasoning",
+    "S3": "System/policy design that removes the failure mode"
+  },
+  "developmentalLevels": {
+    "Foundational": [1.0, 3.0],
+    "Developing": [3.1, 5.5],
+    "Proficient": [5.6, 7.5],
+    "Expert": [7.6, 10.0]
+  },
+  "probes": [
+    {
+      "id": "TL-1",
+      "band": "Team Lead",
+      "subDomain": "5.1",
+      "title": "Recognising a team member",
+      "prompt": "One of your volunteers, Mira, has quietly delivered six months of reliable work on the same task. Team convention is a Volunteer of the Month shoutout at the next all-hands. Walk through how you would recognise Mira.",
+      "anchors": ["Clary & Snyder (VFI)", "Grossman & Furano"],
+      "levels": {
+        "Foundational": "Delivers convention shoutout; equates recognition with public praise. S1: names Mira, uses existing channel.",
+        "Developing": "Notices mismatch risk, asks a colleague what Mira might prefer. S1: tailoring intent, no motivation reference.",
+        "Proficient": "Matches recognition to Mira's motivation profile (e.g. skills reference, co-lead session). S2: articulates mismatch mechanism.",
+        "Expert": "Recognition as ongoing motivational-fit conversation; standing lightweight practice for surfacing motivation. S3."
+      },
+      "redFlags": [
+        {"id": "RF-TL1-a", "clause": "Recognition decoupled from why the person volunteers.", "effect": "Uncorrected: caps 5.1 at Proficient."},
+        {"id": "RF-TL1-b", "clause": "Employee-of-the-Month framing on volunteers without acknowledging the difference.", "effect": "Uncorrected clear instance → red-flag cap per §5.5."}
+      ],
+      "scopeBoundary": "In-band. Declining the individual-recognition move by escalating to Coordinator is not an escalation credit — it is declining an in-band probe."
+    },
+    {
+      "id": "TL-2",
+      "band": "Team Lead",
+      "subDomain": "5.2",
+      "title": "Spotting a volunteer at risk of leaving",
+      "prompt": "A volunteer who used to arrive early has been arriving late, skipping the team huddle, and going quiet on the group chat. He has not said anything to you. What do you do, and what do you look at first?",
+      "anchors": ["Vecina, Chacón & Marzana", "Bang & Ross", "Bidee et al."],
+      "levels": {
+        "Foundational": "Waits for the volunteer to say something; may thank him hoping mood lifts. S1: no diagnostic move.",
+        "Developing": "Notices the change, opens a well-meaning 'everything OK?' without structure. S1: notices, no frame.",
+        "Proficient": "Names the specific behavioural signals; low-stakes 1:1 focused on fit and recent role changes; distinguishes life-event from role-fit disengagement. S2: applies SDT frame.",
+        "Expert": "Reads pattern against team trajectory; personal heuristic; has changed a team practice after a prior episode. S3."
+      },
+      "redFlags": [
+        {"id": "RF-TL2-a", "clause": "Attendance as sole signal; misses relational disengagement.", "effect": "Uncorrected: 5.2 cap at Proficient."},
+        {"id": "RF-TL2-b", "clause": "Volunteer turnover framed as inevitable, no diagnostic move.", "effect": "Uncorrected: red-flag cap."}
+      ],
+      "scopeBoundary": "In-band for individual case. Cohort-level flight-risk analysis is Coordinator scope; Team Lead escalating a cohort trend earns escalation credit."
+    },
+    {
+      "id": "TL-3",
+      "band": "Team Lead",
+      "subDomain": "5.3",
+      "title": "Support without over-management",
+      "prompt": "An experienced volunteer, Ana, has been running a weekly session her own way for a year. Your manager wants a standard checklist run before every session. Ana pushes back. How do you handle it?",
+      "anchors": ["Deci & Ryan (SDT)", "Ellis"],
+      "levels": {
+        "Foundational": "Enforces checklist because manager said so; frames pushback as compliance failure. S1: no autonomy consideration.",
+        "Developing": "Softens delivery; still lands on 'please do the checklist.' S1: notices tension, no substantive move.",
+        "Proficient": "Distinguishes protective purpose from scope-creep bits; negotiates non-negotiable vs integrable items; documents outcome. S2: names autonomy erosion.",
+        "Expert": "Reframes the manager's ask upstream; treats over-management as retention risk; has changed a standing practice. S3."
+      },
+      "redFlags": [
+        {"id": "RF-TL3-a", "clause": "Volunteer autonomy pushback treated as a discipline problem.", "effect": "Uncorrected: red-flag cap."},
+        {"id": "RF-TL3-b", "clause": "All volunteers treated identically on autonomy needs regardless of experience.", "effect": "Uncorrected: 5.3 cap at Proficient."}
+      ],
+      "scopeBoundary": "In-band. Policy redesign of the checklist regime is upstream; escalation credit for flagging the pattern to coordinator while handling the immediate conversation."
+    },
+    {
+      "id": "TL-4",
+      "band": "Team Lead",
+      "subDomain": "5.4",
+      "title": "Welcoming without tiering",
+      "prompt": "A new volunteer arrives on a day the paid staff are visibly stressed. At break, staff cluster in the kitchen; the volunteer eats her lunch alone in the shared space. What do you do in the moment, and what do you do about it next week?",
+      "anchors": ["Rogelberg", "Studer & von Schnurbein", "Cnaan"],
+      "levels": {
+        "Foundational": "Notices, feels awkward, does nothing; rationalises as staff being tired. S1: no action.",
+        "Developing": "Joins the volunteer for lunch that day; no structural follow-up. S1: individual repair.",
+        "Proficient": "Joins the volunteer, introduces her to a staff member; raises the pattern with the team as a norm question. S2: names tiering.",
+        "Expert": "Uses moment as signal that induction ritual is under-designed; proposes small change; has previously changed a norm after a similar signal. S3."
+      },
+      "redFlags": [
+        {"id": "RF-TL4-a", "clause": "Rationalises staff tiering as unavoidable.", "effect": "Uncorrected: red-flag cap."},
+        {"id": "RF-TL4-b", "clause": "Belonging framed as the volunteer's problem to solve.", "effect": "Uncorrected: 5.4 cap at Proficient."}
+      ],
+      "scopeBoundary": "In-band for the team moment. Org-wide belonging policy is Director scope; escalation credit for flagging the pattern for a program-level conversation."
+    },
+    {
+      "id": "C-1",
+      "band": "Coordinator",
+      "subDomain": "5.1",
+      "title": "Recognition programme for a pool",
+      "prompt": "You inherited a 'years of service pin' recognition scheme. Half the volunteer pool never comes to the annual dinner. What do you change, and how do you justify it to the ED?",
+      "anchors": ["Grossman & Furano", "Clary & Snyder (VFI)", "Cnaan"],
+      "levels": {
+        "Foundational": "Adds a second event or a nicer pin. S1: convention persists.",
+        "Developing": "Surveys volunteers, acts on modal response. S1: motivation-aware but treats pool as homogeneous.",
+        "Proficient": "Segments pool by motivation profile; offers a menu of options; justifies to ED on retention risk. S2: names mechanism.",
+        "Expert": "Recognition as portfolio with evidence base; runs a small experiment before scaling; has moved a programme from convention to motivation-based. S3."
+      },
+      "redFlags": [
+        {"id": "RF-C1-a", "clause": "Recognition treated as fixed budget line disconnected from retention outcomes.", "effect": "Uncorrected: 5.1 cap at Proficient."},
+        {"id": "RF-C1-b", "clause": "Employee-recognition frameworks imported wholesale without adjustment for absence of paycheck.", "effect": "Uncorrected: red-flag cap."}
+      ],
+      "scopeBoundary": "In-band."
+    },
+    {
+      "id": "C-2",
+      "band": "Coordinator",
+      "subDomain": "5.2",
+      "title": "Cohort flight-risk diagnosis",
+      "prompt": "Volunteer hours this quarter are flat on the surface but you notice a cluster of veteran volunteers has quietly dropped shifts. New-volunteer intake is masking the loss. What do you do?",
+      "anchors": ["Vecina, Chacón & Marzana", "Bang & Ross", "Bidee et al."],
+      "levels": {
+        "Foundational": "Reports healthy total-hours number up; misses cohort dynamic. S1: no diagnostic move.",
+        "Developing": "Notices cohort loss; sends re-engagement email. S1: reactive, not diagnostic.",
+        "Proficient": "Segments leavers vs stayers; identifies common trigger; designs targeted conversations before acting. S2: leading vs lagging indicators.",
+        "Expert": "Treats intake growth as disguising a churn problem; frames retention loss in cost-to-programme terms; has previously restructured onboarding or role design. S3."
+      },
+      "redFlags": [
+        {"id": "RF-C2-a", "clause": "Total-hours as sole retention KPI; no cohort view.", "effect": "Uncorrected: red-flag cap."},
+        {"id": "RF-C2-b", "clause": "New intake framed as substitute for veteran retention.", "effect": "Uncorrected: 5.2 cap at Proficient."}
+      ],
+      "scopeBoundary": "In-band."
+    },
+    {
+      "id": "C-3",
+      "band": "Coordinator",
+      "subDomain": "5.3",
+      "title": "Autonomy pushback as repeat pattern",
+      "prompt": "Three of your team leads have separately raised that their most experienced volunteers are pushing back on new procedural requirements. What does the pattern tell you, and what do you do about it?",
+      "anchors": ["Deci & Ryan (SDT)", "Ellis", "Grossman & Furano"],
+      "levels": {
+        "Foundational": "Frames team-lead reports as compliance issues; asks team leads to hold the line. S1: no autonomy read.",
+        "Developing": "Coaches team leads through individual conversations. S1: individual coaching, no systemic move.",
+        "Proficient": "Audits procedural requirements against protective purpose vs bureaucratic drift; retires or modifies failing ones. S2: named autonomy mechanism.",
+        "Expert": "Turns pattern into standing check that resists ratcheting; has previously killed a checklist and can trace retention effect. S3."
+      },
+      "redFlags": [
+        {"id": "RF-C3-a", "clause": "Individual-team problems, misses system pattern.", "effect": "Uncorrected: 5.3 cap at Proficient."},
+        {"id": "RF-C3-b", "clause": "Procedural ratcheting treated as neutral overhead.", "effect": "Uncorrected: red-flag cap."}
+      ],
+      "scopeBoundary": "In-band. Org-wide procedural-weight governance is Director scope; escalation credit for correctly framing to program/director."
+    },
+    {
+      "id": "C-4",
+      "band": "Coordinator",
+      "subDomain": "5.4",
+      "title": "Staff–volunteer bridging",
+      "prompt": "A paid staff member has been visibly short with a long-standing volunteer in front of the team. This is the third such incident this quarter, involving two different staff. What do you do?",
+      "anchors": ["Rogelberg", "Netting, Nesbitt & Kettner", "Studer & von Schnurbein"],
+      "levels": {
+        "Foundational": "Apologises privately to the volunteer; does not address staff pattern. S1: individual repair only.",
+        "Developing": "Raises incidents one-by-one with the staff line manager. S1: escalation, no synthesis.",
+        "Proficient": "Names pattern to staff line manager and volunteer manager together; proposes joint norm-setting; documents pattern. S2: shared culture issue.",
+        "Expert": "Treats recurrence as signal of under-designed staff–volunteer working relationship; proposes structural change; has previously changed a working-relationship norm. S3."
+      },
+      "redFlags": [
+        {"id": "RF-C4-a", "clause": "Each incident treated in isolation.", "effect": "Uncorrected: 5.4 cap at Proficient."},
+        {"id": "RF-C4-b", "clause": "Volunteers positioned as 'guests' whose dignity is optional.", "effect": "Uncorrected: red-flag cap."}
+      ],
+      "scopeBoundary": "In-band. Org-wide staff–volunteer parity policy is Director scope."
+    },
+    {
+      "id": "PM-1",
+      "band": "Program Manager",
+      "subDomain": "5.1",
+      "title": "Recognition strategy across programs",
+      "prompt": "You run three programs with different volunteer profiles: youth mentoring (career-motivated), food bank (values-motivated), and disaster response (episodic, competence-motivated). The ED wants 'one consistent recognition programme across the org.' Respond.",
+      "anchors": ["Clary & Snyder (VFI)", "Grossman & Furano", "Ellis"],
+      "levels": {
+        "Foundational": "Complies; designs one programme with slight variants. S1: convention.",
+        "Developing": "Weak pushback; compromise satisfies neither purpose. S1: some awareness.",
+        "Proficient": "Names miscalibration of single frame; proposes shared principle with differentiated instruments; evidence from one program. S2: principle vs instrument.",
+        "Expert": "Reframes ED's ask as governance question; shows retention-cost estimate; has previously defended differentiated recognition to a board on mechanism argument. S3."
+      },
+      "redFlags": [
+        {"id": "RF-PM1-a", "clause": "Collapses under executive pressure without articulating mechanism cost.", "effect": "Uncorrected: 5.1 cap at Proficient."},
+        {"id": "RF-PM1-b", "clause": "Motivation-differentiated recognition framed as 'unfair' rather than fit-for-purpose.", "effect": "Uncorrected: red-flag cap."}
+      ],
+      "scopeBoundary": "In-band."
+    },
+    {
+      "id": "PM-2",
+      "band": "Program Manager",
+      "subDomain": "5.2",
+      "title": "Retention analytics and targeted intervention",
+      "prompt": "You have twelve months of shift, task, and satisfaction-pulse data across your programs. Sketch how you would build a working retention dashboard, and name the first targeted intervention you would run off it.",
+      "anchors": ["Vecina, Chacón & Marzana", "Bidee et al.", "Bang & Ross", "Grossman & Furano"],
+      "levels": {
+        "Foundational": "Hours-per-volunteer as KPI; data as report-up material. S1: no diagnostic use.",
+        "Developing": "Retention rate and satisfaction pulse correlated at surface level. S1: descriptive analytics.",
+        "Proficient": "Names leading and lagging indicators; cohort-tracking view; first intervention with hypothesis and success measure. S2: descriptive vs causal.",
+        "Expert": "Dashboard as decision instrument; explicitly names what it cannot tell them; qualitative pairing; has previously run a data-informed intervention. S3."
+      },
+      "redFlags": [
+        {"id": "RF-PM2-a", "clause": "Data-worship: dashboard treated as truth without qualitative pairing.", "effect": "Uncorrected: 5.2 cap at Proficient."},
+        {"id": "RF-PM2-b", "clause": "Retention rate confused with engagement quality.", "effect": "Uncorrected: red-flag cap."}
+      ],
+      "scopeBoundary": "In-band."
+    },
+    {
+      "id": "PM-3",
+      "band": "Program Manager",
+      "subDomain": "5.3",
+      "title": "Role structures that resist over-management drift",
+      "prompt": "Six months after a role redesign that gave veteran volunteers more autonomy, you notice supervisors are quietly adding oversight steps back in — a check-in here, a report there. What do you do?",
+      "anchors": ["Deci & Ryan (SDT)", "Ellis", "Grossman & Furano", "Cnaan"],
+      "levels": {
+        "Foundational": "Does not notice or name the drift. S1: no read.",
+        "Developing": "Verbal correction to supervisors; expects reversal. S1: reminder only.",
+        "Proficient": "Diagnoses driver of drift; addresses driver so supervisors don't need oversight steps. S2: names mechanism.",
+        "Expert": "Designs role so drift is structurally hard; treats drift as leading indicator of unresolved fear; has previously redesigned to reduce similar drift. S3."
+      },
+      "redFlags": [
+        {"id": "RF-PM3-a", "clause": "Supervisor drift treated as individual failure rather than system feedback.", "effect": "Uncorrected: 5.3 cap at Proficient."},
+        {"id": "RF-PM3-b", "clause": "Autonomy treated as one-time redesign, not maintained property.", "effect": "Uncorrected: red-flag cap."}
+      ],
+      "scopeBoundary": "In-band."
+    },
+    {
+      "id": "PM-4",
+      "band": "Program Manager",
+      "subDomain": "5.4",
+      "title": "Psychological safety at program scale",
+      "prompt": "A pulse survey shows staff report high psychological safety; volunteers report low psychological safety on the same instrument. Executive reaction is 'the volunteers must be misreading the questions.' Respond.",
+      "anchors": ["Rogelberg", "Studer & von Schnurbein", "Netting, Nesbitt & Kettner", "Ellis"],
+      "levels": {
+        "Foundational": "Agrees instrument may be miscalibrated; drops finding. S1: no defence of signal.",
+        "Developing": "Defends finding but does not know what to do next; escalates and waits. S1: signal preserved, no action.",
+        "Proficient": "Names finding as evidence of two-tier culture; qualitative follow-up; frames executive misreading as data about culture. S2: names mechanism.",
+        "Expert": "Uses split as governance lever; commits program to closing split as KPI; has previously moved two-tier culture toward parity. S3."
+      },
+      "redFlags": [
+        {"id": "RF-PM4-a", "clause": "Accepts 'volunteers misread the questions' reframe.", "effect": "Uncorrected: red-flag cap."},
+        {"id": "RF-PM4-b", "clause": "Belonging treated as soft issue orthogonal to retention.", "effect": "Uncorrected: 5.4 cap at Proficient."}
+      ],
+      "scopeBoundary": "In-band. Org-level culture policy is Director scope; escalation credit for framing finding as governance question."
+    },
+    {
+      "id": "D-1",
+      "band": "Director",
+      "subDomain": "5.1",
+      "title": "Org-level recognition philosophy",
+      "prompt": "Draft the two-paragraph section on volunteer recognition for the org's next three-year plan, and defend it to a board member who wants 'employee-style annual awards, for consistency.'",
+      "anchors": ["Ellis", "Grossman & Furano", "Clary & Snyder (VFI)", "Studer & von Schnurbein"],
+      "levels": {
+        "Foundational": "Generic 'we value our volunteers' prose; concedes to board member. S1: convention.",
+        "Developing": "Principled prose on motivation-matching but concedes on instrument. S1: half a position.",
+        "Proficient": "Separates philosophy from instrument; defends philosophy against consistency ask via retention mechanism; concedes governance guardrails only. S2: principle vs instrument at policy level.",
+        "Expert": "Positions recognition philosophy as strategic asset; anchors in literature explicitly; governance mechanism (annual recognition-fit review) that keeps policy honest. S3."
+      },
+      "redFlags": [
+        {"id": "RF-D1-a", "clause": "Employee-recognition frame imported without adaptation.", "effect": "Uncorrected: red-flag cap."},
+        {"id": "RF-D1-b", "clause": "Recognition treated as HR line item, not program-design lever.", "effect": "Uncorrected: 5.1 cap at Proficient."}
+      ],
+      "scopeBoundary": "In-band."
+    },
+    {
+      "id": "D-2",
+      "band": "Director",
+      "subDomain": "5.2",
+      "title": "Retention as strategic risk",
+      "prompt": "Present volunteer retention as a strategic risk to the board. You have three minutes. What do you say, and what number do you land on?",
+      "anchors": ["Vecina, Chacón & Marzana", "Rehnborg", "Ellis", "Rogelberg"],
+      "levels": {
+        "Foundational": "Presents retention rate; leaves 'so what' implicit. S1: descriptive.",
+        "Developing": "Retention rate and hours-lost; leaves interpretation to board. S1: partial framing.",
+        "Proficient": "Frames turnover as replacement cost and program-quality risk; lands on specific KPI (veteran retention by cohort). S2: names causal mechanism.",
+        "Expert": "Frames retention as strategic capacity question; shows where board decisions will move retention; has previously moved board to fund retention infrastructure. S3."
+      },
+      "redFlags": [
+        {"id": "RF-D2-a", "clause": "Retention presented as virtue metric, not capacity metric.", "effect": "Uncorrected: 5.2 cap at Proficient."},
+        {"id": "RF-D2-b", "clause": "Veteran turnover's quality degradation ignored at stable total hours.", "effect": "Uncorrected: red-flag cap."}
+      ],
+      "scopeBoundary": "In-band."
+    },
+    {
+      "id": "D-3",
+      "band": "Director",
+      "subDomain": "5.3",
+      "title": "Culture of autonomy at scale",
+      "prompt": "You are hiring a new head of volunteer programs. What do you screen for on the autonomy-supervision axis, and how do you screen for it without the candidate learning to say the 'right words'?",
+      "anchors": ["Deci & Ryan (SDT)", "Ellis", "Grossman & Furano", "Studer & von Schnurbein"],
+      "levels": {
+        "Foundational": "Screens on volunteer-management vocabulary; treats fluency as evidence. S1: vocabulary check.",
+        "Developing": "Behavioural question with self-report accepted. S1: interview mechanics only.",
+        "Proficient": "Case-based prompt on adding oversight to working autonomous role; scores reasoning process; probes drift-recognition. S2: screens against known failure mode.",
+        "Expert": "Screens for autonomy as standing disposition under pressure; pairs hire screen with first-90-days oversight check; has previously changed a hire specification after an over-management episode. S3."
+      },
+      "redFlags": [
+        {"id": "RF-D3-a", "clause": "Autonomy-supportive vocabulary confused with autonomy-supportive practice.", "effect": "Uncorrected: 5.3 cap at Proficient."},
+        {"id": "RF-D3-b", "clause": "Autonomy screened at hire with no post-hire preservation mechanism.", "effect": "Uncorrected: red-flag cap."}
+      ],
+      "scopeBoundary": "In-band."
+    },
+    {
+      "id": "D-4",
+      "band": "Director",
+      "subDomain": "5.4",
+      "title": "Org-wide equity of belonging",
+      "prompt": "Volunteers cannot access the internal Slack workspace where most program conversations happen. IT policy says this is a data-security position. Take a position and act.",
+      "anchors": ["Rogelberg", "Netting, Nesbitt & Kettner", "Studer & von Schnurbein", "Cnaan"],
+      "levels": {
+        "Foundational": "Accepts IT frame; sets up volunteer newsletter as proxy. S1: separate-but-equal drift.",
+        "Developing": "Escalates; ends up with compromise (read-only access to specific channels). S1: half a fix.",
+        "Proficient": "Names IT policy as belonging-tiering mechanism dressed as security; proposes design meeting both concerns. S2: names mechanism.",
+        "Expert": "Treats pattern as governance question about infrastructure defaults; standing audit of tiering defaults; owns policy defence at board; has previously moved an infrastructure default. S3."
+      },
+      "redFlags": [
+        {"id": "RF-D4-a", "clause": "'Security' accepted as unquestioned end-of-conversation move.", "effect": "Uncorrected: red-flag cap."},
+        {"id": "RF-D4-b", "clause": "Staff–volunteer parity treated as aesthetic rather than program-capacity mechanism.", "effect": "Uncorrected: 5.4 cap at Proficient."}
+      ],
+      "scopeBoundary": "In-band."
+    }
+  ],
+  "crossProbeRedFlagFamilies": [
+    {
+      "family": "employee-import-misconception",
+      "description": "Treating volunteers as unpaid employees on recognition, retention, or belonging.",
+      "instances": ["RF-TL1-b", "RF-C1-b", "RF-D1-a"]
+    },
+    {
+      "family": "autonomy-erosion-blindness",
+      "description": "Failing to see over-management as a first-order retention/culture risk.",
+      "instances": ["RF-TL3-a", "RF-TL3-b", "RF-C3-a", "RF-C3-b", "RF-PM3-a", "RF-PM3-b", "RF-D3-a", "RF-D3-b"]
+    },
+    {
+      "family": "retention-as-virtue-not-capacity",
+      "description": "Treating retention as a virtue metric rather than a program-capacity mechanism.",
+      "instances": ["RF-C2-b", "RF-PM2-b", "RF-D2-a"]
+    }
+  ],
+  "outOfScopeForT2H": [
+    "Psychological-contract literature integration (post-pilot re-levelling per README §Post-Pilot Enhancements)",
+    "Risk-propensity-differentiated retention (post-pilot)"
+  ],
+  "signoffGate": {
+    "owner": "CEO",
+    "issue": "GIV-630",
+    "form": "Comment on GIV-630: (a) accept as-is, (b) accept with named amendments, or (c) revise-and-resubmit with reasons."
+  }
+}

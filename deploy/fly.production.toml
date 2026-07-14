@@ -1,0 +1,45 @@
+# Volo Index — Fly.io production app (T2-G / GIV-627)
+# Deploy: manual promote only (plan §7) — fly deploy -c deploy/fly.production.toml
+# Fronted by Cloudflare (DNS + TLS edge + WAF); apex domain CONFIRMED:
+# voloindex.org (CEO decision, GIV-641). Credential URLs live on the
+# apex, never on *.fly.dev — the domain is the permanent contract (plan §0).
+#
+# Secrets: fly secrets set -a voloindex-prod ANTHROPIC_API_KEY=... DATABASE_URL=...
+# ANTHROPIC_API_KEY = dedicated prod workspace key with console-level monthly cap.
+
+app = "voloindex-prod"
+primary_region = "iad"
+
+[build]
+  dockerfile = "../Dockerfile"
+
+[env]
+  NODE_ENV = "production"
+  PORT = "3000"
+  DB_SSL = "true"
+  # Confirmed apex (GIV-641) — enable at cutover (runbook §6 step 4), once
+  # Cloudflare fronts the app; leaving unset before cutover keeps CORS closed:
+  # CORS_ORIGINS = "https://voloindex.org,https://www.voloindex.org"
+
+[http_service]
+  internal_port = 3000
+  force_https = true
+  auto_stop_machines = "off"     # prod stays warm — credential pages must answer fast
+  auto_start_machines = true
+  min_machines_running = 1
+
+  [http_service.concurrency]
+    type = "requests"
+    soft_limit = 200
+    hard_limit = 250
+
+[[http_service.checks]]
+  interval = "15s"
+  timeout = "5s"
+  grace_period = "15s"
+  method = "GET"
+  path = "/api/health"
+
+[[vm]]
+  size = "shared-cpu-1x"
+  memory = "1gb"
