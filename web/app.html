@@ -657,11 +657,11 @@
     </table>
 
     <div class="cta-row">
-      <button id="btn-cert"  class="btn-primary" disabled style="flex:1">Get Certificate</button>
+      <button id="btn-cert"  class="btn-primary" disabled style="flex:1">View Certificate</button>
       <button id="btn-share" class="btn-outline" disabled>Share on LinkedIn</button>
     </div>
-    <p class="pending-note">
-      Certificate issuance and LinkedIn sharing are coming in the next update.<br>
+    <p class="pending-note" id="cert-note">
+      Certificate issuance and LinkedIn sharing require T2-D (in progress).<br>
       Your score has been saved to your assessment record.
     </p>
 
@@ -715,6 +715,11 @@ const state = {
   candidateName: '',
   currentDim:   null,
   coveredDims:  new Set(),
+  // Populated from score.cert* once T2-D issues a certificate
+  certId:       null,
+  certUrl:      null,
+  certTier:     null,
+  certIssuedAt: null,
 };
 
 // ── DOM helpers ──────────────────────────────────────────────────────────────
@@ -881,6 +886,25 @@ function showResults(score) {
         <td><span class="band-pill ${band.pillClass}">${band.label}</span></td>`;
     }
     tbody.appendChild(tr);
+  }
+
+  // ── Certificate & sharing ─────────────────────────────────────────────────
+  // score.certId / score.certUrl are set by T2-D once a certificate is issued.
+  // In mock/dev mode they're populated in MOCK_SCORE for preview purposes.
+  state.certId       = score?.certId       ?? null;
+  state.certUrl      = score?.certUrl      ?? null;
+  state.certTier     = score?.certTier     ?? score?.overall?.tier ?? null;
+  state.certIssuedAt = score?.certIssuedAt ?? new Date().toISOString();
+
+  const certReady = !!(state.certId && state.certUrl);
+  document.getElementById('btn-cert').disabled  = !certReady;
+  document.getElementById('btn-share').disabled = !certReady;
+
+  const noteEl = document.getElementById('cert-note');
+  if (certReady) {
+    noteEl.style.display = 'none';
+  } else if (score?.publicationStatus === 'pending_review') {
+    noteEl.innerHTML = 'Your certificate will be issued after evaluator review (typically 1–2 business days).<br>You\'ll be able to add it to LinkedIn once issued.';
   }
 }
 
@@ -1084,15 +1108,19 @@ const MOCK_QUESTIONS = [
 const MOCK_SCORE = {
   overall: { score: 6.2, tier: 'Proficient', partial: false, capped: false, incomplete: false },
   dimensions: [
-    { id: 'D1', name: 'Strategic Engagement Design',       score: 6.5, tier: 'Proficient', insufficientEvidence: false },
-    { id: 'D2', name: 'Recruitment, Matching & Onboarding', score: 5.9, tier: 'Proficient', insufficientEvidence: false },
-    { id: 'D3', name: 'Training, Development & Role Support', score: 6.1, tier: 'Proficient', insufficientEvidence: false },
-    { id: 'D4', name: 'Performance, Impact & Accountability', score: null, tier: null, insufficientEvidence: true },
-    { id: 'D5', name: 'Recognition, Retention & Culture',     score: null, tier: null, insufficientEvidence: true },
-    { id: 'D6', name: 'Ethics, Equity & Advocacy',            score: null, tier: null, insufficientEvidence: true },
+    { id: 'D1', name: 'Strategic Engagement Design',          score: 6.5, tier: 'Proficient', insufficientEvidence: false },
+    { id: 'D2', name: 'Recruitment, Matching & Onboarding',   score: 5.9, tier: 'Proficient', insufficientEvidence: false },
+    { id: 'D3', name: 'Training, Development & Role Support',  score: 6.1, tier: 'Proficient', insufficientEvidence: false },
+    { id: 'D4', name: 'Performance, Impact & Accountability',  score: null, tier: null, insufficientEvidence: true },
+    { id: 'D5', name: 'Recognition, Retention & Culture',      score: null, tier: null, insufficientEvidence: true },
+    { id: 'D6', name: 'Ethics, Equity & Advocacy',             score: null, tier: null, insufficientEvidence: true },
   ],
   rubricVersion: '1.2',
-  publicationStatus: 'pending_review',
+  publicationStatus: 'published',            // mock: cert issued immediately
+  certId:      'mock-cert-preview-001',
+  certUrl:     '/credential/mock-cert-preview-001',
+  certTier:    'Proficient',
+  certIssuedAt: new Date().toISOString(),
 };
 
 class MockApiClient {
@@ -1263,6 +1291,34 @@ document.getElementById('resp-input').addEventListener('keydown', (e) => {
 document.getElementById('resp-input').addEventListener('input', function () {
   this.style.height = 'auto';
   this.style.height = Math.min(this.scrollHeight, 130) + 'px';
+});
+
+// ── Certificate & sharing CTAs ────────────────────────────────────────────────
+//
+// btn-cert  → opens /credential/{certId} in a new tab (T2-D public page)
+// btn-share → opens LinkedIn Add-to-Profile prefill URL (no LinkedIn API needed)
+//
+// Both are disabled until T2-D populates score.certId + score.certUrl.
+// In ?mode=mock they're enabled via MOCK_SCORE.certId so the flow is previewable.
+
+document.getElementById('btn-cert').addEventListener('click', () => {
+  if (state.certUrl) window.open(state.certUrl, '_blank', 'noopener');
+});
+
+document.getElementById('btn-share').addEventListener('click', () => {
+  if (!state.certId || !state.certUrl) return;
+  const tier = state.certTier ?? 'Certificate';
+  const date = new Date(state.certIssuedAt ?? Date.now());
+  const params = new URLSearchParams({
+    startTask:        'CERTIFICATION_NAME',
+    name:             `Volo Index — ${tier} Certificate`,
+    organizationName: 'Give Protocol Foundation',
+    issueYear:        String(date.getFullYear()),
+    issueMonth:       String(date.getMonth() + 1),
+    certUrl:          state.certUrl,
+    certId:           state.certId,
+  });
+  window.open(`https://www.linkedin.com/profile/add?${params}`, '_blank', 'noopener');
 });
 
 // ── Mode banner ───────────────────────────────────────────────────────────────
