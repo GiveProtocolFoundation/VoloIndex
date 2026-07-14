@@ -27,6 +27,13 @@ router.get('/:certId', async (req, res, next) => {
   try {
     const { certId } = req.params;
 
+    // Guard: certificates.id is a Postgres uuid — a malformed param throws
+    // "invalid input syntax for type uuid" (22P02) and surfaced as a 500 on
+    // staging. Treat malformed IDs exactly like unknown IDs.
+    if (!/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(certId)) {
+      throw new AppError('Certificate not found', 404, 'CERT_NOT_FOUND');
+    }
+
     const { rows } = await query(
       `SELECT
          c.id,

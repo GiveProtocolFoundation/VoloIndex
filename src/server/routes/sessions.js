@@ -238,6 +238,13 @@ router.post('/:id/start', async (req, res, next) => {
       }
     });
 
+    // Surface controller errors — without this listener an LLM/adapter
+    // failure is swallowed silently and the session just shows up as
+    // abandoned (observed on staging: 401 from Anthropic, zero log lines).
+    ctrl.on('error', ({ error }) => {
+      console.error(`[sessions] interview controller error for ${sessionId}:`, error?.stack || error?.message || error);
+    });
+
     // Handle terminal state transitions
     ctrl.on('stateChange', async ({ to }) => {
       try {
@@ -249,7 +256,11 @@ router.post('/:id/start', async (req, res, next) => {
           );
           unregisterController(sessionId);
         } else if (to === 'abandoned' || to === 'cost_capped') {
-          const reason = to === 'cost_capped' ? 'cost_cap_exceeded' : 'candidate_ended';
+          // Distinguish an internal error from the candidate walking away —
+          // ctrl.error is set only when _runInterview caught an exception.
+          const reason = to === 'cost_capped' ? 'cost_cap_exceeded'
+            : ctrl.error ? 'error'
+            : 'candidate_ended';
           await query(
             `UPDATE sessions SET status = 'abandoned', abandoned_at = NOW(), abandon_reason = $2, updated_at = NOW()
              WHERE id = $1`,
