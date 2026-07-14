@@ -1,17 +1,19 @@
 /**
- * Volo Index — Chat Routes (T2-A)
+ * Volo Index — Chat Routes (T2-A + T2-C auth)
  *
  * Handles candidate responses during an active interview session.
  * Persists each turn to Postgres and relays to/from the ChatInterviewController.
  *
- * POST /api/sessions/:id/respond  — submit candidate text, get next question
- * GET  /api/sessions/:id/stream   — SSE stream of interviewer turns (for real-time UI)
+ * POST /api/sessions/:id/respond         — submit candidate text (requires auth + ownership)
+ * POST /api/sessions/:id/interviewer-turn — persist LLM response (server-internal only)
+ * GET  /api/sessions/:id/stream          — SSE stream (requires auth + ownership)
  */
 
 import { Router } from 'express';
 import { query, withTransaction } from '../db.js';
 import { AppError } from '../middleware/error-handler.js';
 import { chatLimiter } from '../middleware/rate-limit.js';
+import { requireInternal } from '../middleware/auth.js';
 
 const router = Router();
 
@@ -51,6 +53,7 @@ export function getActiveSessions() {
 }
 
 // ── POST /api/sessions/:id/respond ────────────────────────────────
+// Requires auth (applied at router mount level in index.js).
 
 router.post('/:id/respond', chatLimiter, async (req, res, next) => {
   try {
@@ -62,9 +65,10 @@ router.post('/:id/respond', chatLimiter, async (req, res, next) => {
       throw new AppError('Response too long (max 10 000 chars)', 400, 'INPUT_TOO_LONG');
     }
 
-    // Check session exists and is in_progress
+    // Check session exists, is in_progress, and belongs to the authenticated user
     const { rows } = await query('SELECT * FROM sessions WHERE id = $1', [req.params.id]);
     if (rows.length === 0) throw new AppError('Session not found', 404, 'SESSION_NOT_FOUND');
+    if (rows[0].user_id !== req.user.id) throw new AppError('You do not own this session', 403, 'FORBIDDEN');
     if (rows[0].status !== 'in_progress') {
       throw new AppError(`Session is ${rows[0].status}, not in_progress`, 409, 'INVALID_STATE');
     }
@@ -111,8 +115,10 @@ router.post('/:id/respond', chatLimiter, async (req, res, next) => {
 });
 
 // ── POST /api/sessions/:id/interviewer-turn — persist LLM response ─
+// T2-C: Server-internal only — requires X-Internal-Key header.
+// This prevents external clients from forging interviewer turns.
 
-router.post('/:id/interviewer-turn', async (req, res, next) => {
+router.post('/:id/interviewer-turn', requireInternal, async (req, res, next) => {
   try {
     const { content, dimension } = req.body;
     if (!content || typeof content !== 'string') {
@@ -150,11 +156,14 @@ router.post('/:id/interviewer-turn', async (req, res, next) => {
 });
 
 // ── GET /api/sessions/:id/stream — SSE event stream ───────────────
+// Requires auth (applied at router mount level).
 
 router.get('/:id/stream', async (req, res, next) => {
   try {
-    const { rows } = await query('SELECT status FROM sessions WHERE id = $1', [req.params.id]);
+    // Verify session exists and belongs to the authenticated user
+    const { rows } = await query('SELECT status, user_id FROM sessions WHERE id = $1', [req.params.id]);
     if (rows.length === 0) throw new AppError('Session not found', 404, 'SESSION_NOT_FOUND');
+    if (rows[0].user_id !== req.user.id) throw new AppError('You do not own this session', 403, 'FORBIDDEN');
 
     // Set SSE headers
     res.writeHead(200, {

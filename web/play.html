@@ -1,0 +1,942 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Volo Index — Practice Interview</title>
+  <link rel="icon" type="image/svg+xml" href="/assets/volo-icon.svg">
+  <link rel="icon" type="image/png" sizes="32x32" href="/assets/favicon-32.png">
+  <style>
+    /* ── Design tokens (matches app.html) ── */
+    :root {
+      --primary:      #b0542c;
+      --primary-dk:   #7a2e10;
+      --secondary:    #cd8a4f;
+      --light:        #e0d4c0;
+      --lighter:      #ede5d8;
+      --bg:           #faf9f5;
+      --paper:        #f4efe5;
+      --text:         #2c1d13;
+      --muted:        #7a6252;
+      --white:        #ffffff;
+      --green:        #3d7a4a;
+      --shadow:       0 2px 16px rgba(44,29,19,.09);
+      --r:            12px;
+      --practice:     #2c6b4f;
+      --practice-bg:  #e8f5ee;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      line-height: 1.5;
+      padding-top: 36px; /* space for banner */
+    }
+
+    /* ── Screen switcher ── */
+    .screen { display: none; }
+    .screen.active { display: flex; }
+
+    /* ── Shared buttons ── */
+    .btn-primary {
+      display: block;
+      width: 100%;
+      padding: 13px;
+      background: var(--primary);
+      color: var(--white);
+      border: none;
+      border-radius: 8px;
+      font-size: 15px;
+      font-weight: 600;
+      cursor: pointer;
+      text-align: center;
+      transition: background .15s, opacity .15s;
+    }
+    .btn-primary:hover:not(:disabled) { background: var(--primary-dk); }
+    .btn-primary:disabled { opacity: .45; cursor: default; }
+
+    .btn-practice {
+      display: block;
+      width: 100%;
+      padding: 13px;
+      background: var(--practice);
+      color: var(--white);
+      border: none;
+      border-radius: 8px;
+      font-size: 15px;
+      font-weight: 600;
+      cursor: pointer;
+      text-align: center;
+      transition: background .15s, opacity .15s;
+    }
+    .btn-practice:hover:not(:disabled) { background: #1e5038; }
+    .btn-practice:disabled { opacity: .45; cursor: default; }
+
+    .btn-ghost {
+      background: none;
+      border: none;
+      color: var(--muted);
+      font-size: 13px;
+      cursor: pointer;
+      padding: 8px 0;
+      text-decoration: underline;
+      text-underline-offset: 2px;
+    }
+    .btn-ghost:hover { color: var(--text); }
+
+    .btn-outline {
+      padding: 13px 24px;
+      border: 1.5px solid var(--lighter);
+      border-radius: 8px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      background: var(--white);
+      color: var(--muted);
+      transition: border-color .15s, color .15s;
+    }
+    .btn-outline:hover { border-color: var(--primary); color: var(--primary); }
+
+    /* ── Practice banner ── */
+    .practice-banner {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      background: var(--practice);
+      color: #d8f0e4;
+      font-size: 12px;
+      font-weight: 700;
+      text-align: center;
+      padding: 8px 16px;
+      z-index: 9999;
+      letter-spacing: .5px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+    .practice-banner svg { flex-shrink: 0; }
+
+    /* ── START SCREEN ── */
+    #s-start {
+      min-height: calc(100vh - 36px);
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 32px 20px;
+      gap: 28px;
+    }
+    .logo-mark svg { display: block; }
+    .logo-name {
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 3.5px;
+      text-transform: uppercase;
+      color: var(--muted);
+      text-align: center;
+      margin-top: 10px;
+    }
+    .start-card {
+      background: var(--white);
+      border-radius: var(--r);
+      box-shadow: var(--shadow);
+      padding: 40px;
+      max-width: 460px;
+      width: 100%;
+    }
+    .start-card h1 { font-size: 21px; font-weight: 700; margin-bottom: 10px; }
+    .start-card .desc {
+      font-size: 14px;
+      color: var(--muted);
+      margin-bottom: 26px;
+      line-height: 1.65;
+    }
+    .practice-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: var(--practice-bg);
+      color: var(--practice);
+      font-size: 12px;
+      font-weight: 700;
+      padding: 5px 12px;
+      border-radius: 100px;
+      margin-bottom: 16px;
+      letter-spacing: .3px;
+    }
+    .field { margin-bottom: 20px; }
+    .field label {
+      display: block;
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--muted);
+      letter-spacing: .4px;
+      text-transform: uppercase;
+      margin-bottom: 7px;
+    }
+    .field input {
+      width: 100%;
+      padding: 11px 14px;
+      border: 1.5px solid var(--lighter);
+      border-radius: 8px;
+      font-size: 15px;
+      color: var(--text);
+      background: var(--bg);
+      outline: none;
+      transition: border-color .15s;
+      font-family: inherit;
+    }
+    .field input:focus { border-color: var(--secondary); }
+    .practice-note {
+      font-size: 12px;
+      color: var(--muted);
+      text-align: center;
+      margin-top: 14px;
+      opacity: .8;
+      line-height: 1.5;
+    }
+    .practice-note a { color: var(--primary); text-decoration: none; font-weight: 600; }
+    .practice-note a:hover { text-decoration: underline; }
+
+    /* ── INFO SCREEN (replaces consent — practice has no retention) ── */
+    #s-info {
+      min-height: calc(100vh - 36px);
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 32px 20px;
+    }
+    .info-card {
+      background: var(--white);
+      border-radius: var(--r);
+      box-shadow: var(--shadow);
+      padding: 40px;
+      max-width: 520px;
+      width: 100%;
+    }
+    .info-card h2 { font-size: 20px; font-weight: 700; margin-bottom: 18px; }
+    .info-notice {
+      background: var(--practice-bg);
+      border-left: 3px solid var(--practice);
+      border-radius: 0 7px 7px 0;
+      padding: 14px 16px;
+      font-size: 14px;
+      line-height: 1.65;
+      margin-bottom: 20px;
+    }
+    .info-list {
+      font-size: 14px;
+      color: var(--muted);
+      margin-bottom: 26px;
+      line-height: 1.7;
+    }
+    .info-list ul { margin: 8px 0 0 18px; }
+    .info-actions { display: flex; flex-direction: column; gap: 8px; }
+
+    /* ── LOADING SCREEN ── */
+    #s-loading {
+      min-height: calc(100vh - 36px);
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 18px;
+    }
+    .spinner {
+      width: 38px; height: 38px;
+      border: 3px solid var(--lighter);
+      border-top-color: var(--practice);
+      border-radius: 50%;
+      animation: spin .85s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .loading-label { font-size: 14px; color: var(--muted); }
+
+    /* ── CHAT SCREEN ── */
+    #s-chat {
+      flex-direction: column;
+      height: calc(100dvh - 36px);
+      height: calc(100vh - 36px);
+    }
+
+    .chat-header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px 20px;
+      background: var(--white);
+      border-bottom: 1px solid var(--lighter);
+      flex-shrink: 0;
+      min-height: 54px;
+    }
+    .chat-header .title {
+      flex: 1;
+      font-size: 14px;
+      font-weight: 600;
+    }
+    .dim-badge {
+      font-size: 11px;
+      padding: 3px 10px;
+      background: var(--practice-bg);
+      color: var(--practice);
+      border-radius: 100px;
+      font-weight: 600;
+      white-space: nowrap;
+    }
+
+    .chat-main {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      min-width: 0;
+    }
+    .messages {
+      flex: 1;
+      overflow-y: auto;
+      padding: 20px 22px;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+    .msg {
+      max-width: 84%;
+      padding: 11px 16px;
+      border-radius: 16px;
+      font-size: 14px;
+      line-height: 1.6;
+      animation: fadeUp .22s ease;
+      word-break: break-word;
+    }
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(7px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    .msg-interviewer {
+      align-self: flex-start;
+      background: var(--white);
+      border: 1px solid var(--lighter);
+      border-bottom-left-radius: 4px;
+    }
+    .msg-candidate {
+      align-self: flex-end;
+      background: var(--practice);
+      color: var(--white);
+      border-bottom-right-radius: 4px;
+    }
+    .msg-system {
+      align-self: center;
+      background: var(--practice-bg);
+      color: var(--practice);
+      font-size: 12px;
+      padding: 5px 14px;
+      border-radius: 100px;
+      max-width: none;
+      font-weight: 600;
+    }
+
+    .typing-wrap { padding: 0 22px 8px; }
+    .typing-indicator {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 10px 14px;
+      background: var(--white);
+      border: 1px solid var(--lighter);
+      border-radius: 16px;
+      border-bottom-left-radius: 4px;
+    }
+    .typing-indicator span {
+      width: 7px; height: 7px;
+      border-radius: 50%;
+      background: var(--practice);
+      animation: bounce 1.2s infinite ease;
+    }
+    .typing-indicator span:nth-child(2) { animation-delay: .18s; }
+    .typing-indicator span:nth-child(3) { animation-delay: .36s; }
+    @keyframes bounce {
+      0%, 80%, 100% { transform: scale(.5); opacity: .35; }
+      40%           { transform: scale(1);  opacity: 1; }
+    }
+
+    .input-bar {
+      padding: 14px 18px;
+      border-top: 1px solid var(--lighter);
+      background: var(--white);
+      display: flex;
+      gap: 10px;
+      align-items: flex-end;
+      flex-shrink: 0;
+    }
+    #resp-input {
+      flex: 1;
+      padding: 10px 14px;
+      border: 1.5px solid var(--lighter);
+      border-radius: 10px;
+      font-size: 14px;
+      line-height: 1.5;
+      font-family: inherit;
+      resize: none;
+      outline: none;
+      color: var(--text);
+      background: var(--bg);
+      min-height: 44px;
+      max-height: 130px;
+      transition: border-color .15s;
+      overflow-y: auto;
+    }
+    #resp-input:focus { border-color: var(--secondary); }
+    #resp-input::placeholder { color: var(--muted); opacity: .6; }
+    #resp-input:disabled { opacity: .5; }
+    .btn-send {
+      width: 44px; height: 44px;
+      flex-shrink: 0;
+      border-radius: 10px;
+      background: var(--practice);
+      color: var(--white);
+      border: none;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background .15s, opacity .15s;
+    }
+    .btn-send:hover:not(:disabled) { background: #1e5038; }
+    .btn-send:disabled { opacity: .38; cursor: default; }
+
+    /* ── FEEDBACK SCREEN ── */
+    #s-feedback {
+      min-height: calc(100vh - 36px);
+      flex-direction: column;
+      align-items: center;
+      padding: 48px 20px 60px;
+    }
+    .feedback-card {
+      background: var(--white);
+      border-radius: var(--r);
+      box-shadow: var(--shadow);
+      padding: 44px 38px;
+      max-width: 560px;
+      width: 100%;
+    }
+    .feedback-top {
+      text-align: center;
+      margin-bottom: 28px;
+    }
+    .feedback-top h2 { font-size: 22px; font-weight: 700; margin-top: 12px; margin-bottom: 6px; }
+    .feedback-top .subtitle { font-size: 13px; color: var(--muted); }
+
+    .feedback-section {
+      background: var(--paper);
+      border-radius: 10px;
+      padding: 22px 24px;
+      margin-bottom: 20px;
+    }
+    .feedback-section h3 {
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--practice);
+      margin-bottom: 10px;
+    }
+    .feedback-section p {
+      font-size: 14px;
+      color: var(--text);
+      line-height: 1.65;
+    }
+    .feedback-hint {
+      background: var(--practice-bg);
+      border-left: 3px solid var(--practice);
+      border-radius: 0 7px 7px 0;
+      padding: 14px 16px;
+      font-size: 13px;
+      line-height: 1.6;
+      color: var(--text);
+      margin-bottom: 28px;
+    }
+
+    .cta-section {
+      text-align: center;
+      margin-top: 8px;
+    }
+    .cta-section p {
+      font-size: 14px;
+      color: var(--muted);
+      margin-bottom: 16px;
+    }
+    .cta-row {
+      display: flex;
+      gap: 12px;
+      margin-top: 12px;
+    }
+    .cta-row .btn-primary { flex: 1; font-size: 14px; }
+    .cta-row .btn-outline { flex: 1; }
+  </style>
+</head>
+<body>
+
+<!-- ══ PRACTICE MODE BANNER ═══════════════════════════════════════════════════ -->
+<div class="practice-banner">
+  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+    <circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/>
+  </svg>
+  PRACTICE MODE — responses are not scored or saved
+</div>
+
+<!-- ══ START SCREEN ═══════════════════════════════════════════════════════════ -->
+<div id="s-start" class="screen active">
+  <div class="logo-mark">
+    <svg viewBox="0 0 160 100" width="160" height="100" xmlns="http://www.w3.org/2000/svg">
+      <path d="M10 80 A70 70 0 0 1 150 80"  fill="none" stroke="#e0d4c0" stroke-width="10" stroke-linecap="round"/>
+      <path d="M33 80 A47 47 0 0 1 127 80"  fill="none" stroke="#cd8a4f" stroke-width="10" stroke-linecap="round"/>
+      <path d="M56 80 A24 24 0 0 1 104 80"  fill="none" stroke="#b0542c" stroke-width="10" stroke-linecap="round"/>
+      <circle cx="80" cy="80" r="10" fill="#b0542c"/>
+    </svg>
+    <div class="logo-name">Volo Index</div>
+  </div>
+
+  <div class="start-card">
+    <span class="practice-badge">
+      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+        <polygon points="13 2 3 14 12 14 11 22 21 10 12 10"/>
+      </svg>
+      Practice Mode
+    </span>
+    <h1>Try the Interview</h1>
+    <p class="desc">Experience one dimension of the Volo Index assessment in a quick, unscored practice session. Your responses are not saved and will not count toward a certificate. Estimated time: 5 minutes.</p>
+
+    <div class="field">
+      <label for="name-input">Your name</label>
+      <input id="name-input" type="text" placeholder="First name is fine" autocomplete="given-name" />
+    </div>
+
+    <button id="btn-start" class="btn-practice">Start Practice Interview</button>
+    <p class="practice-note">Ready for the real thing? <a href="/app.html">Take the assessed interview</a></p>
+  </div>
+</div>
+
+<!-- ══ INFO SCREEN (lightweight — no consent needed for ephemeral session) ═══ -->
+<div id="s-info" class="screen">
+  <div class="info-card">
+    <h2>How practice mode works</h2>
+
+    <div class="info-notice">
+      <strong>This is practice only.</strong> Your responses will not be saved, scored, or associated with any assessment record.
+    </div>
+
+    <div class="info-list">
+      <p>In this practice session you will:</p>
+      <ul>
+        <li>Answer 2 interview questions on one dimension</li>
+        <li>Experience the conversational format used in the real assessment</li>
+        <li>Receive qualitative feedback (not a score) when you finish</li>
+      </ul>
+      <p style="margin-top:12px">The full assessed interview covers six dimensions, takes 25–35 minutes, and produces a scored certificate you can share on LinkedIn.</p>
+    </div>
+
+    <div class="info-actions">
+      <button id="btn-begin" class="btn-practice">Let's go</button>
+      <button id="btn-back" class="btn-ghost">Back</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ LOADING SCREEN ═════════════════════════════════════════════════════════ -->
+<div id="s-loading" class="screen">
+  <div class="spinner"></div>
+  <p class="loading-label" id="loading-msg">Starting your practice session…</p>
+</div>
+
+<!-- ══ CHAT SCREEN ════════════════════════════════════════════════════════════ -->
+<div id="s-chat" class="screen">
+
+  <div class="chat-header">
+    <svg viewBox="0 0 60 40" width="52" height="34" xmlns="http://www.w3.org/2000/svg" flex-shrink="0">
+      <path d="M3 32 A27 27 0 0 1 57 32" fill="none" stroke="#e0d4c0" stroke-width="5" stroke-linecap="round"/>
+      <path d="M11 32 A19 19 0 0 1 49 32" fill="none" stroke="#cd8a4f" stroke-width="5" stroke-linecap="round"/>
+      <path d="M21 32 A9 9 0 0 1 39 32" fill="none" stroke="#b0542c" stroke-width="5" stroke-linecap="round"/>
+      <circle cx="30" cy="32" r="4" fill="#b0542c"/>
+    </svg>
+    <span class="title">Practice Interview</span>
+    <span class="dim-badge" id="dim-badge">Starting…</span>
+  </div>
+
+  <div class="chat-main">
+    <div class="messages" id="messages"></div>
+
+    <div class="typing-wrap" id="typing-wrap" style="display:none;">
+      <div class="typing-indicator">
+        <span></span><span></span><span></span>
+      </div>
+    </div>
+
+    <div class="input-bar">
+      <textarea id="resp-input" placeholder="Type your response…" rows="2" disabled></textarea>
+      <button class="btn-send" id="btn-send" disabled>
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M22 2 11 13"/><polygon points="22 2 15 22 11 13 2 9"/>
+        </svg>
+      </button>
+    </div>
+  </div>
+
+</div>
+
+<!-- ══ FEEDBACK SCREEN ════════════════════════════════════════════════════════ -->
+<div id="s-feedback" class="screen">
+  <div class="feedback-card">
+
+    <div class="feedback-top">
+      <svg viewBox="0 0 60 40" width="56" height="38" xmlns="http://www.w3.org/2000/svg">
+        <path d="M3 32 A27 27 0 0 1 57 32" fill="none" stroke="#e0d4c0" stroke-width="5" stroke-linecap="round"/>
+        <path d="M11 32 A19 19 0 0 1 49 32" fill="none" stroke="#cd8a4f" stroke-width="5" stroke-linecap="round"/>
+        <path d="M21 32 A9 9 0 0 1 39 32" fill="none" stroke="#b0542c" stroke-width="5" stroke-linecap="round"/>
+        <circle cx="30" cy="32" r="4" fill="#b0542c"/>
+      </svg>
+      <h2>Practice Complete</h2>
+      <p class="subtitle" id="feedback-subtitle">Practice Interview</p>
+    </div>
+
+    <div id="feedback-content">
+      <!-- Populated by JS -->
+    </div>
+
+    <div class="feedback-hint">
+      <strong>This was practice mode.</strong> No score was recorded and your responses have been discarded. The full assessment covers all six dimensions and produces a certificate you can share on LinkedIn.
+    </div>
+
+    <div class="cta-section">
+      <p>Ready to take the real assessment?</p>
+      <div class="cta-row">
+        <a href="/app.html" class="btn-primary" style="text-decoration:none">Take Assessed Interview</a>
+        <button id="btn-replay" class="btn-outline">Try Again</button>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+// ══════════════════════════════════════════════════════════════════════════════
+// Volo Index Practice Mode — T2-F
+//
+// Single-dimension unscored demo interview. Browser-side mock by default;
+// supports ?mode=dev for real LLM via the dev-server practice route.
+// ══════════════════════════════════════════════════════════════════════════════
+
+const PARAMS   = new URLSearchParams(location.search);
+const APP_MODE = PARAMS.get('mode') ?? 'mock';
+
+// ── Practice dimension (D1 default, overridable via ?dim=D2) ────────────────
+
+const PRACTICE_DIM_ID = PARAMS.get('dim') ?? 'D1';
+
+const DIM_INFO = {
+  D1: { id: 'D1', name: 'Strategic Engagement Design' },
+  D2: { id: 'D2', name: 'Recruitment, Matching & Onboarding' },
+  D3: { id: 'D3', name: 'Training, Development & Role Support' },
+};
+
+const ACTIVE_DIM = DIM_INFO[PRACTICE_DIM_ID] ?? DIM_INFO.D1;
+
+// ── Practice questions (2 per dimension: opening + follow-up) ───────────────
+
+const PRACTICE_QUESTIONS = {
+  D1: [
+    'Tell me about a time you designed or significantly shaped a volunteer engagement program. What was your strategic approach and what were you trying to achieve?',
+    'Can you share a specific example of how you aligned a volunteer program with broader organisational goals? What decisions did you make and what was the outcome?',
+  ],
+  D2: [
+    'Describe your process for recruiting volunteers for a specific initiative or campaign. What channels and methods have you found most effective, and why?',
+    'Walk me through a situation where matching the right volunteer to the right role had a significant impact. What factors did you consider in making that match?',
+  ],
+  D3: [
+    'Walk me through a volunteer training program you developed or significantly improved. What learning needs did you identify, and how did you structure the experience?',
+    'Describe a situation where a volunteer needed additional support to succeed in their role. How did you identify the need and what support did you provide?',
+  ],
+};
+
+const QUESTIONS = PRACTICE_QUESTIONS[ACTIVE_DIM.id] ?? PRACTICE_QUESTIONS.D1;
+
+// ── Qualitative feedback templates ──────────────────────────────────────────
+
+const FEEDBACK = {
+  D1: {
+    dimension: 'Strategic Engagement Design',
+    strong:    'Your response demonstrated clear strategic thinking about volunteer engagement. In the full assessment, we look for specific examples of how you align volunteer programs with organisational goals, design engagement pathways, and measure strategic outcomes.',
+    developing: 'You touched on some strategic concepts. To strengthen your responses in the full assessment, try sharing specific examples of how you\'ve designed or improved volunteer programs \u2014 what was the situation, what did you do, and what impact did it have?',
+    needsWork: 'The practice gave you a taste of the interview format. In the full assessment, interviewers will probe your real-world experience designing volunteer engagement strategies. Think about specific programs you\'ve led or contributed to, and the strategic decisions behind them.',
+  },
+  D2: {
+    dimension: 'Recruitment, Matching & Onboarding',
+    strong:    'Your examples showed thoughtful approaches to volunteer recruitment and matching. The full assessment evaluates how you identify talent, match volunteers to appropriate roles, and structure onboarding for success.',
+    developing: 'You shared some relevant experience. To prepare for the full assessment, reflect on specific recruitment campaigns, how you matched volunteers to roles, and what made your onboarding processes effective.',
+    needsWork: 'The interview explores how you recruit, select, and onboard volunteers. Think about real examples of recruitment strategies, role-matching decisions, and onboarding programs you\'ve designed or managed.',
+  },
+  D3: {
+    dimension: 'Training, Development & Role Support',
+    strong:    'Your responses reflected strong training and development practices. The full assessment evaluates how you identify learning needs, design training programs, and provide ongoing role support to volunteers.',
+    developing: 'You showed awareness of training needs. To strengthen your full assessment, prepare examples of training programs you\'ve designed, how you identified learning gaps, and how you supported volunteers through challenges.',
+    needsWork: 'This dimension explores your approach to volunteer training and support. Prepare specific examples of training programs, development opportunities, and how you\'ve helped volunteers grow in their roles.',
+  },
+};
+
+// ── App state ───────────────────────────────────────────────────────────────
+
+const state = {
+  candidateName: '',
+  questionIdx: 0,
+  responses: [],
+};
+
+// ── DOM helpers ─────────────────────────────────────────────────────────────
+
+function show(id) {
+  document.querySelectorAll('.screen').forEach(el => el.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+}
+
+function setLoading(msg) {
+  show('s-loading');
+  document.getElementById('loading-msg').textContent = msg;
+}
+
+function addMsg(role, content) {
+  const el = Object.assign(document.createElement('div'), {
+    className: `msg msg-${role}`,
+    textContent: content,
+  });
+  document.getElementById('messages').appendChild(el);
+  scrollBottom();
+}
+
+function addSystemMsg(text) { addMsg('system', text); }
+
+function scrollBottom() {
+  const m = document.getElementById('messages');
+  m.scrollTop = m.scrollHeight;
+}
+
+function setTyping(visible) {
+  document.getElementById('typing-wrap').style.display = visible ? 'block' : 'none';
+  if (visible) scrollBottom();
+}
+
+function setInputEnabled(on) {
+  document.getElementById('resp-input').disabled = !on;
+  document.getElementById('btn-send').disabled   = !on;
+  if (on) setTimeout(() => document.getElementById('resp-input').focus(), 50);
+}
+
+const _delay = (ms) => new Promise(r => setTimeout(r, ms));
+
+// ── Practice API client ────────────────────────────────────────────────────
+//
+// For mock mode: browser-side, no server needed.
+// For dev mode:  calls dev-server practice endpoints (future integration).
+
+class PracticeMockClient {
+  async getQuestion(idx) {
+    await _delay(600 + Math.random() * 500);
+    if (idx >= QUESTIONS.length) return null;
+    return { question: QUESTIONS[idx], dimension: ACTIVE_DIM.id };
+  }
+}
+
+class PracticeDevClient {
+  constructor() {
+    this._sessionId = null;
+  }
+
+  async createSession(candidateName) {
+    const r = await fetch('/api/practice-sessions', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ candidateName, dimension: ACTIVE_DIM.id }),
+    });
+    if (!r.ok) throw new Error(`Dev server error ${r.status}: ${await r.text()}`);
+    const data = await r.json();
+    this._sessionId = data.sessionId;
+    return data; // { sessionId, question, dimension }
+  }
+
+  async submitTurn(response) {
+    const r = await fetch(`/api/practice-sessions/${this._sessionId}/turn`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ response }),
+    });
+    if (!r.ok) throw new Error(`Dev server error ${r.status}: ${await r.text()}`);
+    return r.json(); // { question?, dimension?, done }
+  }
+}
+
+// ── Feedback logic ─────────────────────────────────────────────────────────
+
+function classifyResponses(responses) {
+  // Simple heuristic based on response length and specificity indicators
+  const totalLength = responses.reduce((sum, r) => sum + r.length, 0);
+  const hasSpecifics = responses.some(r =>
+    /\b(for example|specifically|in my experience|we implemented|I designed|the result|outcome|impact)\b/i.test(r)
+  );
+
+  if (totalLength > 400 && hasSpecifics) return 'strong';
+  if (totalLength > 150) return 'developing';
+  return 'needsWork';
+}
+
+function showFeedback() {
+  show('s-feedback');
+
+  document.getElementById('feedback-subtitle').textContent =
+    `${state.candidateName || 'Candidate'} \u00b7 Practice Session`;
+
+  const fb = FEEDBACK[ACTIVE_DIM.id] ?? FEEDBACK.D1;
+  const level = classifyResponses(state.responses);
+  const content = document.getElementById('feedback-content');
+
+  content.innerHTML = '';
+
+  // Dimension feedback section
+  const section = document.createElement('div');
+  section.className = 'feedback-section';
+  section.innerHTML = `<h3>${fb.dimension}</h3><p>${fb[level]}</p>`;
+  content.appendChild(section);
+
+  // What the full assessment covers
+  const fullScope = document.createElement('div');
+  fullScope.className = 'feedback-section';
+  fullScope.innerHTML = `
+    <h3>What the full assessment covers</h3>
+    <p>The Volo Index assessment evaluates six dimensions of volunteer leadership practice:</p>
+    <ul style="margin:8px 0 0 18px;font-size:14px;line-height:1.7;color:var(--muted)">
+      <li><strong>D1</strong> Strategic Engagement Design</li>
+      <li><strong>D2</strong> Recruitment, Matching &amp; Onboarding</li>
+      <li><strong>D3</strong> Training, Development &amp; Role Support</li>
+      <li><strong>D4</strong> Performance, Impact &amp; Accountability</li>
+      <li><strong>D5</strong> Recognition, Retention &amp; Culture</li>
+      <li><strong>D6</strong> Ethics, Equity &amp; Advocacy</li>
+    </ul>
+    <p style="margin-top:10px">You receive a scored profile across all dimensions and a certificate you can add to your LinkedIn profile.</p>
+  `;
+  content.appendChild(fullScope);
+}
+
+// ══════════════════════════════════════════════════════════════════════════════
+// Flow controllers
+// ══════════════════════════════════════════════════════════════════════════════
+
+const mockClient = new PracticeMockClient();
+
+// ── Start ────────────────────────────────────────────────────────────────────
+
+document.getElementById('btn-start').addEventListener('click', () => {
+  const input = document.getElementById('name-input');
+  const name  = input.value.trim();
+  if (!name) { input.focus(); return; }
+  state.candidateName = name;
+  show('s-info');
+});
+
+document.getElementById('name-input').addEventListener('keydown', (e) => {
+  if (e.key === 'Enter') document.getElementById('btn-start').click();
+});
+
+// ── Info screen ──────────────────────────────────────────────────────────────
+
+document.getElementById('btn-begin').addEventListener('click', async () => {
+  document.getElementById('btn-begin').disabled = true;
+  setLoading('Preparing your practice session\u2026');
+
+  try {
+    // Get first question
+    const q = await mockClient.getQuestion(0);
+    if (!q) throw new Error('No questions available');
+    beginChat(q.question, q.dimension);
+  } catch (err) {
+    alert('Error starting practice: ' + err.message);
+    show('s-info');
+    document.getElementById('btn-begin').disabled = false;
+  }
+});
+
+document.getElementById('btn-back').addEventListener('click', () => {
+  show('s-start');
+});
+
+// ── Chat ─────────────────────────────────────────────────────────────────────
+
+function beginChat(firstQuestion, dimId) {
+  document.getElementById('messages').innerHTML = '';
+  state.questionIdx = 1; // Already consumed question 0
+  state.responses = [];
+  show('s-chat');
+
+  const dim = DIM_INFO[dimId] ?? DIM_INFO.D1;
+  document.getElementById('dim-badge').textContent = dim.name;
+
+  addSystemMsg(`Practice session \u00b7 ${state.candidateName}`);
+  setTimeout(() => {
+    addMsg('interviewer', firstQuestion);
+    setInputEnabled(true);
+  }, 280);
+}
+
+async function handleSend() {
+  const textarea = document.getElementById('resp-input');
+  const text     = textarea.value.trim();
+  if (!text) return;
+
+  textarea.value = '';
+  textarea.style.height = '';
+  setInputEnabled(false);
+  addMsg('candidate', text);
+  state.responses.push(text);
+  setTyping(true);
+
+  try {
+    const q = await mockClient.getQuestion(state.questionIdx);
+    setTyping(false);
+
+    if (!q) {
+      // Practice complete
+      addSystemMsg('Practice complete \u2014 preparing your feedback\u2026');
+      setTimeout(() => showFeedback(), 1200);
+    } else {
+      state.questionIdx++;
+      addMsg('interviewer', q.question);
+      setInputEnabled(true);
+    }
+  } catch (err) {
+    setTyping(false);
+    addSystemMsg('Error: ' + err.message);
+    setInputEnabled(true);
+  }
+}
+
+document.getElementById('btn-send').addEventListener('click', handleSend);
+
+document.getElementById('resp-input').addEventListener('keydown', (e) => {
+  if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleSend(); }
+});
+
+// Auto-grow textarea
+document.getElementById('resp-input').addEventListener('input', function () {
+  this.style.height = 'auto';
+  this.style.height = Math.min(this.scrollHeight, 130) + 'px';
+});
+
+// ── Replay ───────────────────────────────────────────────────────────────────
+
+document.getElementById('btn-replay').addEventListener('click', () => {
+  state.questionIdx = 0;
+  state.responses = [];
+  document.getElementById('btn-begin').disabled = false;
+  show('s-info');
+});
+
+// ── Dimension badge init ─────────────────────────────────────────────────────
+
+document.getElementById('dim-badge').textContent = ACTIVE_DIM.name;
+</script>
+</body>
+</html>

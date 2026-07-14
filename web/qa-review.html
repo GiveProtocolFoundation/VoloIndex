@@ -289,15 +289,38 @@
     // ── State ──
     let stats = null;
     let entries = [];
+    let internalKey = sessionStorage.getItem('qa-internal-key') || '';
 
     // ── Boot ──
-    document.addEventListener('DOMContentLoaded', () => { refresh(); });
+    document.addEventListener('DOMContentLoaded', () => {
+      if (!internalKey) {
+        promptForKey();
+      } else {
+        refresh();
+      }
+    });
+
+    function promptForKey() {
+      const key = prompt('Enter Internal API Key to access the QA review queue:');
+      if (!key) {
+        document.querySelector('.container').innerHTML =
+          '<div class="empty-state"><p>Access denied — internal key required.</p></div>';
+        return;
+      }
+      internalKey = key;
+      sessionStorage.setItem('qa-internal-key', key);
+      refresh();
+    }
 
     async function refresh() {
       try {
+        const hdrs = { 'X-Internal-Key': internalKey };
         const [statsRes, pendingRes] = await Promise.all([
-          fetch(`${API}/api/publication`).then(r => r.json()),
-          fetch(`${API}/api/publication/pending`).then(r => r.json()),
+          fetch(`${API}/api/publication`, { headers: hdrs }).then(r => {
+            if (r.status === 403) { sessionStorage.removeItem('qa-internal-key'); promptForKey(); throw new Error('Invalid key'); }
+            return r.json();
+          }),
+          fetch(`${API}/api/publication/pending`, { headers: hdrs }).then(r => r.json()),
         ]);
         stats = statsRes;
         entries = pendingRes.entries || [];
@@ -499,7 +522,7 @@
       try {
         const res = await fetch(`${API}/api/publication/${sessionId}/release`, {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
+          headers: { 'Content-Type': 'application/json', 'X-Internal-Key': internalKey },
           body: JSON.stringify({ agreedWithExtractor: agreed }),
         });
         if (!res.ok) {

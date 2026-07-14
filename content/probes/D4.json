@@ -1,0 +1,408 @@
+{
+  "dimension": "D4",
+  "dimensionTitle": "Performance, Impact & Accountability",
+  "frameworkVersion": "1.0",
+  "draftRevision": "D4-v0.1-translation-r1",
+  "status": "pending-CEO-signoff",
+  "author": "CPO",
+  "parentIssue": "GIV-631",
+  "sourceDoc": "content/dimensions/D4.md",
+  "researchInputGate": {
+    "issue": "GIV-633",
+    "memo": "docs/D4-groble-corroboration.md",
+    "commit": "af57e7e",
+    "satisfied": true
+  },
+  "subDomains": [
+    {
+      "id": "4.1",
+      "title": "Performance expectation-setting & role design",
+      "primaryAnchors": ["Groble (2018) — authority tools", "Ellis — role clarity", "Rochester — models of involvement"]
+    },
+    {
+      "id": "4.2",
+      "title": "Feedback & performance conversations",
+      "primaryAnchors": ["Groble (2018) — feedback structures", "Ellis — supervision as coaching", "Grossman & Furano"]
+    },
+    {
+      "id": "4.3",
+      "title": "Impact measurement & attribution",
+      "primaryAnchors": ["Rehnborg — volunteer economic value", "Hager & Brudney — Balancing Act", "Brudney & Meijs (2019) — stewardship"]
+    },
+    {
+      "id": "4.4",
+      "title": "Accountability & corrective action",
+      "primaryAnchors": ["Groble (2018) — corrective-action toolkit", "Groble & Brudney (2015) — VPA/liability", "Ellis"]
+    }
+  ],
+  "scopeBoundaryAwareness": {
+    "version": "1.0",
+    "rules": [
+      "Substantive escalation protects the floor.",
+      "Uncorrected miscalibration caps a sub-domain at Proficient.",
+      "Probes may thin or drop at lower bands without breaking the dimension spine."
+    ]
+  },
+  "strengthMarkers": {
+    "S1": "Concrete instance with observable practice change",
+    "S2": "Pattern across cases with named mechanism/reasoning",
+    "S3": "System/policy design that removes the failure mode"
+  },
+  "developmentalLevels": {
+    "Foundational": [1.0, 3.0],
+    "Developing": [3.1, 5.5],
+    "Proficient": [5.6, 7.5],
+    "Expert": [7.6, 10.0]
+  },
+  "redFlagFamilies": [
+    {
+      "id": "employee-mechanic-import",
+      "clause": "Reaching for PIP, progressive discipline, written/final warning, or termination language when the situation calls for a Groble authority-tool response.",
+      "probes": ["RF-TL2-a", "RF-TL4-a", "RF-C1-a", "RF-C4-b", "RF-PM4-a", "RF-D1-a"]
+    },
+    {
+      "id": "authority-vacuum",
+      "clause": "Declining to exercise any authority tool because 'they're volunteers, we can't really.' Mirror failure of employee-mechanic import per Groble.",
+      "probes": ["RF-TL2-b", "RF-TL4-b", "RF-C2-a", "RF-PM4-b"]
+    },
+    {
+      "id": "accountability-liability-confusion",
+      "clause": "Collapsing volunteer-conduct and organisational-liability into a single move (either direction — scapegoating the volunteer or invoking VPA immunity to duck accountability). Anchored in Groble & Brudney (2015).",
+      "probes": ["RF-C4-a", "RF-D4-a", "RF-D4-b"]
+    },
+    {
+      "id": "impact-overclaim",
+      "clause": "Presenting hours/activity as outcomes; making causal-impact claims the evidence cannot support.",
+      "probes": ["RF-TL3-b", "RF-C3-b", "RF-PM3-a", "RF-D3-a"]
+    }
+  ],
+  "probes": [
+    {
+      "id": "TL-1",
+      "band": "Team Lead",
+      "subDomain": "4.1",
+      "title": "Setting expectations with a new volunteer",
+      "prompt": "A new volunteer, Danilo, is starting a weekly three-hour shift on a task another volunteer used to run. There is no written role description for the task; the previous volunteer just \"knew what to do.\" Walk through the first conversation.",
+      "anchors": ["Groble (2018)", "Ellis", "Rochester"],
+      "levels": {
+        "Foundational": "Demonstrates the task; expectations remain tacit. S1: gives a starting point, no explicit expectation.",
+        "Developing": "Names arrival/handover expectations; substantive quality expectation implicit. S1.",
+        "Proficient": "Distinguishes what the task delivers / what 'done well' looks like / what handover requires / what is out of scope; writes a light role note. S2: names expectations-by-inheritance failure and the authority-tool response.",
+        "Expert": "Closes the role-doc gap for the shift more broadly, treating the note as shared team artefact. S3."
+      },
+      "redFlags": [
+        {"id": "RF-TL1-a", "clause": "Treats walk-through by demo as sufficient expectation-setting.", "effect": "Uncorrected: caps 4.1 at Proficient."},
+        {"id": "RF-TL1-b", "clause": "Cargo-cults HR onboarding-checklist without adapting to volunteer-scope autonomy.", "effect": "Uncorrected clear instance → red-flag cap per §5.5."}
+      ],
+      "scopeBoundary": "In-band. Designing the role-doc system is Coordinator-plus; flagging that need while still handling the conversation earns escalation credit."
+    },
+    {
+      "id": "TL-2",
+      "band": "Team Lead",
+      "subDomain": "4.2",
+      "title": "Corrective feedback to a slipping volunteer",
+      "prompt": "A volunteer, Rita, has been arriving late on her shift for three weeks and the quality of her handover notes has dropped. You have not raised it with her yet. Walk through the conversation and what precedes it.",
+      "anchors": ["Groble (2018)", "Ellis", "Grossman & Furano"],
+      "levels": {
+        "Foundational": "Waits; mentions it in passing. S1.",
+        "Developing": "Opens the conversation apologetically; leaves substantive expectation implicit. S1.",
+        "Proficient": "Prepares with specifics; opens with observed behaviour; asks what has changed; closes with shared next step. S2: separates formative feedback from disciplinary framing.",
+        "Expert": "Treats the conversation as one instance of a standing rhythm; holds performance signal and role-fit signal together. S3."
+      },
+      "redFlags": [
+        {"id": "RF-TL2-a", "clause": "Frames conversation as 'warning' or 'write-up.'", "effect": "Uncorrected clear instance → red-flag cap (employee-mechanic import)."},
+        {"id": "RF-TL2-b", "clause": "Avoids the conversation because volunteers 'cannot really be held to it.'", "effect": "Uncorrected: 4.2 cap at Proficient (authority-vacuum)."}
+      ],
+      "scopeBoundary": "In-band. Redesigning team feedback rhythm broadly is Coordinator-plus; separately raising the rhythm gap earns escalation credit."
+    },
+    {
+      "id": "TL-3",
+      "band": "Team Lead",
+      "subDomain": "4.3",
+      "title": "What the team's work adds up to",
+      "prompt": "Your team's shift generates activities every week (visits, meals, sessions). A funder asks your coordinator 'so what did volunteers actually change?' Your coordinator asks you to say what you would say.",
+      "anchors": ["Rehnborg", "Hager & Brudney", "Brudney & Meijs (2019)"],
+      "levels": {
+        "Foundational": "Reports activity count (hours, visits, meals). S1: output only.",
+        "Developing": "Adds beneficiary anecdotes to the count. S1: partial framing.",
+        "Proficient": "Names the concrete outcome the shift is designed to change and how the activity is the mechanism; notes what the team cannot claim credit for. S2: separates output/outcome; honest attribution boundary.",
+        "Expert": "Adds counterfactual dimension; treats overclaim as a reputational risk that erodes future advocacy. S3."
+      },
+      "redFlags": [
+        {"id": "RF-TL3-a", "clause": "Reads hours/activity count as the outcome.", "effect": "Uncorrected: 4.3 cap at Proficient."},
+        {"id": "RF-TL3-b", "clause": "Overclaims causal impact to look good to funder.", "effect": "Uncorrected clear instance → red-flag cap."}
+      ],
+      "scopeBoundary": "In-band. Program-level attribution reporting is Program-Manager scope; signalling caveat and handing framing up earns escalation credit."
+    },
+    {
+      "id": "TL-4",
+      "band": "Team Lead",
+      "subDomain": "4.4",
+      "title": "A first-order accountability breach",
+      "prompt": "A volunteer, Jae, no-shows a shift for the second consecutive week without notice. Another volunteer had to cover both times. What do you do this week, and what is the ladder if it happens again?",
+      "anchors": ["Groble (2018)", "Ellis", "Groble & Brudney (2015)"],
+      "levels": {
+        "Foundational": "Mild reminder; drops it if Jae shows next week. S1: no calibrated response.",
+        "Developing": "Calls, expresses disappointment, restates the rota expectation. S1: named, not laddered.",
+        "Proficient": "Observed behaviour + cover impact; asks what changed; sets explicit expectation + shared check-in; names ladder — one more no-show without notice triggers role-fit conversation, not discipline. S2: proportional; Groble authority tool.",
+        "Expert": "Reads the pattern as data about role/rota as well as volunteer; individual + systemic move together. S3."
+      },
+      "redFlags": [
+        {"id": "RF-TL4-a", "clause": "Reaches for written warning, PIP, 'final warning' language.", "effect": "Uncorrected clear instance → red-flag cap (employee-mechanic import)."},
+        {"id": "RF-TL4-b", "clause": "'They're volunteers, we can't really do anything.'", "effect": "Uncorrected: 4.4 cap at Proficient (authority-vacuum)."}
+      ],
+      "scopeBoundary": "In-band. Formal off-boarding is Coordinator-plus; handling the ladder correctly and signalling exit conversation as coordinator hand-off earns escalation credit."
+    },
+    {
+      "id": "C-1",
+      "band": "Coordinator",
+      "subDomain": "4.1",
+      "title": "Role documentation across the pool",
+      "prompt": "Your pool covers eight roles, documented inconsistently. The ED wants 'consistent role descriptions by next quarter.' How do you approach it, and what do you refuse to do?",
+      "anchors": ["Groble (2018)", "Rochester", "Ellis"],
+      "levels": {
+        "Foundational": "Single template, filled in by each team lead. S1: template compliance.",
+        "Developing": "Light differentiation by role type; partial adoption. S1.",
+        "Proficient": "Separates common (mission-fit, safeguarding, minimum-time) from role-differentiated ('done well' criteria, escalation); designs template accordingly; sets maintenance rhythm to prevent decay. S2.",
+        "Expert": "Refuses to standardise 'done well' across roles that Rochester's models make structurally different; documents the refusal; treats role doc as living infrastructure. S3."
+      },
+      "redFlags": [
+        {"id": "RF-C1-a", "clause": "Cargo-cults HR job-description template onto volunteer roles.", "effect": "Uncorrected clear instance → red-flag cap."},
+        {"id": "RF-C1-b", "clause": "Treats role docs as compliance artefact rather than authority tool.", "effect": "Uncorrected: 4.1 cap at Proficient."}
+      ],
+      "scopeBoundary": "In-band."
+    },
+    {
+      "id": "C-2",
+      "band": "Coordinator",
+      "subDomain": "4.2",
+      "title": "Coaching a team lead through a hard feedback conversation",
+      "prompt": "A team lead comes to you: their long-standing volunteer is doing the task the same way she's always done it, but the task has moved on. The team lead is avoiding the conversation because 'she's been with us for eight years.' Coach them.",
+      "anchors": ["Groble (2018)", "Ellis", "Grossman & Furano"],
+      "levels": {
+        "Foundational": "Tells team lead to just have the conversation. S1.",
+        "Developing": "Role-plays the opener; leaves substantive design to team lead. S1.",
+        "Proficient": "Helps team lead separate task change / respected long service / coaching move (feedback because of the relationship, not despite it); prepares with observable examples; agrees debrief. S2.",
+        "Expert": "Recognises team-lead avoidance as the systemic signal (not tenure); addresses avoidance directly; pairs coaching with light change to team's feedback rhythm. S3."
+      },
+      "redFlags": [
+        {"id": "RF-C2-a", "clause": "Frames tenure as reason to avoid feedback.", "effect": "Uncorrected: red-flag cap (authority-vacuum mis-applied to seniority)."},
+        {"id": "RF-C2-b", "clause": "Coaches team lead into scripted HR-style script.", "effect": "Uncorrected: 4.2 cap at Proficient."}
+      ],
+      "scopeBoundary": "In-band."
+    },
+    {
+      "id": "C-3",
+      "band": "Coordinator",
+      "subDomain": "4.3",
+      "title": "Outputs, outcomes, and what to hand up",
+      "prompt": "Your Program Manager is preparing a mid-year report. She has asked you for 'the impact number' for the volunteer pool for the first half. What do you give her, and what do you refuse to give her?",
+      "anchors": ["Rehnborg", "Hager & Brudney", "Brudney & Meijs (2019)", "Ellis"],
+      "levels": {
+        "Foundational": "Sends hours + activity counts. S1: output only.",
+        "Developing": "Adds case anecdotes. S1: mixed output-and-anecdote, no framing.",
+        "Proficient": "Sends volunteer-effort metrics + specific outcome the pool is designed to move + explicit note on what the pool cannot claim + what needs qualitative pairing. S2.",
+        "Expert": "Refuses to give a compressed headline number; explains the misrepresentation risk; offers paired figure + paragraph. S3."
+      },
+      "redFlags": [
+        {"id": "RF-C3-a", "clause": "Sends hours as 'impact' without paragraph or caveat.", "effect": "Uncorrected: 4.3 cap at Proficient."},
+        {"id": "RF-C3-b", "clause": "Manufactures a causal-impact figure to look good.", "effect": "Uncorrected clear instance → red-flag cap."}
+      ],
+      "scopeBoundary": "In-band. Board-facing narrative is PM/Director scope; correctly handing up the paired figure with caveats owns the band correctly."
+    },
+    {
+      "id": "C-4",
+      "band": "Coordinator",
+      "subDomain": "4.4",
+      "title": "A corrective-action ladder that is not a PIP",
+      "prompt": "Design a corrective-action ladder for the volunteer pool. Explain each step, what triggers moving up a rung, and what stops the ladder from becoming an employment-mechanic import.",
+      "anchors": ["Groble (2018)", "Groble & Brudney (2015)", "Ellis"],
+      "levels": {
+        "Foundational": "Adapts written-warning/final-warning/termination ladder from HR handbook. S1: unadapted import.",
+        "Developing": "Softer ladder (chat / meeting / role change / exit) without naming what keeps it non-disciplinary. S1: uncalibrated.",
+        "Proficient": "Ladder: informal check-in → role-fit conversation → role change/expectation refresh → constructive exit. Trigger = pattern + no change. Names explicitly it is a fit ladder, not a discipline ladder; exit is constructive, not termination. S2.",
+        "Expert": "Separates fit ladder from safeguarding/liability ladder (immediate suspension, formal record, referral); explicit they operate on different signals; anchors safeguarding ladder in G2. S3."
+      },
+      "redFlags": [
+        {"id": "RF-C4-a", "clause": "Single ladder that collapses fit issues into safeguarding-liability moves (or vice versa).", "effect": "Uncorrected clear instance → red-flag cap (accountability-liability confusion)."},
+        {"id": "RF-C4-b", "clause": "Adopts PIP / progressive-discipline vocabulary uncorrected.", "effect": "Uncorrected: red-flag cap (employee-mechanic import)."}
+      ],
+      "scopeBoundary": "In-band."
+    },
+    {
+      "id": "PM-1",
+      "band": "Program Manager",
+      "subDomain": "4.1",
+      "title": "Role architecture across programs",
+      "prompt": "You run three programs. Program A uses volunteers as service-delivery labour; Program B uses volunteers as member-activists; Program C uses episodic volunteers for disaster response. The board asks for 'one volunteer role framework across the org.' Respond.",
+      "anchors": ["Groble (2018)", "Rochester", "Brudney & Meijs (2019)", "Ellis"],
+      "levels": {
+        "Foundational": "Complies; writes one framework. S1: false standardisation.",
+        "Developing": "Weak pushback; one framework + light program-specific annexes. S1.",
+        "Proficient": "Distinguishes program-independent (mission-fit, safeguarding, minimum expectations, volunteer rights) from model-dependent (task definition, 'done well' criteria, feedback rhythm, exit ladder); proposes common charter + program-specific architectures. S2: Rochester model separation as design constraint.",
+        "Expert": "Explains a single framework produces worst-of-all-worlds; anchors argument in Groble authority-tool logic; defends at board on mechanism. S3."
+      },
+      "redFlags": [
+        {"id": "RF-PM1-a", "clause": "Treats a single framework as strategically neutral.", "effect": "Uncorrected: 4.1 cap at Proficient."},
+        {"id": "RF-PM1-b", "clause": "Collapses under executive pressure without articulating the mechanism cost.", "effect": "Uncorrected: red-flag cap."}
+      ],
+      "scopeBoundary": "In-band."
+    },
+    {
+      "id": "PM-2",
+      "band": "Program Manager",
+      "subDomain": "4.2",
+      "title": "Feedback rhythm at program scale",
+      "prompt": "Volunteer-feedback practice across your three programs is inconsistent. Coordinators are asking for a 'common feedback framework.' Design one.",
+      "anchors": ["Groble (2018)", "Ellis", "Grossman & Furano"],
+      "levels": {
+        "Foundational": "Mandates the same rhythm across programs. S1: false standardisation.",
+        "Developing": "Light common rhythm + program-specific additions; feedback-conversation content left generic. S1.",
+        "Proficient": "Separates cadence (tied to program model — continuous for A, episodic-post-event for C, deliberate-onboarding-plus-ad-hoc for B) from content (coaching frame; observable behaviour → shared next step). S2: axes tied to Rochester model.",
+        "Expert": "Adds feedback-avoidance monitor that surfaces when coordinator/team lead is quietly not holding the conversation. S3."
+      },
+      "redFlags": [
+        {"id": "RF-PM2-a", "clause": "Designs framework that ignores program-model differences.", "effect": "Uncorrected: red-flag cap."},
+        {"id": "RF-PM2-b", "clause": "Assumes providing the framework changes the practice (documentation ≠ practice).", "effect": "Uncorrected: 4.2 cap at Proficient."}
+      ],
+      "scopeBoundary": "In-band."
+    },
+    {
+      "id": "PM-3",
+      "band": "Program Manager",
+      "subDomain": "4.3",
+      "title": "Attribution, counterfactual, and honest impact reporting",
+      "prompt": "The ED wants a headline 'impact statement' for volunteers across your programs, to lead the annual report. What do you write, and what do you decline to write?",
+      "anchors": ["Rehnborg", "Hager & Brudney", "Brudney & Meijs (2019)", "Ellis", "Groble & Brudney (2015)"],
+      "levels": {
+        "Foundational": "Generic celebratory 'life-changing impact' language. S1: overclaim by default.",
+        "Developing": "Mixed outcome-and-output statement; attribution implicit. S1: partial framing.",
+        "Proficient": "Names concrete outcomes volunteers contribute to; volunteer effort as one mechanism among several; defensible under funder audit; declines hours-as-impact or unsupported causal claims. S2.",
+        "Expert": "Frames overclaim as a strategic risk to future funding and advocacy voice; names qualitative evidence that would strengthen the statement and commits to it. S3."
+      },
+      "redFlags": [
+        {"id": "RF-PM3-a", "clause": "Treats board/donor-facing overclaim as a small cost.", "effect": "Uncorrected clear instance → red-flag cap."},
+        {"id": "RF-PM3-b", "clause": "Confuses ambitious mission statement with substantiated impact statement.", "effect": "Uncorrected: 4.3 cap at Proficient."}
+      ],
+      "scopeBoundary": "In-band."
+    },
+    {
+      "id": "PM-4",
+      "band": "Program Manager",
+      "subDomain": "4.4",
+      "title": "Constructive-exit design at program level",
+      "prompt": "A long-standing volunteer in Program B is misaligned with the current program direction and not resolvable through role change. Design how you end the volunteering relationship and defend the design to a coordinator who thinks 'we can't really ask a volunteer to leave.'",
+      "anchors": ["Groble (2018)", "Groble & Brudney (2015)", "Ellis", "Brudney & Meijs (2019)"],
+      "levels": {
+        "Foundational": "Avoids conversation; hopes volunteer drifts. S1: authority-vacuum default.",
+        "Developing": "Asks the volunteer to leave; apologetic, no shared narrative. S1: named, not designed.",
+        "Proficient": "Designs exit: prepared conversation with observable behaviour + program-direction rationale; offered alternatives (referral, alumni-status, event-only); explicit thanks + closure; documented. Answers coordinator: not doing so is deeper disrespect. S2.",
+        "Expert": "Recognises volunteer's misalignment is legitimate (program changed, not their failure); designs exit to preserve their reputation and future sector engagement; treats exit as stewardship move per G3. S3."
+      },
+      "redFlags": [
+        {"id": "RF-PM4-a", "clause": "Frames the exit as termination.", "effect": "Uncorrected clear instance → red-flag cap."},
+        {"id": "RF-PM4-b", "clause": "Treats 'you cannot ask a volunteer to leave' as a settled rule.", "effect": "Uncorrected: 4.4 cap at Proficient (authority-vacuum)."}
+      ],
+      "scopeBoundary": "In-band."
+    },
+    {
+      "id": "D-1",
+      "band": "Director",
+      "subDomain": "4.1",
+      "title": "Org-level authority-tool policy",
+      "prompt": "Draft the two-paragraph section on volunteer expectations and role design for the org's next three-year plan, and defend it to a board member who wants 'the same performance framework we use for staff, applied consistently across the org.'",
+      "anchors": ["Groble (2018)", "Ellis", "Brudney & Meijs (2019)", "Rochester"],
+      "levels": {
+        "Foundational": "Vague 'volunteers are valued' prose; concedes to board member. S1.",
+        "Developing": "Principled prose on volunteer distinctiveness but concedes on 'one framework' instrument. S1.",
+        "Proficient": "Distinguishes the authority tools the org will use (expectation-setting, documentation, feedback, escalation, corrective action, exit) from employment mechanics it will NOT import; defends as fit-for-purpose; concedes governance guardrails without conceding the mechanism. S2.",
+        "Expert": "Positions authority-tool policy as strategic asset (staff are not the volunteer's employer; import would create legal risk and destroy the relationship); names a governance mechanism (annual review of authority-tool coherence) that prevents HR-import drift. S3."
+      },
+      "redFlags": [
+        {"id": "RF-D1-a", "clause": "Imports the staff performance-management frame without adaptation.", "effect": "Uncorrected clear instance → red-flag cap."},
+        {"id": "RF-D1-b", "clause": "Positions volunteer distinctiveness as a soft/aspirational preference rather than a structural claim.", "effect": "Uncorrected: 4.1 cap at Proficient."}
+      ],
+      "scopeBoundary": "In-band."
+    },
+    {
+      "id": "D-2",
+      "band": "Director",
+      "subDomain": "4.2",
+      "title": "Feedback culture as governance",
+      "prompt": "A whistleblower-style volunteer complaint has surfaced that a program has been sitting on unresolved feedback for months. The board wants to know if this is a pattern. Design the governance response.",
+      "anchors": ["Groble (2018)", "Ellis", "Studer & von Schnurbein", "Groble & Brudney (2015)"],
+      "levels": {
+        "Foundational": "Treats complaint as isolated; asks program to resolve it. S1.",
+        "Developing": "Commissions a program review; treats complaint as program problem. S1.",
+        "Proficient": "Frames complaint as signal about org's feedback infrastructure; commissions light audit across programs of feedback-holding; commits to reporting to board with named follow-up. S2.",
+        "Expert": "Installs a standing measure (quarterly audit of unresolved-feedback backlog) so next such complaint surfaces earlier; treats feedback-holding as governance capability. S3."
+      },
+      "redFlags": [
+        {"id": "RF-D2-a", "clause": "Frames the complaint as a personnel problem to be contained.", "effect": "Uncorrected clear instance → red-flag cap."},
+        {"id": "RF-D2-b", "clause": "Treats feedback culture as a soft variable outside board oversight.", "effect": "Uncorrected: 4.2 cap at Proficient."}
+      ],
+      "scopeBoundary": "In-band."
+    },
+    {
+      "id": "D-3",
+      "band": "Director",
+      "subDomain": "4.3",
+      "title": "Impact honesty as a strategic asset",
+      "prompt": "Present volunteer impact to the board. Five minutes. One number, one paragraph. What do you use, and what do you deliberately not use?",
+      "anchors": ["Rehnborg", "Hager & Brudney", "Brudney & Meijs (2019)", "Ellis", "Rogelberg"],
+      "levels": {
+        "Foundational": "Hours or activity count presented as 'impact.' S1: output framed as outcome.",
+        "Developing": "Mixed figure with vague causal language. S1.",
+        "Proficient": "Number is honest outcome metric with stated attribution boundary; paragraph names mechanism contribution + limits; deliberately no headline causal-impact language. S2.",
+        "Expert": "Frames impact honesty as strategic asset — funders/partners/staff notice overclaim; org's advocacy voice has to be defensible to move policy. S3."
+      },
+      "redFlags": [
+        {"id": "RF-D3-a", "clause": "Treats board-facing overclaim as low-cost because 'boards want good news.'", "effect": "Uncorrected clear instance → red-flag cap."},
+        {"id": "RF-D3-b", "clause": "Confuses ambitious mission language with defensible impact statement.", "effect": "Uncorrected: 4.3 cap at Proficient."}
+      ],
+      "scopeBoundary": "In-band."
+    },
+    {
+      "id": "D-4",
+      "band": "Director",
+      "subDomain": "4.4",
+      "title": "Accountability, liability, and where the two must not be confused",
+      "prompt": "A volunteer's driving in the course of program work has been involved in a road incident. Legal counsel is asking about liability; the coordinator is asking about 'consequences for the volunteer.' The board is asking how the org will respond publicly. Take a position and act.",
+      "anchors": ["Groble & Brudney (2015)", "Groble (2018)", "Ellis", "Studer & von Schnurbein"],
+      "levels": {
+        "Foundational": "Conflates the threads; either disciplines the volunteer as employee, or drops accountability because 'they're a volunteer, the org is liable.' S1.",
+        "Developing": "Separates threads but handles both weakly; volunteer conversation not held, legal conversation over-conceded. S1.",
+        "Proficient": "Explicitly separates liability (VPA + policy + counsel), accountability with volunteer (fit-and-safeguarding conversation about assignment), and public narrative (honest, dignified, no scapegoating, no oversight overclaim). Does not let one thread collapse into another. S2: G2 boundary explicit.",
+        "Expert": "Uses the incident as a governance moment to review authority-tool policy for liability-exposure program work; ties review to G2's VPA-immunity limits; frames dignity and legal duty as compatible constraints. S3."
+      },
+      "redFlags": [
+        {"id": "RF-D4-a", "clause": "Scapegoats the volunteer to protect the org publicly.", "effect": "Uncorrected clear instance → red-flag cap (accountability-liability confusion, G2)."},
+        {"id": "RF-D4-b", "clause": "Treats VPA immunity as a general shield that removes org-level accountability.", "effect": "Uncorrected: red-flag cap (VPA-immunity misconception, G2)."}
+      ],
+      "scopeBoundary": "In-band. Director-owned because it requires policy authority, board-facing communication, and legal-boundary judgement in the same move."
+    }
+  ],
+  "coverageMatrix": {
+    "4.1": {"Team Lead": "TL-1", "Coordinator": "C-1", "Program Manager": "PM-1", "Director": "D-1"},
+    "4.2": {"Team Lead": "TL-2", "Coordinator": "C-2", "Program Manager": "PM-2", "Director": "D-2"},
+    "4.3": {"Team Lead": "TL-3", "Coordinator": "C-3", "Program Manager": "PM-3", "Director": "D-3"},
+    "4.4": {"Team Lead": "TL-4", "Coordinator": "C-4", "Program Manager": "PM-4", "Director": "D-4"}
+  },
+  "outOfScope": [
+    "Post-pilot volunteer–staff conflict resolution literature (README §Post-Pilot Enhancements) — deferred; on land, expect probe-level anchor refresh at 4.4 and possibly a new 4.5 sub-domain around staff–volunteer performance-conflict resolution."
+  ],
+  "signoffGate": {
+    "authority": "CEO",
+    "form": "Comment on GIV-631 with (a) accepted as-is, (b) accepted with named amendments, or (c) revise-and-resubmit with reasons.",
+    "reviewsOwned": [
+      "Sub-domain slicing (4.1–4.4) matches D4 v0.1 spine",
+      "Groble authority-tool integration follows corroboration memo intent (six-tool logic; accountability–liability distinction)",
+      "Literature anchors per probe are the intended anchors (CEO's cumulative source list authoritative)",
+      "No probe strays into D5 or D6 territory that should be re-homed",
+      "Any framework-level red flag or misconception clause missing from §7 — particularly at the accountability–liability boundary"
+    ]
+  },
+  "changeLog": [
+    {"revision": "r1", "date": "2026-07-12", "author": "CPO", "notes": "First audience-tier translation of D4 v0.1 after Groble research-input gate satisfied (GIV-633 closed done; corroboration memo af57e7e). 16 probes × 4 bands. Groble authority-tool logic integrated across all probes. Accountability–liability distinction anchored in G2 across §5.4 probes. Scope-boundary-awareness v1.0 applied. Post-pilot enhancements explicitly deferred."}
+  ]
+}

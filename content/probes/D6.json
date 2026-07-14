@@ -1,0 +1,592 @@
+{
+  "dimension": "D6",
+  "dimensionTitle": "Ethics, Equity & Advocacy",
+  "frameworkVersion": "1.0",
+  "draftRevision": "D6-v0.1-translation-r1.1",
+  "status": "CEO-signed-off-2026-07-12",
+  "author": "CPO",
+  "parentIssue": "GIV-632",
+  "sourceDoc": "content/dimensions/D6.md",
+  "designGate": {
+    "issue": "GIV-635",
+    "memo": "docs/D6-dual-axis-design.md",
+    "commit": "0a898a2",
+    "satisfied": true
+  },
+  "dualAxis": {
+    "enabled": true,
+    "axes": ["scope", "relational"],
+    "dimensionScoreRule": "min(axisS, axisR)",
+    "rubricVersion": "1.2",
+    "engineChange": false,
+    "note": "Substantive sub-domains 6.1-6.4 aggregate to Axis S; relational sub-domains 6.R1-6.R6 aggregate to Axis R. Engine uses standard §5 machinery per sub-domain tag; axis aggregation and min() are content/reporting convention."
+  },
+  "subDomains": [
+    {
+      "id": "6.1",
+      "axis": "scope",
+      "title": "Power, consent & fair treatment in the volunteer relationship",
+      "primaryAnchors": ["Studer & von Schnurbein — culture", "Rochester — models of involvement", "Ellis — practitioner ethics", "Groble (2018) — authority-tool ethics"]
+    },
+    {
+      "id": "6.2",
+      "axis": "scope",
+      "title": "Equitable access & inclusive design",
+      "primaryAnchors": ["Rotolo & Wilson — participation stratification", "Wilson — volunteer demography", "Rochester — model-fit inclusion", "Hager & Brudney — capacity constraints"]
+    },
+    {
+      "id": "6.3",
+      "axis": "scope",
+      "title": "Data ethics & informed participation",
+      "primaryAnchors": ["Studer & von Schnurbein — culture", "Ellis — data-handling ethics", "Sector guidance on volunteer data"]
+    },
+    {
+      "id": "6.4",
+      "axis": "scope",
+      "title": "Advocacy for the volunteer function",
+      "primaryAnchors": ["Brudney & Meijs (2019) — stewardship", "Rogelberg — programme sustainability", "Ellis", "Rehnborg — honest economic-value framing"]
+    },
+    {
+      "id": "6.R1",
+      "axis": "relational",
+      "title": "Role–relationship confusion (dual relationships)",
+      "primaryAnchors": ["Loftus relational-boundary taxonomy (per D6-dual-axis-design.md)"]
+    },
+    {
+      "id": "6.R2",
+      "axis": "relational",
+      "title": "Emotional involvement calibration",
+      "primaryAnchors": ["Loftus relational-boundary taxonomy"]
+    },
+    {
+      "id": "6.R3",
+      "axis": "relational",
+      "title": "Gifts, favours & reciprocity",
+      "primaryAnchors": ["Loftus relational-boundary taxonomy"]
+    },
+    {
+      "id": "6.R4",
+      "axis": "relational",
+      "title": "Self-disclosure calibration",
+      "primaryAnchors": ["Loftus relational-boundary taxonomy"]
+    },
+    {
+      "id": "6.R5",
+      "axis": "relational",
+      "title": "Confidentiality & information boundaries",
+      "primaryAnchors": ["Loftus relational-boundary taxonomy"]
+    },
+    {
+      "id": "6.R6",
+      "axis": "relational",
+      "title": "Power & dependency with beneficiaries",
+      "primaryAnchors": ["Loftus relational-boundary taxonomy"]
+    }
+  ],
+  "scopeBoundaryAwareness": {
+    "version": "1.0",
+    "rules": [
+      "Substantive escalation protects the floor.",
+      "Uncorrected miscalibration caps a sub-domain at Proficient.",
+      "Probes may thin or drop at lower bands without breaking the dimension spine.",
+      "Escalation credit extends to Axis R: correctly recognising a relational-boundary situation as beyond one's remit and routing it correctly earns Axis-R credit at the developmental level of that recognition + routing (per design doc §D-6)."
+    ]
+  },
+  "strengthMarkers": {
+    "S1": "Concrete instance with observable practice change",
+    "S2": "Pattern across cases with named mechanism/reasoning",
+    "S3": "System/policy design that removes the failure mode. On Axis R, S3 is specifically boundary infrastructure (a disclosure norm, a gift log, a supervision practice), not personal-virtue claims."
+  },
+  "developmentalLevels": {
+    "Foundational": [1.0, 3.0],
+    "Developing": [3.1, 5.5],
+    "Proficient": [5.6, 7.5],
+    "Expert": [7.6, 10.0]
+  },
+  "redFlagFamilies": [
+    {
+      "id": "consent-vacuum",
+      "axis": "scope",
+      "clause": "Data collection, use, or disclosure that outruns what the volunteer has been asked and agreed to.",
+      "probes": ["RF-TL3-a-S", "RF-C3-a-S", "RF-PM1-a-S", "RF-PM3-a-S", "RF-D3-a-S"]
+    },
+    {
+      "id": "equity-blindness",
+      "axis": "scope",
+      "clause": "Reading demographic and access gaps as merit or supply signals rather than design signals (meritocratic default).",
+      "probes": ["RF-TL2-a-S", "RF-C2-a-S", "RF-PM2-a-S", "RF-D2-a-S"]
+    },
+    {
+      "id": "advocacy-vacuum-or-degradation",
+      "axis": "scope",
+      "clause": "Not making the advocacy case, or making it in a way that instrumentalises volunteers or beneficiaries (story-mining, overclaim, co-optation, voice-arrogation).",
+      "probes": ["RF-TL4-a-S", "RF-TL4-b-S", "RF-C4-a-S", "RF-C4-b-S", "RF-PM4-a-S", "RF-PM4-b-S", "RF-D4-a-S", "RF-D4-b-S"]
+    },
+    {
+      "id": "employee-mechanic-import-ethics-axis",
+      "axis": "scope",
+      "clause": "Applying staff ethics codes to volunteers without adaptation. Distinct from D4's employee-mechanic import (authority tools).",
+      "probes": ["RF-D1-a-S"]
+    },
+    {
+      "id": "boundary-blindness",
+      "axis": "relational",
+      "clause": "Narrating a dual relationship, gift, or disclosure with no recognition that a boundary exists (canonical relational family per design doc §D-5).",
+      "probes": ["RF-TL1-b-R", "RF-TL3-b-R", "RF-C3-b-R", "RF-D1-b-R", "RF-PM2-c-R", "RF-PM3-b-R"]
+    },
+    {
+      "id": "boundary-as-wall",
+      "axis": "relational",
+      "clause": "Treating every relational tension as rule-enforcement; policing framed as the only tool. Uncorrected pattern caps R-sub-domain at Proficient (misconception cap).",
+      "probes": ["RF-PM2-b-R", "RF-D3-b-R"]
+    },
+    {
+      "id": "exceptionalism",
+      "axis": "relational",
+      "clause": "'That rule is for others; my relationship with this volunteer/beneficiary is different.' Most predictive flag in the taxonomy.",
+      "probes": ["RF-TL2-b-R", "RF-C1-b-R", "RF-D3-c-R"]
+    },
+    {
+      "id": "emotional-calibration-by-ingroup",
+      "axis": "cross-axis",
+      "clause": "Warmth calibrated to volunteers who read as familiar; distance to those who don't. Manifests as equity failure at scale and calibration failure per relationship.",
+      "probes": ["RF-C2-b-R", "RF-D2-b-R", "RF-PM1-b-R"]
+    }
+  ],
+  "coverageMatrix": {
+    "substantive": {
+      "6.1": ["TL-1", "C-1", "PM-1", "D-1"],
+      "6.2": ["TL-2", "C-2", "PM-2", "D-2"],
+      "6.3": ["TL-3", "C-3", "PM-3", "D-3"],
+      "6.4": ["TL-4", "C-4", "PM-4", "D-4"]
+    },
+    "relational": {
+      "6.R1": ["TL-2", "C-1", "D-1"],
+      "6.R2": ["TL-2", "C-2", "PM-1", "D-2"],
+      "6.R3": ["C-1", "PM-2", "D-3"],
+      "6.R4": ["PM-2", "PM-4", "D-2", "D-4"],
+      "6.R5": ["TL-3", "C-3", "PM-3", "D-3"],
+      "6.R6": ["TL-1", "C-2", "PM-1", "PM-3", "D-1"]
+    },
+    "rActiveProbes": ["TL-1", "TL-2", "TL-3", "C-1", "C-2", "C-3", "PM-1", "PM-2", "PM-3", "PM-4", "D-1", "D-2", "D-3", "D-4"],
+    "rSilentProbes": ["TL-4", "C-4"],
+    "escalationSymmetryProbes": {
+      "Team Lead": "TL-3",
+      "Coordinator": "C-2",
+      "Program Manager": "PM-3",
+      "Director": "D-3"
+    }
+  },
+  "probes": [
+    {
+      "id": "TL-1",
+      "band": "Team Lead",
+      "subDomain": "6.1",
+      "title": "Consent and fair treatment on shift",
+      "prompt": "A volunteer, Amara, mentioned she is uncomfortable with a task on her shift that involves door-to-door contact — she was not told this was part of the role when she signed up. Walk through the conversation and what you do this week.",
+      "anchors": ["Studer & von Schnurbein", "Ellis", "Groble (2018)"],
+      "levels": {
+        "Foundational": "Tells Amara this is what the role is; asks her to try it once more. S1: no consent read.",
+        "Developing": "Acknowledges the mismatch, offers to swap her out this week; does not surface the systemic issue. S1.",
+        "Proficient": "Names the mismatch as a consent failure by the org, not by Amara; offers her a real choice; flags to coordinator that the role description misled. S2.",
+        "Expert": "Uses the moment to check what else the shift is asking that wasn't in signup-consent; ties to durable role-description change. S3."
+      },
+      "relationalCategories": ["6.R6"],
+      "relationalLevels": {
+        "Foundational": "No view of Amara's or the resident's asymmetry ('just knock').",
+        "Developing": "Vaguely uneasy about the beneficiary interaction but does not name it.",
+        "Proficient": "Names both power asymmetries (org over Amara; Amara over doorstep residents) and calibrates the ask against both.",
+        "Expert": "Treats the double asymmetry as design information for the shift, not just a handled case."
+      },
+      "redFlags": [
+        {"id": "RF-TL1-a-S", "axis": "scope", "clause": "Treats Amara's discomfort as reluctance to be managed.", "effect": "Uncorrected: caps 6.1 at Proficient (exceptionalism-adjacent)."},
+        {"id": "RF-TL1-b-R", "axis": "relational", "clause": "Presses Amara to 'just try it' without recognising the beneficiary-side asymmetry either.", "effect": "Uncorrected clear instance → red-flag cap on 6.R6 (boundary-blindness)."}
+      ],
+      "scopeBoundary": "In-band. Rewriting role descriptions is Coordinator-plus; flagging the gap while handling the conversation earns escalation credit on both axes."
+    },
+    {
+      "id": "TL-2",
+      "band": "Team Lead",
+      "subDomain": "6.2",
+      "title": "An access request from a volunteer with a caring role",
+      "prompt": "A volunteer, Kenji, asks whether he can bring his eight-year-old daughter to his weekly two-hour shift on the food-parcel line because his usual childcare has fallen through. Your standard rota policy is 'no non-volunteers on shift.' Answer him this week and think through what it says about the shift.",
+      "anchors": ["Rotolo & Wilson", "Rochester", "Ellis", "Hager & Brudney"],
+      "levels": {
+        "Foundational": "Refuses on the policy; treats the request as noncompliance. S1.",
+        "Developing": "Makes a one-off exception this week; does not surface what the request reveals. S1.",
+        "Proficient": "Handles this week with a safe accommodation or an honest 'not this week, and here's what we can do so it doesn't cost you your shift'; names to the coordinator that the policy is filtering out carers; separates safeguarding from convenience. S2.",
+        "Expert": "Reads the request as evidence about who the current shift design excludes; ties the design gap to the under-represented group. S3."
+      },
+      "relationalCategories": ["6.R1", "6.R2"],
+      "relationalLevels": {
+        "Foundational": "Either bends the whole rule out of empathy (over-involvement, collapses for anyone the practitioner likes) or holds coldly (under-involvement).",
+        "Developing": "Sees the tension but resolves it as personal favour ('just this once because I like you') — sets up dual-relationship expectation.",
+        "Proficient": "Holds the rule and the person together without turning the accommodation into a private arrangement with Kenji.",
+        "Expert": "Treats consistent, transparent handling of similar requests as boundary infrastructure (documented, not remembered case-by-case)."
+      },
+      "redFlags": [
+        {"id": "RF-TL2-a-S", "axis": "scope", "clause": "Frames the access barrier as Kenji's problem to solve.", "effect": "Uncorrected clear instance → red-flag cap on 6.2 (equity-blindness)."},
+        {"id": "RF-TL2-b-R", "axis": "relational", "clause": "Makes a private favour of the accommodation ('don't tell the others').", "effect": "Uncorrected clear instance → red-flag cap on 6.R1 (boundary-blindness / exceptionalism edge)."}
+      ],
+      "scopeBoundary": "In-band. Redesigning access policy is Coordinator-plus; escalation credit for flagging the systemic filter while handling Kenji this week."
+    },
+    {
+      "id": "TL-3",
+      "band": "Team Lead",
+      "subDomain": "6.3",
+      "title": "A volunteer's disclosure on shift",
+      "prompt": "During a shift, a volunteer, Priya, tells you in confidence that she has been in treatment for depression and that's why she's been quiet lately. Your coordinator asks the next day, 'Everything OK with Priya? She seems off.' What do you do — this week and if the coordinator asks again next week?",
+      "anchors": ["Ellis", "Studer & von Schnurbein", "Sector volunteer-data guidance"],
+      "levels": {
+        "Foundational": "Tells the coordinator what Priya said as helpful context. S1: no consent read.",
+        "Developing": "Deflects vaguely ('she'll be OK') without going back to Priya. S1.",
+        "Proficient": "Holds Priya's confidence; tells the coordinator only what Priya has consented to share; goes back to Priya to check what she wants raised; offers a light adjustment; separates care from information. S2.",
+        "Expert": "Notices the team has no clear norm about what stays in a volunteer's confidence; suggests a light norm to the coordinator (in general terms). S3."
+      },
+      "relationalCategories": ["6.R5"],
+      "relationalLevels": {
+        "Foundational": "Passes the disclosure on as gossip-adjacent detail.",
+        "Developing": "Holds it this once but has no principle.",
+        "Proficient": "Holds Priya's confidence and offers her control of what is shared.",
+        "Expert": "Makes the confidentiality practice legible so it doesn't rest on one person's discretion."
+      },
+      "redFlags": [
+        {"id": "RF-TL3-a-S", "axis": "scope", "clause": "Treats the disclosure as safeguarding-reportable when it is not.", "effect": "Uncorrected: caps 6.3 at Proficient (proportionality failure)."},
+        {"id": "RF-TL3-b-R", "axis": "relational", "clause": "Shares the specifics with the coordinator uninvited to 'help.'", "effect": "Uncorrected clear instance → red-flag cap on 6.R5 (boundary-blindness)."}
+      ],
+      "scopeBoundary": "Escalation-symmetry probe. If Priya's disclosure suggests risk to herself or others, that is a safeguarding move — routing correctly to coordinator/safeguarding lead is escalation credit on both axes; conflating with confidentiality-holding is a scope-and-relational failure at once."
+    },
+    {
+      "id": "TL-4",
+      "band": "Team Lead",
+      "subDomain": "6.4",
+      "title": "First advocacy instance for the volunteer function",
+      "prompt": "In a staff meeting, a paid staff member says, 'The volunteers are a nice-to-have but honestly they slow us down.' Your coordinator is not in the room. Do you respond in the moment? How, and what do you do afterwards?",
+      "anchors": ["Brudney & Meijs (2019)", "Ellis", "Rogelberg"],
+      "levels": {
+        "Foundational": "Says nothing; complains privately later. S1.",
+        "Developing": "Defends volunteers emotionally without a substantive rebuttal; does not raise it with the coordinator. S1.",
+        "Proficient": "Responds in the moment with one calibrated example; holds tone at 'let me push back' not 'you're wrong'; raises the interaction with the coordinator afterwards. S2.",
+        "Expert": "Reads the comment as a culture signal, not just this staff member; offers the coordinator both what happened and what it suggests. S3."
+      },
+      "relationalCategories": [],
+      "rSilentReason": "Advocacy-side probe — the ethical work is Axis-S advocacy and staff-relationship handling, not a load-bearing R-category.",
+      "redFlags": [
+        {"id": "RF-TL4-a-S", "axis": "scope", "clause": "Weaponises a specific volunteer's story to make the point ('well, Fatima puts in more hours than you do').", "effect": "Uncorrected clear instance → red-flag cap on 6.4 (advocacy-as-story-mining; volunteer did not consent to be used)."},
+        {"id": "RF-TL4-b-S", "axis": "scope", "clause": "Concedes silently to protect the working relationship; treats advocacy as a director's job.", "effect": "Uncorrected: caps 6.4 at Proficient (advocacy-vacuum)."}
+      ],
+      "scopeBoundary": "In-band. Formal advocacy narrative for the org's board is PM-plus; a Team Lead who handles the moment and hands the culture signal up owns the band correctly."
+    },
+    {
+      "id": "C-1",
+      "band": "Coordinator",
+      "subDomain": "6.1",
+      "title": "A dual-relationship situation across the pool",
+      "prompt": "You discover that one of your volunteers, Yannis, has been quietly paying another volunteer, Sabine, cash to cover his shifts when he cannot make them. Both say it's a private arrangement between friends. Handle this — this week and structurally.",
+      "anchors": ["Studer & von Schnurbein", "Groble (2018)", "Ellis"],
+      "levels": {
+        "Foundational": "Ends the arrangement, reprimands both; nothing changes structurally. S1.",
+        "Developing": "Ends the arrangement, has an awkward conversation; does not surface what the situation reveals. S1.",
+        "Proficient": "Names two overlapping problems (org's consent-at-signup did not extend to a cash market; hidden dual-relationship inside the pool); ends the arrangement clearly and without shame; asks Yannis what would actually solve his availability; asks Sabine whether the money mattered or the shifts did. S2.",
+        "Expert": "Reads it as a signal about shift-covering; designs or advocates for a transparent swap board. S3."
+      },
+      "relationalCategories": ["6.R1", "6.R3"],
+      "relationalLevels": {
+        "Foundational": "Treats it as a rule breach.",
+        "Developing": "Sees the dual-relationship but not the reciprocity/obligation Sabine has taken on.",
+        "Proficient": "Holds both role–relationship confusion (paid-substitution ≠ volunteering) and Sabine's reciprocity/obligation.",
+        "Expert": "Closes the informal market by legitimising the underlying need, not by policing the workaround."
+      },
+      "redFlags": [
+        {"id": "RF-C1-a-S", "axis": "scope", "clause": "Treats it as a personnel issue solely with Yannis.", "effect": "Uncorrected: caps 6.1 at Proficient (fair-treatment failure toward Sabine)."},
+        {"id": "RF-C1-b-R", "axis": "relational", "clause": "Frames the situation as fine 'because they're both adults.'", "effect": "Uncorrected clear instance → red-flag cap on 6.R1 / 6.R3 (exceptionalism)."}
+      ],
+      "scopeBoundary": "In-band."
+    },
+    {
+      "id": "C-2",
+      "band": "Coordinator",
+      "subDomain": "6.2",
+      "title": "Cohort-level equity read on retention data",
+      "prompt": "Your six-month retention data shows volunteers from your two largest recruitment channels drop out at very different rates: university partnership 65%, community partnership 22%. Both cohorts started with similar numbers. What do you do?",
+      "anchors": ["Rotolo & Wilson", "Wilson", "Rochester", "Hager & Brudney"],
+      "levels": {
+        "Foundational": "Concludes the university channel is 'better volunteers' and doubles down there. S1: supply-signal read.",
+        "Developing": "Notices the gap is uncomfortable; does not change action; says the groups are hard to compare. S1.",
+        "Proficient": "Names the gap as a design signal, not a volunteer-quality signal; investigates mechanisms (shift times, social language, whether the community cohort ever gets to 'core' roles); tests one change; tracks the delta. S2.",
+        "Expert": "Refuses the 'better volunteers' conclusion as an ethics move — it would reproduce structural exclusion under merit language; states the refusal explicitly if pressed. S3."
+      },
+      "relationalCategories": ["6.R2", "6.R6"],
+      "relationalLevels": {
+        "Foundational": "Invests emotionally in the retained cohort, coldly with the drop-out cohort ('they weren't really committed').",
+        "Developing": "Sees the emotional-investment imbalance but treats it as personal.",
+        "Proficient": "Recognises emotional-involvement calibration across a demographic gap as a structural equity move, not just interpersonal.",
+        "Expert": "Designs against the imbalance by making the emotional-investment moves observable (welcome protocols, check-ins) so they don't rest on the coordinator's warmth toward familiar volunteers."
+      },
+      "redFlags": [
+        {"id": "RF-C2-a-S", "axis": "scope", "clause": "Reads the retention gap as a merit gap.", "effect": "Uncorrected clear instance → red-flag cap on 6.2 (equity-blindness / meritocratic default)."},
+        {"id": "RF-C2-b-R", "axis": "relational", "clause": "Concentrates coaching and shift-choice attention on the retained cohort.", "effect": "Uncorrected: caps 6.R2 at Proficient (under-involvement with the drop-out cohort as pattern)."}
+      ],
+      "scopeBoundary": "Escalation-symmetry probe (Coordinator band). Program-level recruitment redesign is PM-plus; escalation credit for surfacing the delta with a proposed one-shift change and asking the PM for the broader review."
+    },
+    {
+      "id": "C-3",
+      "band": "Coordinator",
+      "subDomain": "6.3",
+      "title": "Volunteer story request from communications",
+      "prompt": "Your communications team asks you to send them 'three or four moving volunteer stories' to use in an appeal campaign. They want quotes and photos. What do you send them, and what do you refuse to send?",
+      "anchors": ["Ellis", "Studer & von Schnurbein", "Sector volunteer-data guidance"],
+      "levels": {
+        "Foundational": "Sends names, quotes, and photos from what you have on file. S1.",
+        "Developing": "Asks volunteers verbally; treats the ask as a small favour; does not distinguish appeal-use from internal-use. S1.",
+        "Proficient": "Asks each volunteer explicitly what they are being asked (appeal campaign, name, story, external distribution, indefinite duration on the org website); can decline without effect on volunteering; captures consent in writing; sends only what they have consented to. S2.",
+        "Expert": "Sets up a simple standing consent form volunteers can update; refuses to over-index on more articulate/socially confident volunteers because it distorts the org's volunteer face. S3."
+      },
+      "relationalCategories": ["6.R5"],
+      "relationalLevels": {
+        "Foundational": "Treats volunteer stories as org property once obtained.",
+        "Developing": "Asks each time but without a stable norm.",
+        "Proficient": "Treats consent as ongoing and revocable.",
+        "Expert": "Designs the practice as boundary infrastructure that survives staff turnover."
+      },
+      "redFlags": [
+        {"id": "RF-C3-a-S", "axis": "scope", "clause": "Sends photos or quotes without documented consent.", "effect": "Uncorrected clear instance → red-flag cap on 6.3 (consent-vacuum)."},
+        {"id": "RF-C3-b-R", "axis": "relational", "clause": "Uses volunteers' openness with the coordinator as de facto consent to publish.", "effect": "Uncorrected: caps 6.R5 at Proficient (boundary-blindness on relational-to-public leap)."}
+      ],
+      "scopeBoundary": "In-band."
+    },
+    {
+      "id": "C-4",
+      "band": "Coordinator",
+      "subDomain": "6.4",
+      "title": "Advocacy inside the org: rota conflict with paid programme",
+      "prompt": "The paid programme team wants to move volunteer shifts to accommodate a new grant deliverable. The change would double parking cost and add a 40-minute commute for your community-cohort volunteers. Make the case for the volunteer function without derailing the programme team's grant.",
+      "anchors": ["Brudney & Meijs (2019)", "Rogelberg", "Ellis"],
+      "levels": {
+        "Foundational": "Refuses the change on principle; frames it as staff vs. volunteers. S1.",
+        "Developing": "Accepts the change; tells community-cohort volunteers to make it work; does not name the equity cost. S1.",
+        "Proficient": "Frames the trade-off in terms the programme team can hear (retention drop, recruitment cost, demographic-diversity assumption, backfill gap); proposes an alternative or phased move; makes equity claim in same breath as operational claim. S2.",
+        "Expert": "Uses the negotiation to install a standing check ('volunteer-experience impact' as one line in programme change decisions); doesn't need to win this one to win the standing check. S3."
+      },
+      "relationalCategories": [],
+      "rSilentReason": "Axis-S advocacy and interpersonal handling; not a load-bearing R-category.",
+      "redFlags": [
+        {"id": "RF-C4-a-S", "axis": "scope", "clause": "Treats the paid programme team as the adversary.", "effect": "Uncorrected clear instance → red-flag cap on 6.4 (advocacy-as-warfare)."},
+        {"id": "RF-C4-b-S", "axis": "scope", "clause": "Absorbs the change silently to keep the peace.", "effect": "Uncorrected: caps 6.4 at Proficient (advocacy-vacuum)."}
+      ],
+      "scopeBoundary": "In-band. Board-level advocacy on volunteer-function resource share is Director scope; escalation credit for handing the standing-check idea up to the PM."
+    },
+    {
+      "id": "PM-1",
+      "band": "Program Manager",
+      "subDomain": "6.1",
+      "title": "Consent design across programme redesign",
+      "prompt": "You are redesigning one of your programmes and existing volunteers' roles will change substantively — new tasks, new location, different rhythm. What do you owe them, and how do you handle those who don't want the new shape?",
+      "anchors": ["Studer & von Schnurbein", "Rochester", "Ellis", "Groble (2018)"],
+      "levels": {
+        "Foundational": "Announces the new roles; volunteers who don't like it can leave. S1.",
+        "Developing": "Announces the change; vague accommodation; does not name that substantial role change requires re-consent. S1.",
+        "Proficient": "Frames the redesign as a material change requiring re-consent from each affected volunteer (full description; explicit right to decline; suitable alternative or dignified exit; honest acknowledgement that the org is asking, not announcing). S2.",
+        "Expert": "Uses the redesign to sharpen the org's ongoing consent practice (what counts as a material change; who decides); documents the decision. S3."
+      },
+      "relationalCategories": ["6.R2", "6.R6"],
+      "relationalLevels": {
+        "Foundational": "Treats resistance as under-commitment.",
+        "Developing": "Takes long-service volunteers' distress personally and softens the redesign inconsistently.",
+        "Proficient": "Holds both redesign necessity and affected volunteers' legitimate loss without collapsing either.",
+        "Expert": "Uses the org's power over the change deliberately, not silently."
+      },
+      "redFlags": [
+        {"id": "RF-PM1-a-S", "axis": "scope", "clause": "Treats consent-at-signup as covering any future role.", "effect": "Uncorrected clear instance → red-flag cap on 6.1 (consent-freeze)."},
+        {"id": "RF-PM1-b-R", "axis": "relational", "clause": "Applies the redesign warmly to long-service volunteers, coldly to newer ones.", "effect": "Uncorrected: caps 6.R2 at Proficient (calibration failure by tenure)."}
+      ],
+      "scopeBoundary": "In-band."
+    },
+    {
+      "id": "PM-2",
+      "band": "Program Manager",
+      "subDomain": "6.2",
+      "title": "Gifts and self-disclosure policy at programme level",
+      "prompt": "Volunteers in your programmes work in close proximity to beneficiaries: some receive food, cards, and small gifts. Some volunteers over-share their personal circumstances with beneficiaries. Neither has a policy. Draft one, and defend the design to the ED who wants 'a clear gift-and-self-disclosure code of conduct.'",
+      "anchors": ["Ellis", "Studer & von Schnurbein", "Rochester"],
+      "levels": {
+        "Foundational": "Bans gifts and personal disclosure across the board. S1.",
+        "Developing": "Writes a gift-value cap and 'keep it professional' line; does not distinguish contexts. S1.",
+        "Proficient": "Distinguishes gifts creating obligation vs. proportionate gestures; disclosure serving the relationship vs. serving the discloser; sets a light disclosure requirement for gifts received; treats the policy as guide-and-log, not rule-and-punish; makes escalation path clear. S2.",
+        "Expert": "Refuses 'clear code of conduct' framing where it would replace judgement with rule-count; explains that boundary practice is graded (rigid coding produces boundary-as-wall); offers a decision-support policy with named categories, worked examples, supervision channel; anchors in equity (cultural variance in reading gifts and disclosure). S3."
+      },
+      "relationalCategories": ["6.R3", "6.R4"],
+      "relationalLevels": {
+        "Foundational": "Policy either bans everything or nothing.",
+        "Developing": "Sets a rule but treats it as external compliance.",
+        "Proficient": "Designs the policy so it makes graded practice legible.",
+        "Expert": "Treats the policy as boundary infrastructure that supports practitioners rather than replacing their judgement."
+      },
+      "redFlags": [
+        {"id": "RF-PM2-a-S", "axis": "scope", "clause": "Applies a middle-class gift-cap that reads as accusation in some cultural contexts.", "effect": "Uncorrected: caps 6.2 at Proficient (equity-blindness)."},
+        {"id": "RF-PM2-b-R", "axis": "relational", "clause": "Bans all self-disclosure.", "effect": "Uncorrected clear instance → red-flag cap on 6.R4 (boundary-as-wall)."},
+        {"id": "RF-PM2-c-R", "axis": "relational", "clause": "Leaves disclosure entirely to individual discretion with no supervision channel.", "effect": "Uncorrected: caps 6.R4 at Proficient (boundary-blindness)."}
+      ],
+      "scopeBoundary": "In-band."
+    },
+    {
+      "id": "PM-3",
+      "band": "Program Manager",
+      "subDomain": "6.3",
+      "title": "Volunteer data governance for a new CRM",
+      "prompt": "The org is moving to a new CRM that will hold volunteer identity, engagement, shift history, disclosures, and beneficiary interactions in one record. IT and the ED both want 'richer volunteer records' for retention analysis. What do you push for and what do you refuse?",
+      "anchors": ["Ellis", "Studer & von Schnurbein", "Sector volunteer-data proportionality guidance"],
+      "levels": {
+        "Foundational": "Accepts the design; assumes existing consent covers it. S1.",
+        "Developing": "Raises concerns loosely; ends up with almost the full design shipped. S1.",
+        "Proficient": "Names principles: proportion-to-purpose; separation of routine engagement data from sensitive disclosures (stricter access, shorter retention); volunteer right-to-see-and-correct; retention periods per data type. Refuses same-access-tier design for sensitive disclosures and shift history. S2.",
+        "Expert": "Refuses the 'richer record' framing; reframes as 'smallest record that supports the decisions the org actually makes about volunteers'; ties to trust as strategic asset. S3."
+      },
+      "relationalCategories": ["6.R5", "6.R6"],
+      "relationalLevels": {
+        "Foundational": "Treats data as neutral records.",
+        "Developing": "Sees confidentiality risk but not the power dimension.",
+        "Proficient": "Recognises that beneficiary interactions logged against a volunteer's name touch beneficiary data ethics too.",
+        "Expert": "Designs governance so beneficiary and volunteer confidentiality are load-bearing at the same tier; volunteers cannot become searchable proxies for beneficiary data."
+      },
+      "redFlags": [
+        {"id": "RF-PM3-a-S", "axis": "scope", "clause": "Aggregates volunteers' sensitive disclosures into 'richer retention analytics.'", "effect": "Uncorrected clear instance → red-flag cap on 6.3 (consent-vacuum via scope-creep)."},
+        {"id": "RF-PM3-b-R", "axis": "relational", "clause": "Logs beneficiary detail against volunteer records without separate beneficiary consent.", "effect": "Uncorrected clear instance → red-flag cap on 6.R5 / 6.R6 (boundary-blindness with real safeguarding risk)."}
+      ],
+      "scopeBoundary": "Escalation-symmetry probe (PM band). Where the CRM surfaces a safeguarding-adjacent data question the PM has not been asked to handle alone (e.g. disclosure of vulnerable-adult beneficiary detail), escalating to safeguarding lead and legal counsel is Proficient-level scope and relational escalation."
+    },
+    {
+      "id": "PM-4",
+      "band": "Program Manager",
+      "subDomain": "6.4",
+      "title": "Standing advocacy in programme planning",
+      "prompt": "In your next programme-planning cycle, the volunteer function is being folded into 'programme delivery capacity' with no separate line for volunteer investment (recruitment, coordination, recognition, infrastructure). Advocate for what the volunteer function needs to remain healthy, without making it about you.",
+      "anchors": ["Rogelberg", "Brudney & Meijs (2019)", "Rehnborg", "Ellis"],
+      "levels": {
+        "Foundational": "Argues for more budget in general terms. S1.",
+        "Developing": "Argues from the volunteer function's importance in principle; doesn't tie to programme outcomes. S1.",
+        "Proficient": "Ties volunteer-function investment to programme outcomes the plan already commits to (without X of coordination capacity, retention falls, delivering Y% less of target); presents a small, decision-forcing line-item; separates overhead from effort honestly. S2.",
+        "Expert": "Names the pattern (volunteer-function investment absorbed into programme cost) as a governance risk; offers a light standing measure (annual volunteer-function health check); refuses to overstate volunteer economic-value figure. S3."
+      },
+      "relationalCategories": ["6.R4"],
+      "relationalLevels": {
+        "Foundational": "Advocacy framed as personal wanting.",
+        "Developing": "Argues for the function without noticing it reads as self-interested.",
+        "Proficient": "Recognises the 'your own budget' frame the argument sits in and disarms it explicitly.",
+        "Expert": "Makes the argument in a way that would still stand if the current PM left tomorrow."
+      },
+      "redFlags": [
+        {"id": "RF-PM4-a-S", "axis": "scope", "clause": "Overclaims volunteer economic value to win the argument.", "effect": "Uncorrected clear instance → red-flag cap on 6.4 (advocacy-overclaim; sibling of D4's impact-overclaim, advocacy side)."},
+        {"id": "RF-PM4-b-S", "axis": "scope", "clause": "Instrumentalises volunteers ('we get all this for free') to make the case.", "effect": "Uncorrected clear instance → red-flag cap on 6.4 (advocacy-that-degrades-what-it-defends)."},
+        {"id": "RF-PM4-c-R", "axis": "relational", "clause": "Frames the ask around personal reputation or workload.", "effect": "Uncorrected: caps 6.R4 at Proficient (self-serving disclosure)."}
+      ],
+      "scopeBoundary": "In-band."
+    },
+    {
+      "id": "D-1",
+      "band": "Director",
+      "subDomain": "6.1",
+      "title": "Volunteer ethics as governance framing",
+      "prompt": "Draft the two-paragraph section on volunteer ethics for the org's three-year plan, and defend it to a board member who wants 'the same ethics code we use for staff, applied consistently across the org.'",
+      "anchors": ["Ellis", "Studer & von Schnurbein", "Groble (2018)", "Rochester"],
+      "levels": {
+        "Foundational": "Generic language ('we treat volunteers with respect'); concedes to the board member. S1.",
+        "Developing": "Principled prose; concedes on the 'one code' instrument. S1.",
+        "Proficient": "Distinguishes ethical duties owed to volunteers as a distinct class (informed consent, fair treatment under power asymmetry, dignified exit, honest use of contribution and voice) from employment-ethics frame; concedes governance guardrails (safeguarding, equal treatment, complaint channel) without conceding the shared-code instrument. S2.",
+        "Expert": "Positions the volunteer-ethics section as a strategic asset; ties to org mission narrative; anchors in research literature; names a governance mechanism (annual review of coherence as part of programme review) that prevents HR-import drift. S3."
+      },
+      "relationalCategories": ["6.R1", "6.R6"],
+      "relationalLevels": {
+        "Foundational": "No view of relational-boundary practice as a governance concern.",
+        "Developing": "Includes a 'professional conduct' line without model.",
+        "Proficient": "Names dual-relationships and beneficiary-power practice as governance-owned, with a supervision channel.",
+        "Expert": "Treats relational-boundary infrastructure (disclosure routes, supervision, gift log) as part of the ethics section, not a soft add-on."
+      },
+      "redFlags": [
+        {"id": "RF-D1-a-S", "axis": "scope", "clause": "Imports the staff ethics code without adaptation.", "effect": "Uncorrected clear instance → red-flag cap on 6.1 (employee-mechanic import on ethics axis)."},
+        {"id": "RF-D1-b-R", "axis": "relational", "clause": "Treats relational-boundary practice as an individual-conduct question outside board oversight.", "effect": "Uncorrected: caps 6.R1 at Proficient (boundary-blindness at governance level)."}
+      ],
+      "scopeBoundary": "In-band."
+    },
+    {
+      "id": "D-2",
+      "band": "Director",
+      "subDomain": "6.2",
+      "title": "Equity as governance commitment",
+      "prompt": "The board's diversity data on volunteers shows the org's volunteers are 78% white, 71% over 55, and 68% female — in a service area whose beneficiary community is racially and generationally different. The chair wants to know if this is a problem and if so what the board should commit to.",
+      "anchors": ["Rotolo & Wilson", "Wilson", "Rochester", "Studer & von Schnurbein", "Ellis"],
+      "levels": {
+        "Foundational": "Says the volunteer base 'reflects who volunteers'; treats the gap as external. S1.",
+        "Developing": "Says the gap matters; proposes a targeted recruitment push; doesn't examine how the org filters. S1.",
+        "Proficient": "Frames the gap as a governance-level equity concern with two mechanisms — supply-side stratification and org-side design (shift times, language, role hierarchies, reflection); commits the board to concrete design changes on the second rather than only recruitment pushes on the first; accepts closing the gap is slow. S2.",
+        "Expert": "Names the risk of two governance failure modes: representation-not-belonging tokenism, and treating the gap as a communications problem rather than a role-architecture problem; commits the board to a standing equity review (not one-off audit). S3."
+      },
+      "relationalCategories": ["6.R2", "6.R4"],
+      "relationalLevels": {
+        "Foundational": "No view of relational boundaries as culture-level.",
+        "Developing": "Treats relational culture as a soft variable.",
+        "Proficient": "Recognises that a warm-but-monocultural volunteer culture reads to under-represented volunteers as exclusion by warmth (in-group ease is out-group signal); a boundary-calibration failure at culture level.",
+        "Expert": "Designs relational-boundary norms so they hold across demographic difference without asking under-represented volunteers to do the accommodation."
+      },
+      "redFlags": [
+        {"id": "RF-D2-a-S", "axis": "scope", "clause": "Treats the demographic gap as reflecting who 'wants to volunteer.'", "effect": "Uncorrected clear instance → red-flag cap on 6.2 (equity-blindness at governance level)."},
+        {"id": "RF-D2-b-R", "axis": "relational", "clause": "Assumes cultural warmth of the existing volunteer base is universally read as welcome.", "effect": "Uncorrected: caps 6.R2 at Proficient (calibration-by-in-group)."}
+      ],
+      "scopeBoundary": "In-band."
+    },
+    {
+      "id": "D-3",
+      "band": "Director",
+      "subDomain": "6.3",
+      "title": "Data ethics and the gift-and-conflict register at board level",
+      "prompt": "Legal counsel is asking for a volunteer gifts-and-conflicts register that the board can inspect. The Chief Executive wants a lighter touch: 'we can trust our people; don't create bureaucracy.' Position the two paragraphs of the annual report that address volunteer data ethics and the register.",
+      "anchors": ["Ellis", "Studer & von Schnurbein", "Sector volunteer-data guidance", "Groble & Brudney (2015)"],
+      "levels": {
+        "Foundational": "Sides with the CE; light-touch prose. S1.",
+        "Developing": "Compromises on a register that exists but is not really used; annual-report language is vague. S1.",
+        "Proficient": "Sets up the register as decision-support, not surveillance: light standing log of gifts above proportionate threshold, disclosed dual-relationships, conflicts of interest; accessible to the board through a summary, not a name-list; frames as protecting volunteers as much as the org; annual-report language explains via trust and protection, not audit. S2.",
+        "Expert": "Ties the register to broader data-ethics posture (proportion-to-purpose, sensitivity tiers, retention) and to the accountability–liability boundary from D4; refuses both extremes (heavy audit register; no register). S3."
+      },
+      "relationalCategories": ["6.R3", "6.R5"],
+      "relationalLevels": {
+        "Foundational": "Treats the register as a compliance object.",
+        "Developing": "Treats it as informal.",
+        "Proficient": "Treats it as boundary infrastructure that supports practitioners.",
+        "Expert": "Designs the register so a volunteer whose entry appears knows why and can see their own entry — confidentiality within the org, not from the volunteer."
+      },
+      "redFlags": [
+        {"id": "RF-D3-a-S", "axis": "scope", "clause": "Publishes named volunteer entries in the annual report without consent.", "effect": "Uncorrected clear instance → red-flag cap on 6.3 (consent-vacuum)."},
+        {"id": "RF-D3-b-R", "axis": "relational", "clause": "Designs the register so volunteers cannot see their own entry.", "effect": "Uncorrected clear instance → red-flag cap on 6.R5 (boundary-as-wall inverted — using confidentiality as opacity)."},
+        {"id": "RF-D3-c-R", "axis": "relational", "clause": "Treats the 'no register' position as a virtue signal of trusting volunteers.", "effect": "Uncorrected: caps 6.R3 at Proficient (boundary-blindness, exceptionalism-adjacent)."}
+      ],
+      "scopeBoundary": "Escalation-symmetry probe (Director band). Where a register entry surfaces a matter beyond board governance (e.g. suspected fraud), routing correctly to legal counsel and safeguarding is Proficient-level scope and relational escalation."
+    },
+    {
+      "id": "D-4",
+      "band": "Director",
+      "subDomain": "6.4",
+      "title": "Advocacy voice: org voice vs. beneficiary voice",
+      "prompt": "The org is preparing a public campaign on a policy issue that affects both the beneficiary community and the org's programmes. Volunteers have both direct experience (some are from the beneficiary community) and views. The Chief Executive wants a 'unified org voice.' Set the position on whose voice speaks in what part of the campaign.",
+      "anchors": ["Brudney & Meijs (2019)", "Ellis", "Studer & von Schnurbein", "Rogelberg"],
+      "levels": {
+        "Foundational": "Adopts the 'unified org voice'; volunteers recruited to endorse the org line. S1.",
+        "Developing": "Acknowledges the tension; volunteers are quoted where convenient. S1.",
+        "Proficient": "Separates three voices explicitly: org's institutional voice; beneficiary community's voice (not for the org to speak on their behalf); volunteer function's voice; sets consent gates for each; refuses to have volunteers front the campaign as if they were beneficiaries or as if the community had endorsed the org line. S2.",
+        "Expert": "Positions advocacy voice architecture as a governance question, not a communications question; sets a standing rule the board owns; accepts the campaign may be less punchy for it and treats that as a legitimate ethics cost. S3."
+      },
+      "relationalCategories": ["6.R4"],
+      "relationalLevels": {
+        "Foundational": "Collapses volunteers' personal experience into org marketing.",
+        "Developing": "Asks volunteers to share stories case-by-case without a standing frame.",
+        "Proficient": "Treats each volunteer's disclosure decision as their own, disaggregated from org strategy.",
+        "Expert": "Designs the advocacy structure so relational-boundary practice at the volunteer/beneficiary interface is preserved through the campaign, not eroded by it."
+      },
+      "redFlags": [
+        {"id": "RF-D4-a-S", "axis": "scope", "clause": "Uses volunteers as unpaid endorsement labour for an org policy position.", "effect": "Uncorrected clear instance → red-flag cap on 6.4 (advocacy-as-co-optation)."},
+        {"id": "RF-D4-b-S", "axis": "scope", "clause": "Aggregates beneficiary voice through volunteer channels without beneficiary consent.", "effect": "Uncorrected clear instance → red-flag cap on 6.4 (voice-arrogation)."},
+        {"id": "RF-D4-c-R", "axis": "relational", "clause": "Pressures volunteers to disclose personal experience for campaign use ('we really need your story').", "effect": "Uncorrected clear instance → red-flag cap on 6.R4 (self-disclosure serving the org, not the volunteer)."}
+      ],
+      "scopeBoundary": "In-band. Director-owned because it requires policy authority, board-facing communication, and voice-architecture design in the same move."
+    }
+  ]
+}

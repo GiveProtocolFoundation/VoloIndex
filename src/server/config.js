@@ -1,9 +1,11 @@
 /**
- * Volo Index — Server Configuration (T2-A)
+ * Volo Index — Server Configuration (T2-A + T2-C auth)
  *
  * Environment-based configuration. All secrets come from env vars.
  * See .env.example for the full list.
  */
+
+import { randomBytes } from 'node:crypto';
 
 const requiredInProduction = (key) => {
   const val = process.env[key];
@@ -12,6 +14,11 @@ const requiredInProduction = (key) => {
   }
   return val;
 };
+
+// Dev-only fallback secret — production MUST set JWT_SECRET env var
+const devJwtSecret = process.env.NODE_ENV === 'production'
+  ? undefined
+  : (process.env.JWT_SECRET || 'dev-jwt-secret-do-not-use-in-prod');
 
 export const config = {
   env: process.env.NODE_ENV || 'development',
@@ -27,6 +34,17 @@ export const config = {
 
   // ── Anthropic (for LLM adapter) ──────────────────────────────────
   anthropicApiKey: requiredInProduction('ANTHROPIC_API_KEY'),
+
+  // ── Auth (T2-C) ───────────────────────────────────────────────────
+  auth: {
+    jwtSecret: requiredInProduction('JWT_SECRET') || devJwtSecret,
+    jwtTtlSeconds: parseInt(process.env.JWT_TTL_SECONDS || '86400', 10),        // 24 hours
+    magicLinkTtlMinutes: parseInt(process.env.MAGIC_LINK_TTL_MINUTES || '30', 10), // 30 min
+    baseUrl: process.env.AUTH_BASE_URL || '',                                    // e.g. https://voloindex.org
+    internalKey: process.env.INTERNAL_API_KEY || randomBytes(32).toString('hex'), // server-only endpoints
+    emailProvider: process.env.EMAIL_PROVIDER || '',                              // 'postmark' | 'sendgrid' | '' (console)
+    sendEmail: null,                                                              // plugged at startup if emailProvider set
+  },
 
   // ── Rate limiting ────────────────────────────────────────────────
   rateLimit: {

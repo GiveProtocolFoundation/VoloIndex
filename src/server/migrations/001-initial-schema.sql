@@ -112,13 +112,17 @@ CREATE INDEX idx_publication_queue_status ON publication_queue(status);
 
 -- ── Schema version tracking ────────────────────────────────────────────
 
-CREATE TABLE schema_migrations (
+-- IF NOT EXISTS: migrate.js pre-creates this table (ensureMigrationsTable)
+-- before applying any migration; without it, this statement aborts the
+-- whole transaction on a fresh database (GIV-627 staging smoke finding).
+CREATE TABLE IF NOT EXISTS schema_migrations (
   version     INTEGER PRIMARY KEY,
   name        TEXT NOT NULL,
   applied_at  TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
 INSERT INTO schema_migrations (version, name)
-VALUES (1, '001-initial-schema');
+VALUES (1, '001-initial-schema')
+ON CONFLICT (version) DO NOTHING;
 
 COMMIT;

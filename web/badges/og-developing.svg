@@ -1,0 +1,50 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 627" width="1200" height="627" role="img" aria-label="Volo Index Developing Certificate — Open Graph card">
+  <!-- Background -->
+  <rect width="1200" height="627" fill="#fdf8f2"/>
+  <!-- Left accent bar -->
+  <rect x="0" y="0" width="6" height="627" fill="#cd8a4f"/>
+
+  <!-- Decorative background arcs -->
+  <circle cx="300" cy="330" r="260" fill="none" stroke="#cd8a4f" stroke-width="0.8" opacity="0.07"/>
+  <circle cx="300" cy="330" r="210" fill="none" stroke="#cd8a4f" stroke-width="0.8" opacity="0.07"/>
+
+  <!-- Volo arcs (center: 300, 330) -->
+  <!-- Outer arc: radius 170 -->
+  <path d="M130 330 A170 170 0 0 1 470 330" fill="none" stroke="#e0d4c0" stroke-width="26" stroke-linecap="round"/>
+  <!-- Mid arc: radius 113 -->
+  <path d="M187 330 A113 113 0 0 1 413 330" fill="none" stroke="#cd8a4f" stroke-width="26" stroke-linecap="round"/>
+  <!-- Inner arc: radius 57 -->
+  <path d="M243 330 A57 57 0 0 1 357 330" fill="none" stroke="#cd8a4f" stroke-width="26" stroke-linecap="round"/>
+  <!-- Center dot -->
+  <circle cx="300" cy="330" r="17" fill="#cd8a4f"/>
+
+  <!-- Vertical divider -->
+  <line x1="545" y1="80" x2="545" y2="547" stroke="#cd8a4f" stroke-width="0.8" opacity="0.2"/>
+
+  <!-- Right text block -->
+  <text x="596" y="148"
+        font-family="Helvetica Neue, Helvetica, Arial, sans-serif"
+        font-size="14" font-weight="700" letter-spacing="5" fill="#8a5e30">VOLO INDEX</text>
+
+  <text x="596" y="218"
+        font-family="Helvetica Neue, Helvetica, Arial, sans-serif"
+        font-size="36" font-weight="800" fill="#2c1d13">Certificate of</text>
+  <text x="596" y="268"
+        font-family="Helvetica Neue, Helvetica, Arial, sans-serif"
+        font-size="36" font-weight="800" fill="#2c1d13">Assessed Competency</text>
+
+  <!-- Tier name -->
+  <text x="596" y="370"
+        font-family="Helvetica Neue, Helvetica, Arial, sans-serif"
+        font-size="60" font-weight="900" fill="#cd8a4f">Developing</text>
+
+  <text x="596" y="428"
+        font-family="Helvetica Neue, Helvetica, Arial, sans-serif"
+        font-size="20" fill="#8a5e30">Volunteer Leadership Assessment</text>
+
+  <line x1="596" y1="462" x2="1155" y2="462" stroke="#cd8a4f" stroke-width="0.8" opacity="0.3"/>
+
+  <text x="596" y="492"
+        font-family="Helvetica Neue, Helvetica, Arial, sans-serif"
+        font-size="13" fill="#8a5e30" opacity="0.75">Give Protocol Foundation · voloindex.org</text>
+</svg>
