@@ -32,10 +32,13 @@ import certificateRoutes from './routes/certificates.js'; // T2-D auth
 
 // ── App factory ───────────────────────────────────────────────────────
 
-export function createApp({ transcriptStore } = {}) {
+export function createApp({ transcriptStore, llmAdapterFactory } = {}) {
   const app = express();
 
-  const webDir = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../../web');
+  // ── Dependency injection for testability ──────────────────────────
+  if (llmAdapterFactory) {
+    app.locals.llmAdapterFactory = llmAdapterFactory;
+  }
 
   // ── Global middleware ─────────────────────────────────────────────
   app.use(helmet());
