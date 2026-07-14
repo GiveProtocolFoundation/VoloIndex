@@ -63,10 +63,13 @@ Health gate: Fly checks `/api/health` — 200 `healthy` requires a live DB (`SEL
 ## 5. Local staging-parity smoke
 
 ```
-ANTHROPIC_API_KEY=<staging-key> docker compose -f deploy/docker-compose.staging.yml up --build
+export ANTHROPIC_API_KEY=<staging-key> JWT_SECRET=$(openssl rand -hex 32)   # JWT_SECRET required since T2-C
+docker compose -f deploy/docker-compose.staging.yml up --build -d
 docker compose -f deploy/docker-compose.staging.yml run --rm app node src/server/migrate.js
-curl -s http://localhost:3000/api/health   # {"status":"healthy",...}
+curl -s http://localhost:3000/api/health   # {"status":"healthy","rubricVersion":"1.2","assessmentEngineEnabled":true,"db":"connected",...}
 ```
+
+Last verified 2026-07-14 (GIV-627): fresh build, migrate ×2 idempotent (11 tables), health 200, `/api/publication/*` guard 403 unauthenticated.
 
 ## 6. Production cutover (domain confirmed: `voloindex.org` — GIV-641)
 
