@@ -75,11 +75,15 @@ export function createApp({ transcriptStore, llmAdapterFactory } = {}) {
     try {
       const { certId } = req.params;
 
-      // Fetch cert for SSR (LinkedIn's crawler needs populated OG in the raw HTML)
-      const { rows } = await query(
-        `SELECT holder_name, overall_tier, id FROM certificates WHERE id = $1 AND revoked_at IS NULL`,
-        [certId],
-      );
+      // Guard: certificates.id is a Postgres uuid — a malformed param would
+      // throw "invalid input syntax for type uuid" (observed as a 500 on
+      // staging). Malformed IDs get the same placeholder page as unknown IDs.
+      const { rows } = isUuid(certId)
+        ? await query(
+            `SELECT holder_name, overall_tier, id FROM certificates WHERE id = $1 AND revoked_at IS NULL`,
+            [certId],
+          )
+        : { rows: [] };
 
       let html = credentialHtml;
 
@@ -118,6 +122,12 @@ export function createApp({ transcriptStore, llmAdapterFactory } = {}) {
   app.use(errorHandler);
 
   return app;
+}
+
+/** Loose RFC-4122 shape check — enough to keep non-uuid strings out of a Postgres uuid cast. */
+export function isUuid(str) {
+  return typeof str === 'string'
+    && /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(str);
 }
 
 /**

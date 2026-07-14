@@ -9,7 +9,7 @@
 
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { injectOGMeta, escAttr } from '../../src/server/index.js';
+import { injectOGMeta, escAttr, isUuid } from '../../src/server/index.js';
 import { buildOGMeta } from '../../src/web/sharing.js';
 
 const TEMPLATE = `<!doctype html><html><head>
@@ -56,6 +56,14 @@ test('replacement $` and $& patterns are inert', () => {
 test('escAttr escapes quote, angle brackets, ampersand', () => {
   assert.equal(escAttr('a"b<c>d&e'), 'a&quot;b&lt;c&gt;d&amp;e');
   assert.equal(escAttr(null), '');
+});
+
+test('isUuid gates the /credential/:certId DB lookup (uuid-cast 500 guard)', () => {
+  assert.ok(isUuid('00000000-0000-4000-8000-000000000000'));
+  assert.ok(isUuid('A3BB189E-8BF9-3888-9912-ACE4E6543002')); // case-insensitive
+  for (const bad of ['nonexistent', 'abc', '', "1' OR '1'='1", '00000000-0000-4000-8000-00000000000', null, undefined, 42]) {
+    assert.equal(isUuid(bad), false, `expected non-uuid: ${String(bad)}`);
+  }
 });
 
 test('holder name with quotes cannot break out of the attribute', () => {
