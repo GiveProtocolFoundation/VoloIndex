@@ -6,6 +6,7 @@
  */
 
 import { randomBytes } from 'node:crypto';
+import { readFileSync } from 'node:fs';
 
 const requiredInProduction = (key) => {
   const val = process.env[key];
@@ -13,6 +14,33 @@ const requiredInProduction = (key) => {
     throw new Error(`Missing required env var: ${key}`);
   }
   return val;
+};
+
+/**
+ * DB TLS config from DB_SSL:
+ *   - 'false' / unset → no TLS (local dev)
+ *   - 'true'          → TLS with certificate verification (rejectUnauthorized: true).
+ *                       Neon/managed Postgres certs chain to public CAs in Node's
+ *                       bundled store; set DB_SSL_CA (PEM file path or inline PEM)
+ *                       for a private CA.
+ *   - 'no-verify'     → TLS without verification. Dev/debug ONLY — refused in production.
+ */
+const dbSslConfig = () => {
+  const mode = process.env.DB_SSL || 'false';
+  if (mode === 'false' || mode === '') return false;
+  if (mode === 'no-verify') {
+    if (process.env.NODE_ENV === 'production') {
+      throw new Error('DB_SSL=no-verify is not allowed in production — use DB_SSL=true (CA-verified)');
+    }
+    return { rejectUnauthorized: false };
+  }
+  // 'true' (and any other truthy value) → verified TLS
+  const ssl = { rejectUnauthorized: true };
+  const ca = process.env.DB_SSL_CA;
+  if (ca) {
+    ssl.ca = ca.includes('-----BEGIN') ? ca : readFileSync(ca, 'utf8');
+  }
+  return ssl;
 };
 
 // Dev-only fallback secret — production MUST set JWT_SECRET env var
@@ -29,7 +57,7 @@ export const config = {
     connectionString: process.env.DATABASE_URL || 'postgresql://localhost:5432/voloindex',
     max: parseInt(process.env.DB_POOL_MAX || '20', 10),
     idleTimeoutMillis: parseInt(process.env.DB_IDLE_TIMEOUT || '30000', 10),
-    ssl: process.env.DB_SSL === 'true' ? { rejectUnauthorized: false } : false,
+    ssl: dbSslConfig(),
   },
 
   // ── Anthropic (for LLM adapter) ──────────────────────────────────

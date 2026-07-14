@@ -34,6 +34,7 @@ import certificateRoutes from './routes/certificates.js'; // T2-D auth
 
 export function createApp({ transcriptStore, llmAdapterFactory } = {}) {
   const app = express();
+  const webDir = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../../web');
 
   // ── Dependency injection for testability ──────────────────────────
   if (llmAdapterFactory) {

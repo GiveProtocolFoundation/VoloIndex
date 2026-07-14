@@ -70,7 +70,7 @@ async function mockQuery(text, params) {
 }
 
 await mock.module('../../src/server/db.js', {
-  exports: {
+  namedExports: {
     query: mockQuery,
     withTransaction: async (fn) => fn({ query: mockQuery }),
     pool: { query: mockQuery, on: () => {}, end: async () => {} },
@@ -81,13 +81,20 @@ await mock.module('../../src/server/db.js', {
 const { createApp } = await import('../../src/server/index.js');
 const { MockLlmAdapter } = await import('../../src/assessment/llm-adapter.js');
 const { getActiveSessions, unregisterController } = await import('../../src/server/routes/chat.js');
+const { createAccessToken } = await import('../../src/server/auth/jwt.js');
 
 // ── Helpers ───────────────────────────────────────────────────────────
+
+// Session routes are auth-gated (requireAuth + ownership); mint a token for
+// the mocked session owner using the dev fallback secret.
+const AUTH = {
+  Authorization: `Bearer ${createAccessToken({ id: 'test-user-id', email: 'test@example.com' }, 'dev-jwt-secret-do-not-use-in-prod')}`,
+};
 
 function req(server, method, path, body) {
   return new Promise((resolve, reject) => {
     const { port } = server.address();
-    const r = http.request({ hostname: '127.0.0.1', port, path, method, headers: { 'Content-Type': 'application/json' } }, (res) => {
+    const r = http.request({ hostname: '127.0.0.1', port, path, method, headers: { 'Content-Type': 'application/json', ...AUTH } }, (res) => {
       let d = '';
       res.on('data', c => { d += c; });
       res.on('end', () => { try { resolve({ status: res.statusCode, body: d ? JSON.parse(d) : null }); } catch { resolve({ status: res.statusCode, body: d }); } });
@@ -101,7 +108,7 @@ function req(server, method, path, body) {
 function openSSE(server, path) {
   return new Promise((resolve) => {
     const { port } = server.address();
-    const clientReq = http.get({ hostname: '127.0.0.1', port, path, headers: { Accept: 'text/event-stream' } }, (res) => {
+    const clientReq = http.get({ hostname: '127.0.0.1', port, path, headers: { Accept: 'text/event-stream', ...AUTH } }, (res) => {
       const events = [];
       let buf = '';
       res.on('data', chunk => {

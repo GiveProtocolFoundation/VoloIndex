@@ -221,7 +221,7 @@ async function mockQuery(text, params) {
 }
 
 await mock.module('../../src/server/db.js', {
-  exports: {
+  namedExports: {
     query: mockQuery,
     withTransaction: async (fn) => fn({ query: mockQuery }),
     pool: { query: mockQuery, on: () => {}, end: async () => {} },
