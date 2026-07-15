@@ -19,7 +19,8 @@ if (sentryEnabled) {
   Sentry.init({
     dsn,
     release: process.env.RELEASE_SHA || 'unknown',
-    environment: process.env.NODE_ENV || 'development',
+    // SENTRY_ENVIRONMENT distinguishes staging from prod (both run NODE_ENV=production).
+    environment: process.env.SENTRY_ENVIRONMENT || process.env.NODE_ENV || 'development',
 
     // Keep breadcrumbs but strip request bodies (may contain transcript PII).
     beforeSend(event) {

@@ -15,6 +15,7 @@ primary_region = "iad"
 
 [env]
   NODE_ENV = "production"
+  SENTRY_ENVIRONMENT = "production"
   PORT = "3000"
   DB_SSL = "true"
   # Confirmed apex (GIV-641) — enable at cutover (runbook §6 step 4), once

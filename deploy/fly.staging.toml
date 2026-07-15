@@ -13,6 +13,7 @@ primary_region = "iad"
 
 [env]
   NODE_ENV = "production"      # staging runs production code paths; staging-ness is in the data/keys
+  SENTRY_ENVIRONMENT = "staging"  # keeps staging events separable from prod in Sentry
   PORT = "3000"
   DB_SSL = "true"
   # CORS_ORIGINS set via fly.toml env once staging hostname known, e.g.:
