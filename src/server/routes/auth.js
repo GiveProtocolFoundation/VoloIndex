@@ -107,7 +107,7 @@ router.get('/verify', (req, res) => {
     if(!r.ok){show(d.error?.message||'Verification failed.');return;}
     localStorage.setItem('volo-access-token',d.accessToken);
     document.getElementById('status').textContent='Success! Redirecting…';
-    setTimeout(()=>{location.href='/';},500);
+    setTimeout(()=>{location.href='/app';},500);
   }catch(e){show('Network error — please try again.');}
 })();
 function show(msg){const el=document.getElementById('error');el.textContent=msg;el.style.display='block';document.getElementById('status').textContent='Something went wrong.';}

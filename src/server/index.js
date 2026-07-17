@@ -38,7 +38,8 @@ import certificateRoutes from './routes/certificates.js'; // T2-D auth
 
 export function createApp({ transcriptStore, llmAdapterFactory } = {}) {
   const app = express();
-  const webDir = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../../web');
+  const rootDir = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..');
+  const webDir = path.resolve(rootDir, 'web');
 
   // ── Dependency injection for testability ──────────────────────────
   if (llmAdapterFactory) {
@@ -126,15 +127,29 @@ export function createApp({ transcriptStore, llmAdapterFactory } = {}) {
     maxAge: '7d',
   }));
 
+  // ── Original landing page assets ──────────────────────────────────
+  // The root index.html references Assets/ for favicons.
+  app.use('/Assets', express.static(path.join(rootDir, 'Assets'), {
+    maxAge: '7d',
+  }));
+
   // ── QA review UI (internal) ─────────────────────────────────────
   app.get('/qa/review', (_req, res) => {
     res.sendFile(path.join(webDir, 'qa-review.html'));
   });
 
-  // ── Assessment SPA entry point ────────────────────────────────────
-  // GET / serves the T2-B assessment web app. The SPA self-selects
-  // ?mode=prod when userId is present; defaults to mock for demos.
+  // ── Landing page (original, unauthenticated visitors) ────────────
+  // GET / restores the original Volo Index landing page (index.html at
+  // project root). This was the page before GIV-699 replaced it with
+  // the assessment SPA.
   app.get('/', (_req, res) => {
+    res.sendFile(path.join(rootDir, 'index.html'));
+  });
+
+  // ── Assessment SPA (authenticated users after magic-link) ─────────
+  // GET /app serves the T2-B assessment web app. Auth flow redirects
+  // here after /auth/verify so authenticated users get the real SPA.
+  app.get('/app', (_req, res) => {
     res.sendFile(path.join(webDir, 'app.html'));
   });
 
