@@ -46,7 +46,16 @@ export function createApp({ transcriptStore, llmAdapterFactory } = {}) {
   }
 
   // ── Global middleware ─────────────────────────────────────────────
-  app.use(helmet());
+  // CSP: allow inline scripts for the assessment SPA (app.html ships one
+  // self-contained <script> block). All other helmet defaults are preserved.
+  app.use(helmet({
+    contentSecurityPolicy: {
+      directives: {
+        ...helmet.contentSecurityPolicy.getDefaultDirectives(),
+        'script-src': ["'self'", "'unsafe-inline'"],
+      },
+    },
+  }));
   app.use(cors({ origin: config.corsOrigins }));
   app.use(express.json({ limit: '1mb' }));
   app.use(apiLimiter);
@@ -120,6 +129,13 @@ export function createApp({ transcriptStore, llmAdapterFactory } = {}) {
   // ── QA review UI (internal) ─────────────────────────────────────
   app.get('/qa/review', (_req, res) => {
     res.sendFile(path.join(webDir, 'qa-review.html'));
+  });
+
+  // ── Assessment SPA entry point ────────────────────────────────────
+  // GET / serves the T2-B assessment web app. The SPA self-selects
+  // ?mode=prod when userId is present; defaults to mock for demos.
+  app.get('/', (_req, res) => {
+    res.sendFile(path.join(webDir, 'app.html'));
   });
 
   // ── Error handler (must be last) ──────────────────────────────────
