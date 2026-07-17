@@ -6,8 +6,8 @@ node_modules
 test
 tests
 docs
-Assets
-index.html
+Assets/README.md
+Assets/test
 *.md
 .pc_env.tmp
 deploy

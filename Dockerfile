@@ -18,6 +18,10 @@ COPY package.json ./
 COPY src ./src
 COPY web ./web
 COPY content ./content
+# GIV-701: GET / serves the original landing page (root index.html) and its
+# /Assets favicons (see src/server/index.js). They must ship in the image.
+COPY index.html ./
+COPY Assets ./Assets
 
 # Run as non-root
 USER node
