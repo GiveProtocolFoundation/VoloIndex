@@ -48,12 +48,14 @@ export function createApp({ transcriptStore, llmAdapterFactory } = {}) {
 
   // ── Global middleware ─────────────────────────────────────────────
   // CSP: allow inline scripts for the assessment SPA (app.html ships one
-  // self-contained <script> block). All other helmet defaults are preserved.
+  // self-contained <script> block). Landing page loads Google Fonts.
   app.use(helmet({
     contentSecurityPolicy: {
       directives: {
         ...helmet.contentSecurityPolicy.getDefaultDirectives(),
         'script-src': ["'self'", "'unsafe-inline'"],
+        'style-src': ["'self'", "'unsafe-inline'", 'https://fonts.googleapis.com'],
+        'font-src': ["'self'", 'https://fonts.gstatic.com'],
       },
     },
   }));
