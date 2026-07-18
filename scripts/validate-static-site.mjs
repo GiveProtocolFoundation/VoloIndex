@@ -83,6 +83,10 @@ for (const match of html.matchAll(/\ssrcset\s*=\s*'([^']+)'/gi)) {
   }
 }
 
+// Server routes that are NOT static files on disk — the Express app serves
+// these dynamically, so they should not be validated as local asset paths.
+const KNOWN_ROUTES = ['/app', '/api', '/auth', '/credential', '/badges', '/qa'];
+
 let localRefCount = 0;
 let missingRefCount = 0;
 for (const raw of refs) {
@@ -97,10 +101,13 @@ for (const raw of refs) {
   if (/^[a-z][a-z0-9+.-]*:\/\//i.test(ref)) continue; // http(s):// etc.
   if (ref.startsWith('//')) continue; // protocol-relative external
 
-  localRefCount++;
   // Strip query/hash before resolving.
   const cleaned = ref.split('#')[0].split('?')[0];
   if (!cleaned) continue;
+  // Skip known server routes (not static files on disk).
+  if (KNOWN_ROUTES.some(r => cleaned === r || cleaned.startsWith(r + '/'))) continue;
+
+  localRefCount++;
   // Only accept references anchored at repo root or relative to index.html.
   const abs = normalize(join(repoRoot, cleaned));
   if (!abs.startsWith(repoRoot)) {
