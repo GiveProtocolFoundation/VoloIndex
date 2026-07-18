@@ -494,6 +494,42 @@
       opacity: .85;
     }
 
+    /* ── User info bar (prod mode) ── */
+    .user-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      max-width: 460px;
+      width: 100%;
+      font-size: 13px;
+      color: var(--muted);
+    }
+    .user-bar .user-email { font-weight: 500; color: var(--text); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .user-bar .btn-signout {
+      background: none; border: none;
+      color: var(--muted); font-size: 12px;
+      cursor: pointer; padding: 0; font-family: inherit;
+      text-decoration: underline; text-underline-offset: 2px;
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+    .user-bar .btn-signout:hover { color: var(--text); }
+
+    /* ── Credits display ── */
+    .credits-row { font-size: 13px; color: var(--muted); margin-bottom: 18px; }
+    .credits-row .credits-icon { color: var(--secondary); margin-right: 4px; }
+    .credits-error {
+      background: #fdecea;
+      border-radius: 8px;
+      padding: 12px 14px;
+      font-size: 13px;
+      color: #c0392b;
+      margin-top: 14px;
+      display: none;
+      line-height: 1.5;
+    }
+
     /* ── Demo banner ── */
     .demo-banner {
       position: fixed;
@@ -524,9 +560,20 @@
     <div class="logo-name">Volo Index</div>
   </div>
 
+  <!-- Signed-in user bar (shown in prod mode only — populated by JS) -->
+  <div id="user-bar" class="user-bar" style="display:none">
+    <span class="user-email" id="user-email-display"></span>
+    <button class="btn-signout" id="btn-signout">Sign out</button>
+  </div>
+
   <div class="start-card">
     <h1>Volunteer Leadership Assessment</h1>
     <p class="desc">A structured, AI-mediated assessment of your volunteer management competencies across six practice dimensions. Estimated time: 25–35 minutes.</p>
+
+    <!-- Credit balance (shown when credits API is live — child B GIV-705) -->
+    <div id="credits-row" class="credits-row" style="display:none">
+      <span class="credits-icon">●</span><span id="credits-text"></span>
+    </div>
 
     <div class="field">
       <label for="name-input">Your name</label>
@@ -534,6 +581,12 @@
     </div>
 
     <button id="btn-start" class="btn-primary">Begin Assessment</button>
+
+    <!-- 402 insufficient_credits error (child C purchase page not yet live) -->
+    <div id="credits-error" class="credits-error">
+      Credits are required to start an evaluation. Please contact support to add credits to your account.
+    </div>
+
     <p class="start-footnote">Practice mode coming soon — try one dimension without scoring</p>
   </div>
 </div>
@@ -675,16 +728,45 @@
 
 // ── Mode selection ───────────────────────────────────────────────────────────
 //
-// ?mode=mock   Browser-side simulation, no server (default for demos)
-// ?mode=dev    Dev server (node src/web/dev-server.js) — simple long-poll API
-// ?mode=prod   T2-A production server — SSE-based, requires userId URL param
-//              e.g. ?mode=prod&userId=550e8400-...
+// ?mode=mock   Browser-side simulation, no server (for demos — skips auth)
+// ?mode=dev    Dev server (node src/web/dev-server.js) — skips auth
+// (no param)   Production mode — requires JWT in localStorage
 //
-// No param → defaults to 'mock' so the page works out of the box.
+// Auth gating: prod mode (no ?mode= param) checks localStorage for a valid
+// JWT and redirects to /login if none is found or it is expired.
 
-const PARAMS    = new URLSearchParams(location.search);
-const APP_MODE  = PARAMS.get('mode') ?? 'mock';
-const MOCK_MODE = APP_MODE === 'mock';   // back-compat for demo banner
+const PARAMS   = new URLSearchParams(location.search);
+const APP_MODE = PARAMS.get('mode') ?? 'prod';
+const MOCK_MODE = APP_MODE === 'mock';  // back-compat for demo banner
+
+// ── JWT helpers ──────────────────────────────────────────────────────────────
+
+function decodeJwtPayload(token) {
+  try {
+    const b64 = token.split('.')[1];
+    if (!b64) return null;
+    return JSON.parse(atob(b64.replace(/-/g, '+').replace(/_/g, '/')));
+  } catch { return null; }
+}
+
+// ── Auth gating (prod mode only) ─────────────────────────────────────────────
+
+const ACCESS_TOKEN = localStorage.getItem('volo-access-token');
+const JWT_PAYLOAD  = ACCESS_TOKEN ? decodeJwtPayload(ACCESS_TOKEN) : null;
+
+if (APP_MODE === 'prod') {
+  if (!ACCESS_TOKEN || !JWT_PAYLOAD) {
+    location.replace('/login');
+  } else if (JWT_PAYLOAD.exp && JWT_PAYLOAD.exp < Math.floor(Date.now() / 1000)) {
+    localStorage.removeItem('volo-access-token');
+    location.replace('/login');
+  }
+}
+
+function signOut() {
+  localStorage.removeItem('volo-access-token');
+  location.replace('/login');
+}
 
 // ── Constants ────────────────────────────────────────────────────────────────
 
@@ -967,28 +1049,34 @@ class DevApiClient {
   }
 }
 
-// ── T2aApiClient: SSE-based T2-A production API ───────────────────────────────
+// ── T2aApiClient: SSE-based production API (GIV-706: JWT auth) ───────────────
 //
-// Wraps T2-A's SSE stream in Promises so the flow controller stays unchanged.
+// Uses the JWT from localStorage for Bearer auth on all API calls.
+// EventSource (SSE stream) cannot set headers, so the token is passed
+// as ?token= query param; requireAuth on the server accepts either form.
 //
-// Pending T2-A work (GIV-621):
-//   POST /api/sessions/:id/start must instantiate ChatInterviewController
-//   and wire its 'question' events to the SSE listeners. Until then,
-//   questions won't arrive and this client will time out.
-//
-// Pending T2-C work (GIV-623):
-//   POST /api/sessions requires userId (an authenticated user record).
-//   For early integration testing, pass ?userId=<uuid> in the URL.
+// 401 → session expired: clears token and redirects to /login.
+// 402 → insufficient credits: returns { state: 'insufficient_credits' }.
 
 class T2aApiClient {
-  constructor(userId) {
-    if (!userId) throw new Error('T2aApiClient requires a userId (pass ?userId=<uuid> in URL). Requires T2-C auth.');
-    this._userId = userId;
-    this._sse    = null;  // EventSource per session
-    // Promise plumbing for question delivery via SSE
-    this._questionBuf  = [];
-    this._pendingFn    = null;
-    this._terminal     = false;
+  constructor() {
+    this._token       = ACCESS_TOKEN;
+    this._sse         = null;
+    this._questionBuf = [];
+    this._pendingFn   = null;
+    this._terminal    = false;
+  }
+
+  _authHeaders() {
+    return {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${this._token}`,
+    };
+  }
+
+  _handleUnauth() {
+    localStorage.removeItem('volo-access-token');
+    location.replace('/login');
   }
 
   // Bridge SSE events → Promise so the flow controller stays unchanged
@@ -1015,39 +1103,42 @@ class T2aApiClient {
   }
 
   async createSession(candidateName) {
-    // T2-A: POST /api/sessions { userId }
     const r = await fetch('/api/sessions', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ userId: this._userId }),
+      headers: this._authHeaders(),
+      body: JSON.stringify({ candidateName }),
     });
-    if (!r.ok) throw new Error(`T2-A error ${r.status}: ${await r.text()}`);
+    if (r.status === 401) { this._handleUnauth(); throw new Error('Session expired'); }
+    if (r.status === 402) return { sessionId: null, state: 'insufficient_credits' };
+    if (!r.ok) throw new Error(`Server error ${r.status}: ${await r.text()}`);
     const { session } = await r.json();
-    // Open SSE stream
-    this._sse = new EventSource(`/api/sessions/${session.id}/stream`);
+    // EventSource cannot set headers — pass token as query param (server accepts both)
+    this._sse = new EventSource(`/api/sessions/${session.id}/stream?token=${encodeURIComponent(this._token)}`);
     this._sse.addEventListener('interviewerTurn', (e) => {
       const data = JSON.parse(e.data);
       this._onSseQuestion({ question: data.content, dimension: data.dimension });
     });
-    this._sse.addEventListener('end', () => this._onSseQuestion(null));
+    this._sse.addEventListener('end',   () => this._onSseQuestion(null));
     this._sse.addEventListener('error', () => this._onSseQuestion(null));
     return { sessionId: session.id, state: 'consent_pending' };
   }
 
   async grantConsent(sessionId, grant = true) {
-    // T2-A: POST /api/sessions/:id/consent { granted }
     const r = await fetch(`/api/sessions/${sessionId}/consent`, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: this._authHeaders(),
       body: JSON.stringify({ granted: grant }),
     });
-    if (!r.ok) throw new Error(`T2-A error ${r.status}: ${await r.text()}`);
+    if (r.status === 401) { this._handleUnauth(); throw new Error('Session expired'); }
+    if (!r.ok) throw new Error(`Server error ${r.status}: ${await r.text()}`);
     if (!grant) return { state: 'abandoned', question: null, dimension: null };
-    // T2-A: POST /api/sessions/:id/start (triggers ChatInterviewController on server)
+    // POST /api/sessions/:id/start triggers ChatInterviewController on server
     const r2 = await fetch(`/api/sessions/${sessionId}/start`, {
-      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      method: 'POST',
+      headers: this._authHeaders(),
     });
-    if (!r2.ok) throw new Error(`T2-A start error ${r2.status}: ${await r2.text()}`);
+    if (r2.status === 401) { this._handleUnauth(); throw new Error('Session expired'); }
+    if (!r2.ok) throw new Error(`Start error ${r2.status}: ${await r2.text()}`);
     // First question arrives via SSE interviewerTurn event
     const q = await this._waitForSseQuestion();
     if (!q) return { state: 'abandoned', question: null, dimension: null };
@@ -1055,18 +1146,17 @@ class T2aApiClient {
   }
 
   async submitTurn(sessionId, response) {
-    // T2-A: POST /api/sessions/:id/respond { text }
     const r = await fetch(`/api/sessions/${sessionId}/respond`, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: this._authHeaders(),
       body: JSON.stringify({ text: response }),
     });
-    if (!r.ok) throw new Error(`T2-A error ${r.status}: ${await r.text()}`);
+    if (r.status === 401) { this._handleUnauth(); throw new Error('Session expired'); }
+    if (!r.ok) throw new Error(`Server error ${r.status}: ${await r.text()}`);
     // Next question (or end) arrives via SSE
     const q = await this._waitForSseQuestion();
     if (!q) {
       if (this._sse) { this._sse.close(); this._sse = null; }
-      // Fetch score from results endpoint
       const score = await this._fetchScore(sessionId);
       return { state: 'completed', question: null, dimension: null, score };
     }
@@ -1075,10 +1165,12 @@ class T2aApiClient {
 
   async _fetchScore(sessionId) {
     try {
-      const r = await fetch(`/api/results/${sessionId}`);
+      const r = await fetch(`/api/results/${sessionId}`, {
+        headers: { 'Authorization': `Bearer ${this._token}` },
+      });
+      if (r.status === 401) { this._handleUnauth(); throw new Error('Session expired'); }
       if (!r.ok) return null;
       const { result } = await r.json();
-      // Reshape T2-A result → T2-B display contract
       const dimScores = result.dimensionScores ?? {};
       return {
         overall: { score: result.overallScore, tier: result.overallTier, incomplete: false },
@@ -1161,8 +1253,8 @@ class MockApiClient {
 function buildApiClient() {
   switch (APP_MODE) {
     case 'dev':  return new DevApiClient();
-    case 'prod': return new T2aApiClient(PARAMS.get('userId') ?? '');
-    default:     return new MockApiClient(); // 'mock' or no param
+    case 'mock': return new MockApiClient();
+    default:     return new T2aApiClient(); // 'prod' or no ?mode= param
   }
 }
 const api = buildApiClient();
@@ -1180,11 +1272,21 @@ document.getElementById('btn-start').addEventListener('click', async () => {
 
   state.candidateName = name;
   document.getElementById('btn-start').disabled = true;
+  document.getElementById('credits-error').style.display = 'none';
   setLoading('Creating your session…');
 
   try {
-    const { sessionId } = await api.createSession(name);
-    state.sessionId = sessionId;
+    const result = await api.createSession(name);
+
+    // 402 insufficient_credits: child C purchase page not yet live — show inline message
+    if (result.state === 'insufficient_credits') {
+      show('s-start');
+      document.getElementById('credits-error').style.display = 'block';
+      document.getElementById('btn-start').disabled = false;
+      return;
+    }
+
+    state.sessionId = result.sessionId;
     show('s-consent');
   } catch (err) {
     alert(`Could not start session: ${err.message}\n\nTip: add ?mode=mock for browser demo mode, or ?mode=dev when running node src/web/dev-server.js`);
@@ -1320,6 +1422,44 @@ document.getElementById('btn-share').addEventListener('click', () => {
   });
   window.open(`https://www.linkedin.com/profile/add?${params}`, '_blank', 'noopener');
 });
+
+// ── Prod mode initialisation (GIV-706) ───────────────────────────────────────
+// Runs once on load: shows signed-in email, fetches credit balance (treats 404
+// as feature-flag-off), wires sign-out button.
+
+async function initProdMode() {
+  if (APP_MODE !== 'prod') return;
+
+  // Show signed-in email from JWT payload
+  const email = JWT_PAYLOAD?.email ?? '';
+  if (email) {
+    document.getElementById('user-email-display').textContent = email;
+    document.getElementById('user-bar').style.display = 'flex';
+  }
+
+  // Sign out
+  document.getElementById('btn-signout').addEventListener('click', signOut);
+
+  // Fetch credit balance — treat 404 as feature flag off (child B GIV-705)
+  try {
+    const r = await fetch('/api/credits/me', {
+      headers: { 'Authorization': `Bearer ${ACCESS_TOKEN}` },
+    });
+    if (r.status === 401) { signOut(); return; }
+    if (r.ok) {
+      const data = await r.json();
+      const balance = data.credits ?? data.balance ?? null;
+      if (balance != null) {
+        document.getElementById('credits-text').textContent =
+          `${balance} evaluation${balance !== 1 ? 's' : ''} remaining`;
+        document.getElementById('credits-row').style.display = 'block';
+      }
+    }
+    // 404 = child B (GIV-705) not landed yet — silently ignore
+  } catch { /* network error — credits display is non-critical */ }
+}
+
+initProdMode();
 
 // ── Mode banner ───────────────────────────────────────────────────────────────
 
