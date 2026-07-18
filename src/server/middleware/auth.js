@@ -14,18 +14,26 @@ import { query } from '../db.js';
 /**
  * Require a valid Bearer JWT on the request.
  * Sets req.user = { id, email } on success.
+ *
+ * Accepts the token from:
+ *   1. Authorization: Bearer <token>  (standard — all regular API calls)
+ *   2. ?token=<jwt> query param       (fallback for browser EventSource, which
+ *      cannot set custom headers; only used by the SSE stream endpoint)
  */
 export function requireAuth(req, res, next) {
   const header = req.headers.authorization;
-  if (!header || !header.startsWith('Bearer ')) {
+  const rawToken = (header && header.startsWith('Bearer '))
+    ? header.slice(7)
+    : (req.query.token ?? null);
+
+  if (!rawToken) {
     return res.status(401).json({
       error: { code: 'AUTH_REQUIRED', message: 'Authentication required — include Authorization: Bearer <token>' },
     });
   }
 
   try {
-    const token = header.slice(7);
-    const payload = verifyJwt(token, config.auth.jwtSecret);
+    const payload = verifyJwt(rawToken, config.auth.jwtSecret);
     req.user = { id: payload.sub, email: payload.email };
     next();
   } catch (err) {
