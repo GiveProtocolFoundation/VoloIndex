@@ -33,6 +33,9 @@ import publicationRoutes from './routes/publication.js';
 import { createTranscriptRoutes } from './routes/transcripts.js';
 import credentialRoutes from './routes/credentials.js';   // T2-D public
 import certificateRoutes from './routes/certificates.js'; // T2-D auth
+import creditRoutes from './routes/credits.js';           // GIV-705 credits
+import checkoutRoutes from './routes/checkout.js';         // GIV-707 Stripe checkout
+import stripeWebhookRoutes from './routes/webhook-stripe.js'; // GIV-707 Stripe webhook
 
 // ── App factory ───────────────────────────────────────────────────────
 
@@ -60,6 +63,13 @@ export function createApp({ transcriptStore, llmAdapterFactory } = {}) {
     },
   }));
   app.use(cors({ origin: config.corsOrigins }));
+
+  // ── Stripe webhook (raw body, no rate limit) ───────────────────────
+  // MUST be mounted BEFORE express.json() — Stripe signature verification
+  // requires the raw request body. Also excluded from the API rate limiter
+  // so Stripe's servers are never throttled (GIV-707).
+  app.use('/api/webhooks/stripe', express.raw({ type: 'application/json' }), stripeWebhookRoutes);
+
   app.use(express.json({ limit: '1mb' }));
   app.use(apiLimiter);
 
@@ -75,6 +85,8 @@ export function createApp({ transcriptStore, llmAdapterFactory } = {}) {
   app.use('/api/sessions', requireAuth, chatRoutes);
   app.use('/api/results', requireAuth, resultRoutes);
   app.use('/api/certificates', requireAuth, certificateRoutes);
+  app.use('/api/credits', creditRoutes);
+  app.use('/api/checkout', checkoutRoutes);                   // GIV-707
 
   const store = transcriptStore || new PostgresTranscriptStore({ pool });
   app.use('/api/transcripts', requireAuth, createTranscriptRoutes(store));
@@ -146,6 +158,13 @@ export function createApp({ transcriptStore, llmAdapterFactory } = {}) {
   // the assessment SPA.
   app.get('/', (_req, res) => {
     res.sendFile(path.join(rootDir, 'index.html'));
+  });
+
+  // ── Login page ────────────────────────────────────────────────────
+  // GET /login serves the magic-link sign-in form (GIV-706).
+  // Redirects to /app immediately if a valid token is already stored.
+  app.get('/login', (_req, res) => {
+    res.sendFile(path.join(webDir, 'login.html'));
   });
 
   // ── Assessment SPA (authenticated users after magic-link) ─────────

@@ -8,7 +8,8 @@
 
 import { Router } from 'express';
 import { randomUUID } from 'node:crypto';
-import { query, withTransaction } from '../db.js';
+import { query, withTransaction, getClient } from '../db.js';
+import { config } from '../config.js';
 import { AppError } from '../middleware/error-handler.js';
 import { AssessmentSession } from '../../assessment/session.js';
 import { ChatInterviewController } from '../../assessment/chat-controller.js';
@@ -196,11 +197,46 @@ router.post('/:id/start', async (req, res, next) => {
       throw new AppError('Cannot start session without consent (D4 policy)', 409, 'CONSENT_REQUIRED');
     }
 
-    const { rows: updated } = await query(
-      `UPDATE sessions SET status = 'in_progress', started_at = NOW(), updated_at = NOW()
-       WHERE id = $1 RETURNING *`,
-      [req.params.id],
-    );
+    // ── Credit enforcement (GIV-705) ────────────────────────────────
+    // When CREDITS_REQUIRED is true, atomically check balance and debit
+    // one credit inside a SERIALIZABLE-like advisory lock to prevent
+    // concurrent double-start from double-debiting.
+    let updated;
+    if (config.creditsRequired) {
+      updated = await withTransaction(async (client) => {
+        // Advisory lock on user row to serialize concurrent starts
+        await client.query('SELECT pg_advisory_xact_lock(hashtext($1))', [req.user.id]);
+
+        const { rows: balRows } = await client.query(
+          'SELECT COALESCE(SUM(delta), 0)::int AS balance FROM credits_ledger WHERE user_id = $1',
+          [req.user.id],
+        );
+        if (balRows[0].balance < 1) {
+          throw new AppError('Insufficient credits', 402, 'INSUFFICIENT_CREDITS');
+        }
+
+        // Debit one credit referencing this session
+        await client.query(
+          `INSERT INTO credits_ledger (user_id, delta, reason, session_id)
+           VALUES ($1, -1, 'debit', $2)`,
+          [req.user.id, req.params.id],
+        );
+
+        const { rows: upd } = await client.query(
+          `UPDATE sessions SET status = 'in_progress', started_at = NOW(), updated_at = NOW()
+           WHERE id = $1 RETURNING *`,
+          [req.params.id],
+        );
+        return upd;
+      });
+    } else {
+      const result = await query(
+        `UPDATE sessions SET status = 'in_progress', started_at = NOW(), updated_at = NOW()
+         WHERE id = $1 RETURNING *`,
+        [req.params.id],
+      );
+      updated = result.rows;
+    }
 
     // ── Wire ChatInterviewController for this session ──────────────
     const sessionId = req.params.id;

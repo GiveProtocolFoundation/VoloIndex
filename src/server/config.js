@@ -70,8 +70,14 @@ export const config = {
     magicLinkTtlMinutes: parseInt(process.env.MAGIC_LINK_TTL_MINUTES || '30', 10), // 30 min
     baseUrl: process.env.AUTH_BASE_URL || '',                                    // e.g. https://voloindex.org
     internalKey: process.env.INTERNAL_API_KEY || randomBytes(32).toString('hex'), // server-only endpoints
-    emailProvider: process.env.EMAIL_PROVIDER || '',                              // 'postmark' | 'sendgrid' | '' (console)
-    sendEmail: null,                                                              // plugged at startup if emailProvider set
+  },
+
+  // ── Email (GIV-708) ───────────────────────────────────────────────
+  // Resend HTTP API for transactional email (magic-link delivery).
+  // Absent RESEND_API_KEY → log-only fallback (dev/tests unchanged).
+  email: {
+    resendApiKey: process.env.RESEND_API_KEY || '',
+    from: process.env.EMAIL_FROM || 'login@voloindex.org',
   },
 
   // ── Rate limiting ────────────────────────────────────────────────
@@ -80,6 +86,23 @@ export const config = {
     maxRequests: parseInt(process.env.RATE_LIMIT_MAX || '100', 10),          // per window
     chatWindowMs: parseInt(process.env.RATE_LIMIT_CHAT_WINDOW_MS || '60000', 10), // 1 min
     chatMaxRequests: parseInt(process.env.RATE_LIMIT_CHAT_MAX || '30', 10),  // per window
+  },
+
+  // ── Credits (GIV-705) ────────────────────────────────────────────
+  // When true, POST /api/sessions/:id/start requires a credit and debits 1.
+  // Default false: staging and existing E2E keep working until launch flip.
+  creditsRequired: process.env.CREDITS_REQUIRED === 'true',
+
+  // ── Stripe (GIV-707) ──────────────────────────────────────────────
+  // Absent keys → checkout endpoints return 503 (deploy stays healthy).
+  stripe: {
+    secretKey:     process.env.STRIPE_SECRET_KEY     || '',
+    webhookSecret: process.env.STRIPE_WEBHOOK_SECRET || '',
+    prices: {
+      1:  process.env.STRIPE_PRICE_1  || '',
+      3:  process.env.STRIPE_PRICE_3  || '',
+      10: process.env.STRIPE_PRICE_10 || '',
+    },
   },
 
   // ── CORS ─────────────────────────────────────────────────────────
