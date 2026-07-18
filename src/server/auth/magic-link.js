@@ -13,6 +13,7 @@ import { randomBytes, createHash } from 'node:crypto';
 import { query } from '../db.js';
 import { createAccessToken } from './jwt.js';
 import { config } from '../config.js';
+import { sendMagicLink } from '../email.js';
 
 const MAGIC_LINK_TTL_MS = config.auth.magicLinkTtlMinutes * 60 * 1000;
 
@@ -59,16 +60,10 @@ export async function requestMagicLink(email, baseUrl) {
   // Build link
   const magicLink = `${baseUrl}/auth/verify?token=${rawToken}`;
 
-  // Send (dev: console, prod: email provider)
-  if (config.env === 'production' && config.auth.emailProvider) {
-    // Production email sending — pluggable via config.auth.sendEmail
-    await config.auth.sendEmail({
-      to: normalised,
-      subject: 'Sign in to Volo Index',
-      text: `Click to sign in (expires in ${config.auth.magicLinkTtlMinutes} minutes):\n\n${magicLink}\n\nIf you didn't request this, ignore this email.`,
-      html: `<p>Click to sign in (expires in ${config.auth.magicLinkTtlMinutes} minutes):</p><p><a href="${magicLink}">Sign in to Volo Index</a></p><p>If you didn't request this, ignore this email.</p>`,
-    });
-  } else {
+  // Send via Resend (GIV-708). Falls back silently when RESEND_API_KEY is absent.
+  await sendMagicLink(normalised, magicLink);
+  // Keep the log in non-prod so developers can click the link without email.
+  if (config.env !== 'production') {
     console.log(`[auth] magic link for ${normalised}: ${magicLink}`);
   }
 
