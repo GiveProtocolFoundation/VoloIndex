@@ -626,7 +626,7 @@
 
     <button id="btn-start" class="btn-primary">Begin Assessment</button>
 
-    <!-- Purchase section (GIV-707: bundle selection → Stripe Checkout) -->
+    <!-- Purchase section (GIV-711: bundle selection → PayPal Checkout) -->
     <div id="purchase-section" class="purchase-section">
       <div class="purchase-heading">Purchase evaluation credits</div>
       <div class="purchase-sub">Each evaluation uses 1 credit</div>
@@ -650,7 +650,7 @@
           <div class="bundle-unit">$12 each</div>
         </div>
       </div>
-      <div class="purchase-note">Secure checkout powered by Stripe</div>
+      <div class="purchase-note">Secure checkout powered by PayPal</div>
     </div>
     <div id="purchase-success" class="purchase-success"></div>
 
@@ -1559,8 +1559,8 @@ async function initProdMode() {
   }
 }
 
-// ── Purchase flow (GIV-707) ──────────────────────────────────────────────────
-// Bundle card clicks → POST /api/checkout → redirect to Stripe hosted page
+// ── Purchase flow (GIV-711) ──────────────────────────────────────────────────
+// Bundle card clicks → POST /api/checkout → redirect to PayPal hosted page
 
 document.querySelectorAll('.bundle-card').forEach(card => {
   card.addEventListener('click', async () => {
@@ -1588,9 +1588,9 @@ document.querySelectorAll('.bundle-card').forEach(card => {
         throw new Error(err.error?.message || `Error ${r.status}`);
       }
 
-      const { url } = await r.json();
-      if (url) {
-        location.href = url;
+      const { approveUrl } = await r.json();
+      if (approveUrl) {
+        location.href = approveUrl;
       } else {
         throw new Error('No checkout URL returned');
       }

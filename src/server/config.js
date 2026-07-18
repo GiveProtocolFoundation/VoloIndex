@@ -93,16 +93,18 @@ export const config = {
   // Default false: staging and existing E2E keep working until launch flip.
   creditsRequired: process.env.CREDITS_REQUIRED === 'true',
 
-  // ── Stripe (GIV-707) ──────────────────────────────────────────────
+  // ── PayPal (GIV-711) ──────────────────────────────────────────────
   // Absent keys → checkout endpoints return 503 (deploy stays healthy).
-  stripe: {
-    secretKey:     process.env.STRIPE_SECRET_KEY     || '',
-    webhookSecret: process.env.STRIPE_WEBHOOK_SECRET || '',
-    prices: {
-      1:  process.env.STRIPE_PRICE_1  || '',
-      3:  process.env.STRIPE_PRICE_3  || '',
-      10: process.env.STRIPE_PRICE_10 || '',
-    },
+  // Webhook URL: https://voloindex.org/api/webhooks/paypal
+  // Webhook event: PAYMENT.CAPTURE.COMPLETED
+  paypal: {
+    clientId:     process.env.PAYPAL_CLIENT_ID     || '',
+    clientSecret: process.env.PAYPAL_CLIENT_SECRET || '',
+    webhookId:    process.env.PAYPAL_WEBHOOK_ID    || '',
+    // Sandbox in dev/test; live API in production
+    baseUrl: process.env.NODE_ENV === 'production'
+      ? 'https://api-m.paypal.com'
+      : 'https://api-m.sandbox.paypal.com',
   },
 
   // ── CORS ─────────────────────────────────────────────────────────

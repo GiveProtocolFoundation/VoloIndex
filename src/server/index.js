@@ -34,8 +34,8 @@ import { createTranscriptRoutes } from './routes/transcripts.js';
 import credentialRoutes from './routes/credentials.js';   // T2-D public
 import certificateRoutes from './routes/certificates.js'; // T2-D auth
 import creditRoutes from './routes/credits.js';           // GIV-705 credits
-import checkoutRoutes from './routes/checkout.js';         // GIV-707 Stripe checkout
-import stripeWebhookRoutes from './routes/webhook-stripe.js'; // GIV-707 Stripe webhook
+import checkoutRoutes from './routes/checkout.js';           // GIV-711 PayPal checkout
+import paypalWebhookRoutes from './routes/webhook-paypal.js'; // GIV-711 PayPal webhook
 
 // ── App factory ───────────────────────────────────────────────────────
 
@@ -64,11 +64,11 @@ export function createApp({ transcriptStore, llmAdapterFactory } = {}) {
   }));
   app.use(cors({ origin: config.corsOrigins }));
 
-  // ── Stripe webhook (raw body, no rate limit) ───────────────────────
-  // MUST be mounted BEFORE express.json() — Stripe signature verification
+  // ── PayPal webhook (raw body, no rate limit) ──────────────────────
+  // MUST be mounted BEFORE express.json() — PayPal signature verification
   // requires the raw request body. Also excluded from the API rate limiter
-  // so Stripe's servers are never throttled (GIV-707).
-  app.use('/api/webhooks/stripe', express.raw({ type: 'application/json' }), stripeWebhookRoutes);
+  // so PayPal's servers are never throttled (GIV-711).
+  app.use('/api/webhooks/paypal', express.raw({ type: 'application/json' }), paypalWebhookRoutes);
 
   app.use(express.json({ limit: '1mb' }));
   app.use(apiLimiter);
