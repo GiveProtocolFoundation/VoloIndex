@@ -82,6 +82,11 @@ export const config = {
     chatMaxRequests: parseInt(process.env.RATE_LIMIT_CHAT_MAX || '30', 10),  // per window
   },
 
+  // ── Credits (GIV-705) ────────────────────────────────────────────
+  // When true, POST /api/sessions/:id/start requires a credit and debits 1.
+  // Default false: staging and existing E2E keep working until launch flip.
+  creditsRequired: process.env.CREDITS_REQUIRED === 'true',
+
   // ── CORS ─────────────────────────────────────────────────────────
   corsOrigins: process.env.CORS_ORIGINS
     ? process.env.CORS_ORIGINS.split(',').map(s => s.trim())

@@ -33,6 +33,7 @@ import publicationRoutes from './routes/publication.js';
 import { createTranscriptRoutes } from './routes/transcripts.js';
 import credentialRoutes from './routes/credentials.js';   // T2-D public
 import certificateRoutes from './routes/certificates.js'; // T2-D auth
+import creditRoutes from './routes/credits.js';           // GIV-705 credits
 
 // ── App factory ───────────────────────────────────────────────────────
 
@@ -75,6 +76,7 @@ export function createApp({ transcriptStore, llmAdapterFactory } = {}) {
   app.use('/api/sessions', requireAuth, chatRoutes);
   app.use('/api/results', requireAuth, resultRoutes);
   app.use('/api/certificates', requireAuth, certificateRoutes);
+  app.use('/api/credits', creditRoutes);
 
   const store = transcriptStore || new PostgresTranscriptStore({ pool });
   app.use('/api/transcripts', requireAuth, createTranscriptRoutes(store));
