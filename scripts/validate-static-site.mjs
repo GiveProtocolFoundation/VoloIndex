@@ -85,7 +85,7 @@ for (const match of html.matchAll(/\ssrcset\s*=\s*'([^']+)'/gi)) {
 
 // Server routes that are NOT static files on disk — the Express app serves
 // these dynamically, so they should not be validated as local asset paths.
-const KNOWN_ROUTES = ['/app', '/api', '/auth', '/credential', '/badges', '/qa'];
+const KNOWN_ROUTES = ['/app', '/api', '/auth', '/credential', '/badges', '/qa', '/privacy'];
 
 let localRefCount = 0;
 let missingRefCount = 0;
