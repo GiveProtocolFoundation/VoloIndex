@@ -160,6 +160,12 @@ export function createApp({ transcriptStore, llmAdapterFactory } = {}) {
     res.sendFile(path.join(rootDir, 'index.html'));
   });
 
+  // ── Privacy notice (GDPR Art. 13, GIV-735) ───────────────────────
+  // Static page; content fixed by the volo-data-protection RoPA (GIV-710).
+  app.get('/privacy', (_req, res) => {
+    res.sendFile(path.join(webDir, 'privacy.html'));
+  });
+
   // ── Login page ────────────────────────────────────────────────────
   // GET /login serves the magic-link sign-in form (GIV-706).
   // Redirects to /app immediately if a valid token is already stored.
