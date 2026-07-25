@@ -4,9 +4,10 @@
  * Covers:
  * 1. enqueue: pending_review hold before spotCheckThreshold
  * 2. release: QA approval, agreement tracking
- * 3. Auto-publish: enabled once spotCheckThreshold + agreementThreshold met
+ * 3. Auto-publish: latch requires explicit allowAutoPublish opt-in
+ *    (DPIA R-01 / GIV-741 §7 / GIV-745) and spotCheck+agreement thresholds
  * 4. Edge cases: duplicate, wrong-status release, non-boolean argument
- * 5. JSON round-trip persistence
+ * 5. JSON round-trip persistence (latch never restored without opt-in)
  * 6. Counter and agreementRate determinism
  */
 
@@ -118,7 +119,7 @@ describe('PublicationQueue: release', () => {
     const q = makeQueue({ spotCheckThreshold: 1, agreementThreshold: 0 });
     const sid = newSessionId();
     q.enqueue({ sessionId: sid, candidateId: 'c', scoreResult: DUMMY_SCORE });
-    q.release(sid, { agreedWithExtractor: true }); // publishes; auto-publish also flips
+    q.release(sid, { agreedWithExtractor: true }); // publishes
     // Try to release again
     assert.throws(() => q.release(sid, { agreedWithExtractor: true }), /not pending_review/);
   });
@@ -135,15 +136,17 @@ describe('PublicationQueue: release', () => {
 });
 
 // ── 3. Auto-publish threshold ─────────────────────────────────────────
+// The latch itself is guarded: it can only trip on instances explicitly
+// constructed with allowAutoPublish (DPIA R-01) — see section 3b.
 
-describe('PublicationQueue: auto-publish threshold (D5)', () => {
+describe('PublicationQueue: auto-publish threshold (D5, requires allowAutoPublish)', () => {
   it('autoPublishEnabled starts false', () => {
-    const q = makeQueue();
+    const q = makeQueue({ allowAutoPublish: true });
     assert.equal(q.autoPublishEnabled, false);
   });
 
   it('auto-publish enables after spotCheckThreshold reviews at 100% agreement', () => {
-    const q = makeQueue({ spotCheckThreshold: 3, agreementThreshold: 0.95 });
+    const q = makeQueue({ spotCheckThreshold: 3, agreementThreshold: 0.95, allowAutoPublish: true });
 
     for (let i = 0; i < 3; i++) {
       const sid = newSessionId();
@@ -157,7 +160,7 @@ describe('PublicationQueue: auto-publish threshold (D5)', () => {
   });
 
   it('does NOT flip auto-publish if agreement rate below threshold', () => {
-    const q = makeQueue({ spotCheckThreshold: 2, agreementThreshold: 0.95 });
+    const q = makeQueue({ spotCheckThreshold: 2, agreementThreshold: 0.95, allowAutoPublish: true });
 
     const sid1 = newSessionId();
     q.enqueue({ sessionId: sid1, candidateId: 'c', scoreResult: DUMMY_SCORE });
@@ -173,7 +176,7 @@ describe('PublicationQueue: auto-publish threshold (D5)', () => {
   });
 
   it('does NOT flip if reviewed count below spotCheckThreshold', () => {
-    const q = makeQueue({ spotCheckThreshold: 5, agreementThreshold: 0.8 });
+    const q = makeQueue({ spotCheckThreshold: 5, agreementThreshold: 0.8, allowAutoPublish: true });
 
     for (let i = 0; i < 4; i++) {
       const sid = newSessionId();
@@ -186,7 +189,7 @@ describe('PublicationQueue: auto-publish threshold (D5)', () => {
   });
 
   it('once auto-publish enabled, new enqueue is immediately published', () => {
-    const q = makeQueue({ spotCheckThreshold: 2, agreementThreshold: 0.5 });
+    const q = makeQueue({ spotCheckThreshold: 2, agreementThreshold: 0.5, allowAutoPublish: true });
 
     // Reach threshold
     for (let i = 0; i < 2; i++) {
@@ -201,6 +204,67 @@ describe('PublicationQueue: auto-publish threshold (D5)', () => {
     const entry = q.enqueue({ sessionId: newSid, candidateId: 'c', scoreResult: DUMMY_SCORE });
     assert.equal(entry.status, 'published');
     assert.ok(entry.releasedAt);
+  });
+});
+
+// ── 3b. DPIA R-01 guard: auto-publish off by default ─────────────────
+// Privacy notice §6 / Art. 22: every publication passes human review.
+// See GIV-741 SOP §7 and GIV-745.
+
+describe('PublicationQueue: DPIA R-01 guard (allowAutoPublish off by default)', () => {
+  it('allowAutoPublish defaults to false', () => {
+    assert.equal(makeQueue().allowAutoPublish, false);
+    assert.equal(makeQueue({ spotCheckThreshold: 1 }).allowAutoPublish, false);
+  });
+
+  it('latch never trips on a default instance, even past both thresholds', () => {
+    const q = makeQueue({ spotCheckThreshold: 2, agreementThreshold: 0.5 });
+
+    for (let i = 0; i < 4; i++) {
+      const sid = newSessionId();
+      q.enqueue({ sessionId: sid, candidateId: 'c', scoreResult: DUMMY_SCORE });
+      q.release(sid, { agreedWithExtractor: true });
+    }
+
+    assert.equal(q.reviewedCount, 4);
+    assert.equal(q.agreementRate, 1.0);
+    assert.equal(q.autoPublishEnabled, false);
+
+    // Every subsequent enqueue still requires human review
+    const sid = newSessionId();
+    const entry = q.enqueue({ sessionId: sid, candidateId: 'c', scoreResult: DUMMY_SCORE });
+    assert.equal(entry.status, 'pending_review');
+    assert.equal(entry.releasedAt, null);
+  });
+
+  it('fromJSON ignores a persisted autoPublishEnabled=true without code opt-in', () => {
+    const q = PublicationQueue.fromJSON({
+      spotCheckThreshold: 2,
+      agreementThreshold: 0.5,
+      reviewedCount: 10,
+      agreementCount: 10,
+      autoPublishEnabled: true,
+      entries: [],
+    });
+
+    assert.equal(q.autoPublishEnabled, false);
+    const sid = newSessionId();
+    const entry = q.enqueue({ sessionId: sid, candidateId: 'c', scoreResult: DUMMY_SCORE });
+    assert.equal(entry.status, 'pending_review');
+  });
+
+  it('fromJSON restores the latch only when allowAutoPublish is re-asserted via opts', () => {
+    const data = { reviewedCount: 60, agreementCount: 60, autoPublishEnabled: true, entries: [] };
+    const q = PublicationQueue.fromJSON(data, { allowAutoPublish: true });
+    assert.equal(q.autoPublishEnabled, true);
+  });
+
+  it('toJSON from a default instance never serializes a tripped latch', () => {
+    const q = makeQueue({ spotCheckThreshold: 1, agreementThreshold: 0 });
+    const sid = newSessionId();
+    q.enqueue({ sessionId: sid, candidateId: 'c', scoreResult: DUMMY_SCORE });
+    q.release(sid, { agreedWithExtractor: true });
+    assert.equal(q.toJSON().autoPublishEnabled, false);
   });
 });
 

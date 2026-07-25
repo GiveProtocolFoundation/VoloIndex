@@ -4,11 +4,19 @@
  * Implements board decision D5: human-in-the-loop spot-check workflow.
  *
  * Rules:
- * - First `spotCheckThreshold` (default 50) public assessments are held as
- *   'pending_review'; QA must release each one with an agreement verdict.
- * - Once `spotCheckThreshold` reviews have been collected AND the extractor
- *   agreement rate reaches `agreementThreshold` (default 95%), `autoPublish`
- *   is enabled and future entries are published immediately.
+ * - Every public assessment is held as 'pending_review'; QA must release
+ *   each one with an agreement verdict. Reviewed/agreement counters track
+ *   the D5 spot-check thresholds (default 50 reviews / 95% agreement) for
+ *   reporting purposes.
+ *
+ * AUTO-PUBLISH IS DISABLED BY DEFAULT (DPIA R-01 / GIV-741 SOP §7).
+ * The original D5 design auto-published entries once the spot-check latch
+ * tripped, but the binding Art. 13 privacy notice §6 commits that "every
+ * publication passes a human review step before going live" (Art. 22
+ * safeguard). The latch therefore cannot trip unless the constructor is
+ * called with `allowAutoPublish: true` — which MUST NOT be done without a
+ * DPIA re-assessment signed off by the Head of Data (see GIV-741 §7,
+ * GIV-745). No production code path passes this flag.
  *
  * Designed for deterministic unit-testability and JSON round-trip persistence.
  * A durable file-backed persistence layer can wrap this with toJSON/fromJSON.
@@ -48,11 +56,18 @@ export class PublicationQueue {
    * @param {{
    *   spotCheckThreshold?: number,
    *   agreementThreshold?: number,
+   *   allowAutoPublish?: boolean,
    * }} [opts]
    */
   constructor(opts = {}) {
     this._spotCheckThreshold = opts.spotCheckThreshold ?? DEFAULT_SPOT_CHECK_THRESHOLD;
     this._agreementThreshold = opts.agreementThreshold ?? DEFAULT_AGREEMENT_THRESHOLD;
+
+    // DPIA R-01 guard: auto-publish would bypass the Art. 22 human-review
+    // safeguard promised in privacy notice §6. Enabling this flag requires a
+    // DPIA re-assessment (GIV-741 SOP §7 / GIV-745) — never set it in
+    // production code without HoData sign-off.
+    this._allowAutoPublish = opts.allowAutoPublish === true;
 
     /** @type {Map<string, PublicationEntry>} */
     this._entries = new Map();
@@ -62,6 +77,7 @@ export class PublicationQueue {
     this._agreementCount = 0;
 
     // Flips to true once spotCheckThreshold reviews pass agreementThreshold
+    // — only reachable when allowAutoPublish was explicitly set (DPIA R-01)
     this._autoPublishEnabled = false;
   }
 
@@ -71,7 +87,8 @@ export class PublicationQueue {
   get agreementThreshold()  { return this._agreementThreshold; }
   get reviewedCount()       { return this._reviewedCount; }
   get agreementCount()      { return this._agreementCount; }
-  get autoPublishEnabled()  { return this._autoPublishEnabled; }
+  get allowAutoPublish()    { return this._allowAutoPublish; }
+  get autoPublishEnabled()  { return this._allowAutoPublish && this._autoPublishEnabled; }
 
   /** Number of entries currently waiting for QA review. */
   get pendingCount() {
@@ -107,8 +124,9 @@ export class PublicationQueue {
   /**
    * Add a completed assessment result to the pipeline.
    *
-   * - If autoPublish is enabled, publishes immediately.
-   * - Otherwise holds as 'pending_review' for QA.
+   * Always holds as 'pending_review' for QA unless the instance was
+   * explicitly constructed with `allowAutoPublish: true` AND the D5 latch
+   * has tripped (DPIA R-01 guard — see file header).
    *
    * @param {{ sessionId: string, candidateId: string, scoreResult: object }} opts
    * @returns {PublicationEntry} - snapshot of the new entry
@@ -129,7 +147,9 @@ export class PublicationQueue {
     }
 
     const now = new Date().toISOString();
-    const autoPublish = this._autoPublishEnabled;
+    // Gated getter: false unless allowAutoPublish was explicitly opted into
+    // at construction (DPIA R-01 / Art. 22 human-review safeguard).
+    const autoPublish = this.autoPublishEnabled;
 
     /** @type {PublicationEntry} */
     const entry = {
@@ -176,8 +196,11 @@ export class PublicationQueue {
     this._reviewedCount++;
     if (agreedWithExtractor) this._agreementCount++;
 
-    // Flip auto-publish once threshold met
-    if (!this._autoPublishEnabled
+    // Flip auto-publish once threshold met — but ONLY when the instance was
+    // explicitly constructed with allowAutoPublish (DPIA R-01 / GIV-741 §7:
+    // enabling auto-publish requires a DPIA re-assessment).
+    if (this._allowAutoPublish
+        && !this._autoPublishEnabled
         && this._reviewedCount >= this._spotCheckThreshold
         && this.agreementRate >= this._agreementThreshold) {
       this._autoPublishEnabled = true;
@@ -209,7 +232,9 @@ export class PublicationQueue {
       agreementThreshold: this._agreementThreshold,
       reviewedCount:      this._reviewedCount,
       agreementCount:     this._agreementCount,
-      autoPublishEnabled: this._autoPublishEnabled,
+      // Effective (gated) value — a tripped latch is never serialized from a
+      // non-allowed instance (DPIA R-01)
+      autoPublishEnabled: this.autoPublishEnabled,
       entries: [...this._entries.entries()].map(([k, v]) => [k, { ...v }]),
     };
   }
@@ -217,20 +242,26 @@ export class PublicationQueue {
   /**
    * Reconstruct a PublicationQueue from a toJSON() snapshot.
    *
+   * `allowAutoPublish` is deliberately NOT part of the snapshot: it must be
+   * re-asserted in code via `opts` on every restore, so persisted data can
+   * never re-enable auto-publish on its own (DPIA R-01 / GIV-741 §7).
+   *
    * @param {object} data
+   * @param {{ allowAutoPublish?: boolean }} [opts]
    * @returns {PublicationQueue}
    */
-  static fromJSON(data) {
+  static fromJSON(data, opts = {}) {
     if (!data || typeof data !== 'object') {
       throw new Error('PublicationQueue.fromJSON: data must be an object');
     }
     const q = new PublicationQueue({
       spotCheckThreshold: data.spotCheckThreshold ?? DEFAULT_SPOT_CHECK_THRESHOLD,
       agreementThreshold: data.agreementThreshold ?? DEFAULT_AGREEMENT_THRESHOLD,
+      allowAutoPublish:   opts.allowAutoPublish === true,
     });
     q._reviewedCount      = data.reviewedCount      ?? 0;
     q._agreementCount     = data.agreementCount     ?? 0;
-    q._autoPublishEnabled = data.autoPublishEnabled ?? false;
+    q._autoPublishEnabled = q._allowAutoPublish && (data.autoPublishEnabled ?? false);
     if (Array.isArray(data.entries)) {
       for (const [k, v] of data.entries) {
         q._entries.set(k, { ...v });
