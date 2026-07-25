@@ -88,6 +88,26 @@
       font-family: inherit;
     }
     .field input:focus { border-color: var(--secondary); }
+    .age-field { margin-top: -6px; }
+    .age-label {
+      display: flex !important;
+      align-items: flex-start;
+      gap: 9px;
+      text-transform: none !important;
+      letter-spacing: 0 !important;
+      font-weight: 400 !important;
+      font-size: 13px !important;
+      color: var(--text) !important;
+      cursor: pointer;
+      line-height: 1.5;
+    }
+    .age-label input[type="checkbox"] {
+      width: 16px; height: 16px;
+      margin-top: 2px;
+      flex-shrink: 0;
+      accent-color: var(--primary);
+      cursor: pointer;
+    }
 
     /* ── Button ── */
     .btn-primary {
@@ -168,6 +188,13 @@
       <input id="email-input" type="email" placeholder="you@example.com" autocomplete="email" />
     </div>
 
+    <div class="field age-field">
+      <label class="age-label" for="age-check">
+        <input id="age-check" type="checkbox" />
+        <span>I confirm that I am at least 16 years old</span>
+      </label>
+    </div>
+
     <button id="btn-submit" class="btn-primary">Send sign-in link</button>
     <div id="error-msg" class="error-msg"></div>
   </div>
@@ -242,6 +269,12 @@
       return;
     }
 
+    const ageAttested = document.getElementById('age-check').checked;
+    if (!ageAttested) {
+      showError('Please confirm that you are at least 16 years old. Volo Index is only available to people aged 16 and over.');
+      return;
+    }
+
     const btn = document.getElementById('btn-submit');
     btn.disabled = true;
     btn.textContent = 'Sending…';
@@ -252,7 +285,7 @@
       const r = await fetch('/auth/magic-link', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email }),
+        body: JSON.stringify({ email, ageAttested }),
       });
       const data = await r.json().catch(() => ({}));
 

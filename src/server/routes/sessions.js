@@ -342,6 +342,135 @@ router.post('/:id/complete', async (req, res, next) => {
   } catch (err) { next(err); }
 });
 
+// ── POST /api/sessions/:id/redact — remove volunteered content ────
+//
+// GIV-736 (D3, Art. 9 notice+redact): user-accessible removal of
+// sensitive free-text the candidate volunteered during the interview.
+// Body: { turnIndexes: [int, ...] } to redact specific candidate turns,
+// or { all: true } to redact every candidate turn.
+//
+// Covers all three places candidate text is persisted:
+//   1. transcript_turns.content   (per-turn rows)
+//   2. transcripts.transcript     (JSONB snapshot, turns[i].content)
+//   3. score_results signals/details (verbatim evidenceRef.spanText /
+//      excerpt quotes lifted from the redacted turns)
+// Scores themselves are not recomputed — only the quoted text is removed.
+
+export const REDACTION_PLACEHOLDER = '[Content removed at the candidate’s request]';
+
+/**
+ * Scrub verbatim evidence quotes referencing redacted turns from a
+ * signals/details JSON structure (mutates in place, returns the value).
+ * Any object carrying { turnIndex ∈ redacted, spanText } loses its span,
+ * and a signal whose evidenceRef points at a redacted turn loses its
+ * verbatim `excerpt` too.
+ */
+export function scrubEvidenceQuotes(value, redactedSet) {
+  if (Array.isArray(value)) {
+    for (const item of value) scrubEvidenceQuotes(item, redactedSet);
+  } else if (value && typeof value === 'object') {
+    if (typeof value.turnIndex === 'number' && redactedSet.has(value.turnIndex)
+        && typeof value.spanText === 'string') {
+      value.spanText = REDACTION_PLACEHOLDER;
+    }
+    if (value.evidenceRef && typeof value.evidenceRef.turnIndex === 'number'
+        && redactedSet.has(value.evidenceRef.turnIndex)
+        && typeof value.excerpt === 'string') {
+      value.excerpt = REDACTION_PLACEHOLDER;
+    }
+    for (const key of Object.keys(value)) scrubEvidenceQuotes(value[key], redactedSet);
+  }
+  return value;
+}
+
+router.post('/:id/redact', async (req, res, next) => {
+  try {
+    const { turnIndexes, all } = req.body ?? {};
+    const redactAll = all === true;
+    if (!redactAll) {
+      if (!Array.isArray(turnIndexes) || turnIndexes.length === 0
+          || !turnIndexes.every(i => Number.isInteger(i) && i >= 0)) {
+        throw new AppError(
+          'turnIndexes (non-empty array of non-negative integers) or all:true is required',
+          400,
+          'MISSING_FIELD',
+        );
+      }
+    }
+
+    await loadOwnedSession(req.params.id, req.user.id);
+    const sessionId = req.params.id;
+
+    // 1. Per-turn rows — candidate turns only; interviewer questions are
+    //    system-generated and carry no volunteered personal data.
+    const { rows: redactedRows } = redactAll
+      ? await query(
+          `UPDATE transcript_turns
+           SET content = $2, redacted_at = NOW()
+           WHERE session_id = $1 AND role = 'candidate' AND redacted_at IS NULL
+           RETURNING turn_index`,
+          [sessionId, REDACTION_PLACEHOLDER],
+        )
+      : await query(
+          `UPDATE transcript_turns
+           SET content = $2, redacted_at = NOW()
+           WHERE session_id = $1 AND role = 'candidate' AND redacted_at IS NULL
+             AND turn_index = ANY($3::int[])
+           RETURNING turn_index`,
+          [sessionId, REDACTION_PLACEHOLDER, turnIndexes],
+        );
+    const redactedSet = new Set(redactedRows.map(r => r.turn_index));
+
+    let snapshotUpdated = false;
+    let scoreResultScrubbed = false;
+
+    if (redactedSet.size > 0) {
+      // 2. JSONB snapshot (transcripts.transcript.turns[i] aligns with turn_index)
+      const { rows: snapRows } = await query(
+        'SELECT transcript FROM transcripts WHERE session_id = $1',
+        [sessionId],
+      );
+      if (snapRows.length > 0 && Array.isArray(snapRows[0].transcript?.turns)) {
+        const snapshot = snapRows[0].transcript;
+        for (const idx of redactedSet) {
+          const turn = snapshot.turns[idx];
+          if (turn && turn.role === 'candidate') turn.content = REDACTION_PLACEHOLDER;
+        }
+        await query(
+          'UPDATE transcripts SET transcript = $2 WHERE session_id = $1',
+          [sessionId, JSON.stringify(snapshot)],
+        );
+        snapshotUpdated = true;
+      }
+
+      // 3. Verbatim evidence quotes in the stored score result
+      const { rows: scoreRows } = await query(
+        'SELECT id, signals, details FROM score_results WHERE session_id = $1',
+        [sessionId],
+      );
+      if (scoreRows.length > 0) {
+        const { id, signals, details } = scoreRows[0];
+        await query(
+          'UPDATE score_results SET signals = $2, details = $3 WHERE id = $1',
+          [
+            id,
+            JSON.stringify(scrubEvidenceQuotes(signals, redactedSet)),
+            details == null ? null : JSON.stringify(scrubEvidenceQuotes(details, redactedSet)),
+          ],
+        );
+        scoreResultScrubbed = true;
+      }
+    }
+
+    res.json({
+      redactedTurnIndexes: [...redactedSet].sort((a, b) => a - b),
+      redactedCount: redactedSet.size,
+      snapshotUpdated,
+      scoreResultScrubbed,
+    });
+  } catch (err) { next(err); }
+});
+
 // ── POST /api/sessions/:id/abandon — transition to abandoned ──────
 
 router.post('/:id/abandon', async (req, res, next) => {

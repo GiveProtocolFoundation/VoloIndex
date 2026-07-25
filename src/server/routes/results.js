@@ -82,6 +82,9 @@ router.get('/:sessionId', async (req, res, next) => {
               c.id          AS cert_id,
               c.overall_tier AS cert_tier,
               c.issued_at   AS cert_issued_at,
+              c.revoked_at  AS cert_revoked_at,
+              c.publication_consent_at         AS cert_pub_consent_at,
+              c.publication_consent_revoked_at AS cert_pub_consent_revoked_at,
               pq.status     AS publication_status
        FROM score_results sr
        LEFT JOIN certificates c     ON c.session_id = sr.session_id
@@ -113,6 +116,12 @@ function formatResult(row) {
     certUrl:           certId ? `${baseUrl}/credential/${certId}` : null,
     certTier:          row.cert_tier ?? null,
     certIssuedAt:      row.cert_issued_at?.toISOString?.() ?? row.cert_issued_at ?? null,
+    // GIV-736: publication opt-in state — certs are private by default;
+    // the results UI offers the explicit publish/unpublish controls.
+    certPublic:        certId != null
+                         && row.cert_revoked_at == null
+                         && row.cert_pub_consent_at != null
+                         && row.cert_pub_consent_revoked_at == null,
     publicationStatus: row.publication_status ?? null,
   };
 }

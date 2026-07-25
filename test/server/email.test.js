@@ -32,6 +32,11 @@ function resetState() {
 }
 
 async function mockQuery(text, params) {
+  // GIV-736 age-gate existence probe: these tests exercise the email wiring
+  // for sign-IN, so report every email as an existing account.
+  if (text.includes('SELECT id FROM users WHERE email')) {
+    return { rows: [{ id: 'user-existing' }], rowCount: 1 };
+  }
   if (text.includes('INSERT INTO magic_link_tokens')) {
     magicTokens.set(params[1], { id: 'mlt-1', email: params[0], token_hash: params[1], expires_at: params[2], used_at: null });
     return { rows: [magicTokens.get(params[1])], rowCount: 1 };

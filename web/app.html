@@ -493,6 +493,34 @@
       line-height: 1.5;
       opacity: .85;
     }
+    /* GIV-736 publication opt-in controls */
+    .pub-controls {
+      margin-top: 16px;
+      padding: 14px 16px;
+      background: var(--paper);
+      border-radius: 8px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .pub-status { font-size: 13px; color: var(--text); line-height: 1.55; }
+    .pub-error  { font-size: 12px; color: #c0392b; }
+    .pub-controls .retry-link {
+      background: none; border: none;
+      color: var(--primary); cursor: pointer;
+      font-size: 12px; padding: 0;
+      text-decoration: underline; text-underline-offset: 2px;
+      font-family: inherit;
+      align-self: flex-start;
+    }
+    /* GIV-736 Art. 9 input notice */
+    .input-notice {
+      font-size: 11px;
+      color: var(--muted);
+      line-height: 1.5;
+      padding: 6px 16px 10px;
+      opacity: .9;
+    }
 
     /* ── User info bar (prod mode) ── */
     .user-bar {
@@ -737,6 +765,12 @@
           </svg>
         </button>
       </div>
+      <!-- GIV-736 (D3): discourage Art. 9 special-category disclosures -->
+      <p class="input-notice">
+        Please answer about your volunteering experience only — don't share sensitive personal
+        details (e.g. health, religion, political views, ethnicity), about yourself or others.
+        You can ask us to remove anything you typed later. <a href="/privacy" target="_blank" rel="noopener">Privacy Notice</a>
+      </p>
     </div>
 
   </div>
@@ -780,6 +814,15 @@
       <button id="btn-cert"  class="btn-primary" disabled style="flex:1">View Certificate</button>
       <button id="btn-share" class="btn-outline" disabled>Share on LinkedIn</button>
     </div>
+
+    <!-- GIV-736: publication opt-in (P5) — certificates are private by default -->
+    <div class="pub-controls" id="pub-controls" style="display:none">
+      <p class="pub-status" id="pub-status"></p>
+      <button id="btn-publish" class="btn-outline" style="display:none">Publish my certificate publicly</button>
+      <button id="btn-unpublish" class="retry-link" style="display:none">Make my certificate private again</button>
+      <p class="pub-error" id="pub-error" style="display:none"></p>
+    </div>
+
     <p class="pending-note" id="cert-note">
       Certificate issuance and LinkedIn sharing require T2-D (in progress).<br>
       Your score has been saved to your assessment record.
@@ -1044,18 +1087,83 @@ function showResults(score) {
   state.certUrl      = score?.certUrl      ?? null;
   state.certTier     = score?.certTier     ?? score?.overall?.tier ?? null;
   state.certIssuedAt = score?.certIssuedAt ?? new Date().toISOString();
+  // GIV-736: certificates are private by default; public pages only work
+  // after the explicit publication opt-in below.
+  state.certPublic   = score?.certPublic   ?? false;
 
+  renderPublicationControls(score?.publicationStatus);
+}
+
+// ── GIV-736 publication opt-in UI ─────────────────────────────────────────────
+// View/Share only make sense for a public credential (the /credential page and
+// public API 404 for private certs), so they unlock with the opt-in.
+
+function renderPublicationControls(publicationStatus) {
   const certReady = !!(state.certId && state.certUrl);
-  document.getElementById('btn-cert').disabled  = !certReady;
-  document.getElementById('btn-share').disabled = !certReady;
+  document.getElementById('btn-cert').disabled  = !(certReady && state.certPublic);
+  document.getElementById('btn-share').disabled = !(certReady && state.certPublic);
 
   const noteEl = document.getElementById('cert-note');
-  if (certReady) {
-    noteEl.style.display = 'none';
-  } else if (score?.publicationStatus === 'pending_review') {
-    noteEl.innerHTML = 'Your certificate will be issued after evaluator review (typically 1–2 business days).<br>You\'ll be able to add it to LinkedIn once issued.';
+  const pubEl  = document.getElementById('pub-controls');
+  const status = document.getElementById('pub-status');
+  const btnPub = document.getElementById('btn-publish');
+  const btnUnpub = document.getElementById('btn-unpublish');
+  document.getElementById('pub-error').style.display = 'none';
+
+  if (!certReady) {
+    pubEl.style.display = 'none';
+    if (publicationStatus === 'pending_review') {
+      noteEl.innerHTML = 'Your certificate will be issued after evaluator review (typically 1–2 business days).<br>You\'ll be able to publish it and add it to LinkedIn once issued.';
+    }
+    return;
+  }
+
+  noteEl.style.display = 'none';
+  pubEl.style.display = 'flex';
+  if (state.certPublic) {
+    status.textContent = 'Your certificate is public: anyone with its link can view your name, score and tier. You can withdraw this at any time.';
+    btnPub.style.display = 'none';
+    btnUnpub.style.display = '';
+  } else {
+    status.textContent = 'Your certificate is private (the default) — only you can see it. Publishing makes your name, score and tier visible to anyone with the certificate link, so you can share it on LinkedIn. This is optional and you can make it private again at any time.';
+    btnPub.style.display = '';
+    btnUnpub.style.display = 'none';
   }
 }
+
+async function setPublication(makePublic) {
+  const errEl = document.getElementById('pub-error');
+  errEl.style.display = 'none';
+
+  // Mock/dev preview without a real backend: flip locally.
+  if (!ACCESS_TOKEN || String(state.certId).startsWith('mock-')) {
+    state.certPublic = makePublic;
+    renderPublicationControls();
+    return;
+  }
+
+  try {
+    const r = await fetch(`/api/certificates/${state.certId}/${makePublic ? 'publish' : 'unpublish'}`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${ACCESS_TOKEN}` },
+      body: JSON.stringify(makePublic ? { consent: true } : {}),
+    });
+    const data = await r.json().catch(() => ({}));
+    if (!r.ok) {
+      errEl.textContent = data.error?.message || 'Something went wrong — please try again.';
+      errEl.style.display = 'block';
+      return;
+    }
+    state.certPublic = data.cert?.isPublic ?? makePublic;
+    renderPublicationControls();
+  } catch {
+    errEl.textContent = 'Network error — please try again.';
+    errEl.style.display = 'block';
+  }
+}
+
+document.getElementById('btn-publish').addEventListener('click', () => setPublication(true));
+document.getElementById('btn-unpublish').addEventListener('click', () => setPublication(false));
 
 // ══════════════════════════════════════════════════════════════════════════════
 // API clients
@@ -1249,6 +1357,12 @@ class T2aApiClient {
         }),
         rubricVersion: result.rubricVersion,
         publicationStatus: result.publicationStatus ?? 'pending_review',
+        // T2-D cert fields + GIV-736 publication opt-in state
+        certId:       result.certId ?? null,
+        certUrl:      result.certUrl ?? null,
+        certTier:     result.certTier ?? null,
+        certIssuedAt: result.certIssuedAt ?? null,
+        certPublic:   result.certPublic ?? false,
       };
     } catch { return null; }
   }
@@ -1281,6 +1395,7 @@ const MOCK_SCORE = {
   certUrl:     '/credential/mock-cert-preview-001',
   certTier:    'Proficient',
   certIssuedAt: new Date().toISOString(),
+  certPublic:  false,                        // GIV-736: private by default — demo the opt-in
 };
 
 class MockApiClient {

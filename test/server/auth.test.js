@@ -123,6 +123,19 @@ async function mockQuery(text, params) {
     return { rowCount: 0 };
   }
 
+  // GIV-736 age-gate existence probe (must be before generic users handlers)
+  if (text.includes('SELECT id FROM users WHERE email')) {
+    const user = users.get(params[0]);
+    return { rows: user ? [{ id: user.id }] : [], rowCount: user ? 1 : 0 };
+  }
+
+  // GIV-736 age-attestation backfill
+  if (text.includes('UPDATE users SET age_attested_at')) {
+    const user = users.get(params[0]);
+    if (user && user.age_attested_at == null) user.age_attested_at = new Date().toISOString();
+    return { rows: user ? [user] : [], rowCount: user ? 1 : 0 };
+  }
+
   // User upsert (magic-link request)
   if (text.includes('INSERT INTO users') && text.includes('ON CONFLICT')) {
     const email = params[0];

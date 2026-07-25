@@ -106,9 +106,14 @@ export function createApp({ transcriptStore, llmAdapterFactory } = {}) {
       // Guard: certificates.id is a Postgres uuid — a malformed param would
       // throw "invalid input syntax for type uuid" (observed as a 500 on
       // staging). Malformed IDs get the same placeholder page as unknown IDs.
+      // GIV-736: OG meta (holder name + tier) only for certs with an active
+      // publication opt-in — private/revoked certs get the placeholder page.
       const { rows } = isUuid(certId)
         ? await query(
-            `SELECT holder_name, overall_tier, id FROM certificates WHERE id = $1 AND revoked_at IS NULL`,
+            `SELECT holder_name, overall_tier, id FROM certificates
+             WHERE id = $1 AND revoked_at IS NULL
+               AND publication_consent_at IS NOT NULL
+               AND publication_consent_revoked_at IS NULL`,
             [certId],
           )
         : { rows: [] };

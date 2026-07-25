@@ -12,6 +12,7 @@ import { Router } from 'express';
 import { query } from '../db.js';
 import { AppError } from '../middleware/error-handler.js';
 import { DIMENSIONS } from '../../scoring/config.js';
+import { isPubliclyVisible } from './certificates.js';
 
 const router = Router();
 
@@ -44,7 +45,8 @@ router.get('/:certId', async (req, res, next) => {
          c.rubric_version,
          c.issued_at,
          c.revoked_at,
-         c.revocation_reason,
+         c.publication_consent_at,
+         c.publication_consent_revoked_at,
          pq.status AS publication_status
        FROM certificates c
        LEFT JOIN sessions s ON s.id = c.session_id
@@ -56,6 +58,18 @@ router.get('/:certId', async (req, res, next) => {
     if (rows.length === 0) throw new AppError('Certificate not found', 404, 'CERT_NOT_FOUND');
 
     const row = rows[0];
+
+    // GIV-736 publication gating (P5, explicit opt-in — default private):
+    //  - revoked cert → 410 Gone, no credential data (it was public, now isn't)
+    //  - no active opt-in → 404, indistinguishable from an unknown ID so the
+    //    public API never confirms a private credential exists
+    if (row.revoked_at != null) {
+      throw new AppError('Certificate has been revoked', 410, 'CERT_REVOKED');
+    }
+    if (!isPubliclyVisible(row)) {
+      throw new AppError('Certificate not found', 404, 'CERT_NOT_FOUND');
+    }
+
     res.json({ cert: formatPublicCert(row) });
   } catch (err) { next(err); }
 });
@@ -74,6 +88,9 @@ function formatPublicCert(row) {
     };
   });
 
+  // GIV-736: public payload is score data only — holder_name, score, tier,
+  // dimension bands. Never email, user_id, session_id, or transcript content.
+  // Revoked certs never reach this formatter (410 above).
   return {
     id:                row.id,
     holderName:        row.holder_name,
@@ -81,8 +98,7 @@ function formatPublicCert(row) {
     overallScore:      parseFloat(row.overall_score),
     rubricVersion:     row.rubric_version,
     issuedAt:          row.issued_at?.toISOString?.() ?? row.issued_at,
-    revoked:           row.revoked_at != null,
-    revocationReason:  row.revocation_reason ?? undefined,
+    revoked:           false,
     publicationStatus: row.publication_status ?? 'published',
     dimensions,
   };

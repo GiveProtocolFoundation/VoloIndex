@@ -69,7 +69,8 @@ router.post('/magic-link', magicLinkRateLimit, async (req, res, next) => {
     }
 
     const baseUrl = config.auth.baseUrl || `${req.protocol}://${req.get('host')}`;
-    const result = await requestMagicLink(email, baseUrl);
+    // GIV-736: 16+ self-attestation — required server-side for new accounts.
+    const result = await requestMagicLink(email, baseUrl, { ageAttested: req.body.ageAttested === true });
     res.json(result);
   } catch (err) { next(err); }
 });

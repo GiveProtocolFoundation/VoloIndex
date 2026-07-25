@@ -1,9 +1,11 @@
 /**
- * Volo Index — Certificate Routes (T2-D)
+ * Volo Index — Certificate Routes (T2-D + GIV-736 publication opt-in)
  *
  * Certificate issuance (on publication-queue release), listing, and revocation.
  * POST /api/certificates       — issue a certificate for a published session (auth)
  * GET  /api/certificates       — list the authenticated user's certificates (auth)
+ * POST /api/certificates/:id/publish   — explicit publication opt-in (auth, owner)
+ * POST /api/certificates/:id/unpublish — revoke publication opt-in (auth, owner)
  * POST /api/certificates/:id/revoke — revoke a certificate (internal API key only)
  */
 
@@ -147,6 +149,63 @@ router.get('/:certId', async (req, res, next) => {
   } catch (err) { next(err); }
 });
 
+// ── POST /api/certificates/:certId/publish — publication opt-in ───
+//
+// GIV-736 (P5): public exposure of a certificate requires a separate,
+// explicit, revocable opt-in — distinct from sessions.consent_given.
+// Default is private. Body must carry { consent: true } so the grant is
+// an affirmative act, never a side effect of another call.
+
+router.post('/:certId/publish', async (req, res, next) => {
+  try {
+    if (req.body?.consent !== true) {
+      throw new AppError(
+        'Explicit consent is required: send { "consent": true } to publish this certificate',
+        400,
+        'CONSENT_REQUIRED',
+      );
+    }
+
+    const cert = await loadOwnedCert(req.params.certId, req.user.id);
+    if (cert.revoked_at) {
+      throw new AppError('Certificate has been revoked and cannot be published', 409, 'CERT_REVOKED');
+    }
+
+    // Re-opt-in after a revoked opt-in starts a fresh consent record.
+    const { rows } = await query(
+      `UPDATE certificates
+       SET publication_consent_at = NOW(), publication_consent_revoked_at = NULL
+       WHERE id = $1
+       RETURNING *`,
+      [cert.id],
+    );
+
+    res.json({ cert: formatCert(rows[0]) });
+  } catch (err) { next(err); }
+});
+
+// ── POST /api/certificates/:certId/unpublish — revoke opt-in ──────
+//
+// Removes the credential from the public API (GET /api/credentials/:id
+// and the /credential/:id OG page return 404 afterwards). The original
+// opt-in timestamp is kept for the Art. 7 consent audit trail.
+
+router.post('/:certId/unpublish', async (req, res, next) => {
+  try {
+    const cert = await loadOwnedCert(req.params.certId, req.user.id);
+
+    const { rows } = await query(
+      `UPDATE certificates
+       SET publication_consent_revoked_at = COALESCE(publication_consent_revoked_at, NOW())
+       WHERE id = $1
+       RETURNING *`,
+      [cert.id],
+    );
+
+    res.json({ cert: formatCert(rows[0]) });
+  } catch (err) { next(err); }
+});
+
 // ── POST /api/certificates/:certId/revoke — revoke (internal) ─────
 //
 // Requires X-Internal-Key header matching config.auth.internalKey.
@@ -187,6 +246,22 @@ router.post('/:certId/revoke', async (req, res, next) => {
 
 // ── Helpers ────────────────────────────────────────────────────────
 
+async function loadOwnedCert(certId, userId) {
+  const { rows } = await query(
+    'SELECT * FROM certificates WHERE id = $1 AND user_id = $2',
+    [certId, userId],
+  );
+  if (rows.length === 0) throw new AppError('Certificate not found', 404, 'CERT_NOT_FOUND');
+  return rows[0];
+}
+
+/** GIV-736: a cert is publicly resolvable only with an active opt-in and no revocation. */
+export function isPubliclyVisible(row) {
+  return row.revoked_at == null
+    && row.publication_consent_at != null
+    && row.publication_consent_revoked_at == null;
+}
+
 function formatCert(row) {
   const baseUrl = config.auth.baseUrl || 'https://voloindex.org';
   return {
@@ -204,6 +279,10 @@ function formatCert(row) {
     revoked:          row.revoked_at != null,
     revokedAt:        row.revoked_at?.toISOString?.() ?? null,
     revocationReason: row.revocation_reason ?? null,
+    // GIV-736 publication opt-in state (owner-facing)
+    isPublic:                    isPubliclyVisible(row),
+    publicationConsentAt:        row.publication_consent_at?.toISOString?.() ?? row.publication_consent_at ?? null,
+    publicationConsentRevokedAt: row.publication_consent_revoked_at?.toISOString?.() ?? row.publication_consent_revoked_at ?? null,
   };
 }
 

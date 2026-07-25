@@ -30,12 +30,30 @@ export function hashToken(rawToken) {
  * Request a magic link for the given email.
  * Creates or finds the user, generates a token, stores it, and "sends" it.
  *
+ * GIV-736 (D5, 16+ age gate): signup requires a self-attestation that the
+ * user is at least 16 (mirrors give-protocol GIV-530). New emails without
+ * ageAttested === true are rejected before any user row is created.
+ * Existing users can still sign in without re-ticking; if they do tick,
+ * the attestation is backfilled (first attestation timestamp is kept).
+ *
  * @param {string} email
  * @param {string} baseUrl - e.g. 'https://voloindex.org'
+ * @param {{ ageAttested?: boolean }} [opts]
  * @returns {Promise<{ message: string }>}
  */
-export async function requestMagicLink(email, baseUrl) {
+export async function requestMagicLink(email, baseUrl, { ageAttested = false } = {}) {
   const normalised = email.toLowerCase().trim();
+
+  const { rows: existingRows } = await query(
+    'SELECT id FROM users WHERE email = $1',
+    [normalised],
+  );
+  if (existingRows.length === 0 && ageAttested !== true) {
+    throw Object.assign(
+      new Error('You must confirm you are at least 16 years old to create an account'),
+      { statusCode: 400, code: 'AGE_ATTESTATION_REQUIRED' },
+    );
+  }
 
   // Upsert user
   const { rows } = await query(
@@ -45,6 +63,13 @@ export async function requestMagicLink(email, baseUrl) {
     [normalised],
   );
   const user = rows[0];
+
+  if (ageAttested === true) {
+    await query(
+      'UPDATE users SET age_attested_at = COALESCE(age_attested_at, NOW()) WHERE email = $1',
+      [normalised],
+    );
+  }
 
   // Generate token
   const rawToken = randomBytes(32).toString('hex');
