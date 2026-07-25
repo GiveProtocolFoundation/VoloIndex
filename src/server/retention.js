@@ -252,6 +252,10 @@ if (isMain) {
   try {
     const results = await runRetention(pool, { dryRun });
     console.log('[retention] complete:', JSON.stringify(results));
+    if (Object.values(results).some(v => v === -1)) {
+      console.error('[retention] one or more steps failed (count = -1)');
+      process.exitCode = 1;
+    }
   } catch (err) {
     console.error('[retention] fatal error:', err.message);
     process.exitCode = 1;

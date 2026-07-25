@@ -422,6 +422,29 @@ describe('retention purge engine', () => {
     });
   });
 
+  describe('step failure surfacing', () => {
+    it('a throwing step reports -1 and does not abort later steps', async () => {
+      steps.push({
+        name: 'R-FAIL',
+        description: 'always throws',
+        async run() { throw new Error('boom'); },
+      });
+      steps.push({
+        name: 'R-AFTER',
+        description: 'runs after the failure',
+        async run() { return 0; },
+      });
+      try {
+        const results = await runRetention(createMockPool());
+        assert.equal(results['R-FAIL'], -1);
+        assert.equal(results['R-AFTER'], 0);
+      } finally {
+        steps.pop();
+        steps.pop();
+      }
+    });
+  });
+
   describe('empty tables', () => {
     it('all steps return 0 on empty tables', async () => {
       const results = await runRetention(createMockPool());
