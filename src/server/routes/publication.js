@@ -69,6 +69,32 @@ router.post('/:sessionId/release', async (req, res, next) => {
   } catch (err) { next(err); }
 });
 
+// ── POST /api/publication/:sessionId/reject — QA rejects an entry ────
+//
+// GIV-736 / DPIA R-01: the human-review latch must allow rejection, not
+// only release. Rejected entries never issue a certificate (both cert
+// issuance paths require publication status 'published').
+
+router.post('/:sessionId/reject', async (req, res, next) => {
+  try {
+    const { reason } = req.body ?? {};
+
+    const { rows } = await query(
+      `UPDATE publication_queue
+       SET status = 'rejected', rejected_at = NOW(), rejection_reason = $2
+       WHERE session_id = $1 AND status = 'pending_review'
+       RETURNING *`,
+      [req.params.sessionId, reason || null],
+    );
+
+    if (rows.length === 0) {
+      throw new AppError('Entry not found or not pending review', 404, 'ENTRY_NOT_FOUND');
+    }
+
+    res.json({ entry: formatEntry(rows[0]) });
+  } catch (err) { next(err); }
+});
+
 // ── GET /api/publication/pending — list pending entries for QA review ─
 
 router.get('/pending', async (req, res, next) => {
@@ -230,6 +256,8 @@ function formatEntry(row) {
     enqueuedAt: row.enqueued_at?.toISOString?.() ?? row.enqueued_at,
     releasedAt: row.released_at?.toISOString?.() ?? row.released_at,
     agreedWithExtractor: row.agreed_with_extractor,
+    rejectedAt: row.rejected_at?.toISOString?.() ?? row.rejected_at ?? null,
+    rejectionReason: row.rejection_reason ?? null,
   };
 }
 

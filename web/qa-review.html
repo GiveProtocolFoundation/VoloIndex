@@ -227,6 +227,12 @@
       color: var(--white);
     }
     .btn-disagree:hover:not(:disabled) { opacity: .85; }
+    .btn-reject {
+      background: transparent;
+      color: var(--red);
+      border: 1.5px solid var(--red);
+    }
+    .btn-reject:hover:not(:disabled) { opacity: .7; }
 
     /* ── Status messages ── */
     .empty-state {
@@ -409,6 +415,9 @@
               <button class="btn btn-disagree" onclick="release('${entry.sessionId}', false, ${idx})">
                 Disagree
               </button>
+              <button class="btn btn-reject" onclick="reject('${entry.sessionId}', ${idx})">
+                Reject — do not publish
+              </button>
             </div>
           </div>
         </div>`;
@@ -533,6 +542,33 @@
         await refresh();
       } catch (err) {
         showError(`Release failed: ${err.message}`);
+        btns.forEach(b => b.disabled = false);
+      }
+    }
+
+    // GIV-736 / DPIA R-01: rejection path — entry never publishes, no cert issued.
+    async function reject(sessionId, idx) {
+      const reason = prompt('Reason for rejection (recorded in the queue audit trail):');
+      if (reason === null) return; // cancelled
+
+      const card = document.getElementById(`card-${idx}`);
+      const btns = card.querySelectorAll('.btn');
+      btns.forEach(b => b.disabled = true);
+
+      try {
+        const res = await fetch(`${API}/api/publication/${sessionId}/reject`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'X-Internal-Key': internalKey },
+          body: JSON.stringify({ reason: reason || null }),
+        });
+        if (!res.ok) {
+          const err = await res.json().catch(() => ({}));
+          throw new Error(err.error?.message || `HTTP ${res.status}`);
+        }
+        toast('Rejected — entry will not be published');
+        await refresh();
+      } catch (err) {
+        showError(`Reject failed: ${err.message}`);
         btns.forEach(b => b.disabled = false);
       }
     }

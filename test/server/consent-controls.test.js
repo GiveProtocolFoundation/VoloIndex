@@ -16,6 +16,11 @@
 import { describe, it, before, after, beforeEach, mock } from 'node:test';
 import assert from 'node:assert/strict';
 import http from 'node:http';
+
+// Fixed internal key so requireInternal (publication routes) is testable.
+// Must be set before config.js is first imported (via createApp below).
+process.env.INTERNAL_API_KEY = 'test-internal-key-giv736';
+
 import { createAccessToken } from '../../src/server/auth/jwt.js';
 
 // ── Mock DB ───────────────────────────────────────────────────────────
@@ -29,6 +34,7 @@ const sessions = new Map();       // id → row
 let transcriptTurns = [];         // rows
 let transcriptSnapshot = null;    // { transcript } or null
 let scoreResult = null;           // row or null
+let pubEntry = null;              // publication_queue row or null
 
 function resetState() {
   users.clear();
@@ -69,6 +75,13 @@ function resetState() {
     transcript: {
       turns: transcriptTurns.map(t => ({ role: t.role, content: t.content })),
     },
+  };
+
+  pubEntry = {
+    session_id: SESSION_ID, candidate_id: 'user-123', status: 'pending_review',
+    score_result_id: 'sr-1', enqueued_at: '2026-07-19T02:00:00.000Z',
+    released_at: null, agreed_with_extractor: null,
+    rejected_at: null, rejection_reason: null,
   };
 
   scoreResult = {
@@ -132,6 +145,36 @@ async function mockQuery(text, params) {
   if (text.includes('FROM certificates c')) {
     const c = certs.get(params[0]);
     return { rows: c ? [{ ...c, publication_status: 'published' }] : [], rowCount: c ? 1 : 0 };
+  }
+
+  // ── publication_queue (latch reject path) ──
+  if (text.includes("UPDATE publication_queue") && text.includes("'rejected'")) {
+    if (pubEntry && pubEntry.session_id === params[0] && pubEntry.status === 'pending_review') {
+      pubEntry.status = 'rejected';
+      pubEntry.rejected_at = new Date().toISOString();
+      pubEntry.rejection_reason = params[1];
+      return { rows: [{ ...pubEntry }], rowCount: 1 };
+    }
+    return { rows: [], rowCount: 0 };
+  }
+  if (text.includes("UPDATE publication_queue") && text.includes("'published'")) {
+    if (pubEntry && pubEntry.session_id === params[0] && pubEntry.status === 'pending_review') {
+      pubEntry.status = 'published';
+      pubEntry.released_at = new Date().toISOString();
+      pubEntry.agreed_with_extractor = params[1];
+      return { rows: [{ ...pubEntry }], rowCount: 1 };
+    }
+    return { rows: [], rowCount: 0 };
+  }
+  if (text.includes('SELECT status FROM publication_queue')) {
+    const hit = pubEntry && pubEntry.session_id === params[0];
+    return { rows: hit ? [{ status: pubEntry.status }] : [], rowCount: hit ? 1 : 0 };
+  }
+  // score lookup used by certificate issuance (must be before scrub SELECT)
+  if (text.includes('FROM score_results WHERE session_id') && text.includes('overall_score')) {
+    return scoreResult
+      ? { rows: [{ overall_score: '6.20', overall_tier: 'Proficient', dimension_scores: {}, rubric_version: '1.2' }], rowCount: 1 }
+      : { rows: [], rowCount: 0 };
   }
 
   // ── sessions ──
@@ -384,6 +427,48 @@ describe('Consent & rights controls (GIV-736)', () => {
       assert.equal(signals[0].excerpt, 'keep me');
       assert.equal(signals[1].evidenceRef.spanText, REDACTION_PLACEHOLDER);
       assert.equal(signals[1].excerpt, REDACTION_PLACEHOLDER);
+    });
+  });
+
+  // ── 2b. Publication latch reject path (DPIA R-01) ─────────────────
+
+  describe('publication latch reject path (DPIA R-01)', () => {
+    const internal = { 'X-Internal-Key': 'test-internal-key-giv736' };
+
+    it('operator can reject a pending entry with a recorded reason', async () => {
+      const res = await req(server, 'POST', `/api/publication/${SESSION_ID}/reject`, { reason: 'transcript quality' }, internal);
+      assert.equal(res.status, 200);
+      assert.equal(res.body.entry.status, 'rejected');
+      assert.equal(res.body.entry.rejectionReason, 'transcript quality');
+      assert.ok(res.body.entry.rejectedAt);
+    });
+
+    it('reject requires the internal key', async () => {
+      const res = await req(server, 'POST', `/api/publication/${SESSION_ID}/reject`, { reason: 'x' });
+      assert.equal(res.status, 403);
+      assert.equal(pubEntry.status, 'pending_review');
+    });
+
+    it('a rejected entry cannot be released afterwards', async () => {
+      await req(server, 'POST', `/api/publication/${SESSION_ID}/reject`, {}, internal);
+      const res = await req(server, 'POST', `/api/publication/${SESSION_ID}/release`, { agreedWithExtractor: true }, internal);
+      assert.equal(res.status, 404);
+      assert.equal(pubEntry.status, 'rejected');
+    });
+
+    it('a released entry cannot be rejected afterwards', async () => {
+      await req(server, 'POST', `/api/publication/${SESSION_ID}/release`, { agreedWithExtractor: true }, internal);
+      const res = await req(server, 'POST', `/api/publication/${SESSION_ID}/reject`, {}, internal);
+      assert.equal(res.status, 404);
+      assert.equal(pubEntry.status, 'published');
+    });
+
+    it('no certificate can be issued for a rejected session', async () => {
+      await req(server, 'POST', `/api/publication/${SESSION_ID}/reject`, {}, internal);
+      certs.clear(); // simulate no cert issued yet
+      const res = await req(server, 'POST', '/api/certificates', { sessionId: SESSION_ID }, authHeader());
+      assert.equal(res.status, 409);
+      assert.equal(res.body.error.code, 'NOT_PUBLISHED');
     });
   });
 
