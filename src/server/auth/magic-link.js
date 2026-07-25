@@ -137,9 +137,10 @@ export async function verifyMagicLink(rawToken) {
     throw Object.assign(new Error('This sign-in link has already been used'), { statusCode: 401, code: 'TOKEN_USED' });
   }
 
-  // Fetch or update user as verified
+  // Fetch or update user as verified; touch last_active_at (GIV-742 retention clock)
   const { rows: userRows } = await query(
-    `UPDATE users SET email_verified = TRUE, email_verified_at = COALESCE(email_verified_at, NOW()), updated_at = NOW()
+    `UPDATE users SET email_verified = TRUE, email_verified_at = COALESCE(email_verified_at, NOW()),
+       last_active_at = NOW(), updated_at = NOW()
      WHERE email = $1
      RETURNING id, email, display_name, email_verified, entitlements`,
     [record.email],

@@ -36,6 +36,7 @@ import certificateRoutes from './routes/certificates.js'; // T2-D auth
 import creditRoutes from './routes/credits.js';           // GIV-705 credits
 import checkoutRoutes from './routes/checkout.js';           // GIV-711 PayPal checkout
 import paypalWebhookRoutes from './routes/webhook-paypal.js'; // GIV-711 PayPal webhook
+import retentionRoutes from './routes/retention.js';           // GIV-742 retention purge
 
 // ── App factory ───────────────────────────────────────────────────────
 
@@ -93,6 +94,7 @@ export function createApp({ transcriptStore, llmAdapterFactory } = {}) {
 
   // ── Internal routes (QA/ops — require X-Internal-Key header) ────────
   app.use('/api/publication', requireInternal, publicationRoutes);
+  app.use('/api/internal/retention', requireInternal, retentionRoutes);
 
   // ── T2-D: Public credential page with SSR OG meta ─────────────────
   // Template read once at startup — static HTML with placeholder <meta> tags.
