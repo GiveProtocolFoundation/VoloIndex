@@ -123,6 +123,12 @@ router.post('/', async (req, res, next) => {
       [userId],
     );
 
+    // Touch last_active_at (GIV-742 retention clock)
+    await query(
+      `UPDATE users SET last_active_at = NOW() WHERE id = $1`,
+      [userId],
+    );
+
     res.status(201).json({ session: sessionFromRow(rows[0]) });
   } catch (err) { next(err); }
 });

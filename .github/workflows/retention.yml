@@ -1,0 +1,47 @@
+name: Retention purge (daily)
+
+on:
+  schedule:
+    # 03:00 UTC daily — low-traffic window
+    - cron: '0 3 * * *'
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: 'Run in dry-run mode (count only, no deletes)'
+        type: boolean
+        default: true
+
+permissions:
+  contents: read
+
+jobs:
+  purge:
+    name: retention-purge
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    environment: production
+    steps:
+      - name: Run retention purge
+        env:
+          VOLO_INTERNAL_KEY: ${{ secrets.INTERNAL_KEY }}
+          VOLO_BASE_URL: ${{ secrets.PRODUCTION_BASE_URL }}
+        run: |
+          DRY_RUN="${{ github.event.inputs.dry_run || 'false' }}"
+          BODY="{\"dryRun\":${DRY_RUN}}"
+
+          echo "Calling retention endpoint (dryRun=${DRY_RUN})…"
+          HTTP_CODE=$(curl -s -o response.json -w "%{http_code}" \
+            -X POST \
+            -H "Content-Type: application/json" \
+            -H "X-Internal-Key: ${VOLO_INTERNAL_KEY}" \
+            -d "${BODY}" \
+            "${VOLO_BASE_URL}/api/internal/retention/run")
+
+          echo "HTTP ${HTTP_CODE}"
+          cat response.json
+          echo ""
+
+          if [ "${HTTP_CODE}" -ne 200 ]; then
+            echo "::error::Retention purge failed with HTTP ${HTTP_CODE}"
+            exit 1
+          fi

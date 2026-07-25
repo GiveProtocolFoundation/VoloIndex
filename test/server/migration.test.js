@@ -86,4 +86,35 @@ describe('migration files', () => {
     assert.ok(sql.includes('BEGIN'));
     assert.ok(sql.includes('COMMIT'));
   });
+
+  it('006-retention-dsar.sql exists and applies on top of 005', () => {
+    const sql = readFileSync(join(MIGRATIONS_DIR, '006-retention-dsar.sql'), 'utf8');
+    assert.ok(sql.length > 100, 'Migration file should be non-trivial');
+    assert.ok(sql.includes('BEGIN'));
+    assert.ok(sql.includes('COMMIT'));
+  });
+
+  it('006 adds last_active_at and erased_at to users', () => {
+    const sql = readFileSync(join(MIGRATIONS_DIR, '006-retention-dsar.sql'), 'utf8');
+    assert.ok(sql.includes('last_active_at'), 'Missing last_active_at column');
+    assert.ok(sql.includes('erased_at'), 'Missing erased_at column');
+  });
+
+  it('006 backfills last_active_at from updated_at and auth_sessions', () => {
+    const sql = readFileSync(join(MIGRATIONS_DIR, '006-retention-dsar.sql'), 'utf8');
+    assert.ok(sql.includes('GREATEST'), 'Backfill should use GREATEST');
+    assert.ok(sql.includes('auth_sessions'), 'Backfill should reference auth_sessions');
+  });
+
+  it('006 adds subject_key to credits_ledger and relaxes FK', () => {
+    const sql = readFileSync(join(MIGRATIONS_DIR, '006-retention-dsar.sql'), 'utf8');
+    assert.ok(sql.includes('subject_key'), 'Missing subject_key column');
+    assert.ok(sql.includes('ON DELETE SET NULL'), 'FK should be ON DELETE SET NULL');
+    assert.ok(sql.includes('DROP NOT NULL'), 'user_id should allow NULL');
+  });
+
+  it('006 records schema version 6', () => {
+    const sql = readFileSync(join(MIGRATIONS_DIR, '006-retention-dsar.sql'), 'utf8');
+    assert.ok(sql.includes("VALUES (6, '006-retention-dsar')"), 'Missing schema_migrations insert');
+  });
 });
