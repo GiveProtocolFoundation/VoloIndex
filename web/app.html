@@ -1121,11 +1121,11 @@ function renderPublicationControls(publicationStatus) {
   noteEl.style.display = 'none';
   pubEl.style.display = 'flex';
   if (state.certPublic) {
-    status.textContent = 'Your certificate is public: anyone with its link can view your name, score and tier. You can withdraw this at any time.';
+    status.textContent = 'Your certificate is public: anyone with its link can view your name, overall score and tier, and your score in each of the six competency dimensions. You can withdraw this at any time.';
     btnPub.style.display = 'none';
     btnUnpub.style.display = '';
   } else {
-    status.textContent = 'Your certificate is private (the default) — only you can see it. Publishing makes your name, score and tier visible to anyone with the certificate link, so you can share it on LinkedIn. This is optional and you can make it private again at any time.';
+    status.textContent = 'Your certificate is private (the default) — only you can see it. Publishing makes your name, overall score and tier, and your score in each of the six competency dimensions visible to anyone with the certificate link, so you can share it on LinkedIn. This is optional and you can make it private again at any time.';
     btnPub.style.display = '';
     btnUnpub.style.display = 'none';
   }
