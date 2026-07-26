@@ -14,6 +14,7 @@
  */
 
 import { pool, withTransaction } from './db.js';
+import { eraseUser } from './dsar.js';
 
 /**
  * Scrub verbatim spanText/excerpt strings from a signals/details JSONB
@@ -201,11 +202,33 @@ export const steps = [
       return rows.length;
     },
   },
-  // ── R7 slot: 24-month inactivity erasure ───────────────────────────
-  // Engineer 2 (impl B, GIV-743) adds this step. It calls eraseUser()
-  // from src/server/dsar.js for every non-erased user whose
-  // last_active_at < NOW() - INTERVAL '24 months'.
-  // To register: import { steps } from './retention.js' and push the step.
+  {
+    name: 'R7',
+    description: '24-month inactivity erasure (eraseUser for dormant accounts)',
+    needsPool: true,
+    async run(client, dryRun, db) {
+      const { rows } = await client.query(`
+        SELECT id FROM users
+        WHERE erased_at IS NULL
+          AND last_active_at IS NOT NULL
+          AND last_active_at < NOW() - INTERVAL '24 months'
+      `);
+      if (rows.length === 0) return 0;
+      if (dryRun) return rows.length;
+
+      let erased = 0;
+      for (const { id } of rows) {
+        try {
+          await eraseUser(db, id);
+          erased++;
+          console.log(`[retention] R7: erased inactive user ${id}`);
+        } catch (err) {
+          console.error(`[retention] R7: failed to erase user ${id}:`, err.message);
+        }
+      }
+      return erased;
+    },
+  },
 ];
 
 /**
@@ -222,7 +245,7 @@ export async function runRetention(db, { dryRun = false } = {}) {
     const client = await db.connect();
     try {
       await client.query('BEGIN');
-      const count = await step.run(client, dryRun);
+      const count = await step.run(client, dryRun, db);
       if (!dryRun) {
         await client.query('COMMIT');
       } else {
