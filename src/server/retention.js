@@ -14,6 +14,7 @@
  */
 
 import { pool, withTransaction } from './db.js';
+import { eraseUser } from './dsar.js';
 
 /**
  * Scrub verbatim spanText/excerpt strings from a signals/details JSONB
@@ -201,11 +202,35 @@ export const steps = [
       return rows.length;
     },
   },
-  // ── R7 slot: 24-month inactivity erasure ───────────────────────────
-  // Engineer 2 (impl B, GIV-743) adds this step. It calls eraseUser()
-  // from src/server/dsar.js for every non-erased user whose
-  // last_active_at < NOW() - INTERVAL '24 months'.
-  // To register: import { steps } from './retention.js' and push the step.
+  {
+    name: 'R7',
+    description: '24-month inactivity erasure',
+    async run(client, dryRun) {
+      const { rows: inactiveUsers } = await client.query(`
+        SELECT id FROM users
+        WHERE erased_at IS NULL
+          AND last_active_at < NOW() - INTERVAL '24 months'
+      `);
+
+      if (inactiveUsers.length === 0) return 0;
+      if (dryRun) return inactiveUsers.length;
+
+      // eraseUser uses its own transaction via withTransaction, so we need
+      // the pool reference. Import at module level; the pool is the same
+      // connection source. Each erasure is independent so partial failures
+      // don't roll back already-erased users.
+      let erased = 0;
+      for (const user of inactiveUsers) {
+        try {
+          await eraseUser(pool, user.id);
+          erased++;
+        } catch (err) {
+          console.error(`[retention] R7 eraseUser failed for ${user.id}:`, err.message);
+        }
+      }
+      return erased;
+    },
+  },
 ];
 
 /**

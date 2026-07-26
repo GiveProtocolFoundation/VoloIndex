@@ -408,9 +408,9 @@ describe('retention purge engine', () => {
   });
 
   describe('steps array pluggability', () => {
-    it('steps array is exported and has R1–R6', () => {
+    it('steps array is exported and has R1–R7', () => {
       const names = steps.map(s => s.name);
-      assert.deepEqual(names, ['R1', 'R2', 'R3', 'R4', 'R5', 'R6']);
+      assert.deepEqual(names, ['R1', 'R2', 'R3', 'R4', 'R5', 'R6', 'R7']);
     });
 
     it('each step has name, description, and run function', () => {
