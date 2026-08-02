@@ -37,7 +37,7 @@ import creditRoutes from './routes/credits.js';           // GIV-705 credits
 import checkoutRoutes from './routes/checkout.js';           // GIV-711 PayPal checkout
 import paypalWebhookRoutes from './routes/webhook-paypal.js'; // GIV-711 PayPal webhook
 import retentionRoutes from './routes/retention.js';           // GIV-742 retention purge
-import { accountRoutes, dsarRoutes } from './routes/account.js'; // GIV-743 DSAR/account
+import accountRoutes, { internalDsarRouter } from './routes/account.js'; // GIV-753 DSAR/account
 
 // ── App factory ───────────────────────────────────────────────────────
 
@@ -89,7 +89,7 @@ export function createApp({ transcriptStore, llmAdapterFactory } = {}) {
   app.use('/api/certificates', requireAuth, certificateRoutes);
   app.use('/api/credits', creditRoutes);
   app.use('/api/checkout', checkoutRoutes);                   // GIV-707
-  app.use('/api/account', requireAuth, accountRoutes);        // GIV-743 DSAR/account
+  app.use('/api/account', requireAuth, accountRoutes);       // GIV-753 DSAR/account
 
   const store = transcriptStore || new PostgresTranscriptStore({ pool });
   app.use('/api/transcripts', requireAuth, createTranscriptRoutes(store));
@@ -97,7 +97,7 @@ export function createApp({ transcriptStore, llmAdapterFactory } = {}) {
   // ── Internal routes (QA/ops — require X-Internal-Key header) ────────
   app.use('/api/publication', requireInternal, publicationRoutes);
   app.use('/api/internal/retention', requireInternal, retentionRoutes);
-  app.use('/api/internal/dsar', requireInternal, dsarRoutes);  // GIV-743 DSAR execution
+  app.use('/api/internal/dsar', requireInternal, internalDsarRouter);
 
   // ── T2-D: Public credential page with SSR OG meta ─────────────────
   // Template read once at startup — static HTML with placeholder <meta> tags.

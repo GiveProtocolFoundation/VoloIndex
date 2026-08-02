@@ -204,26 +204,28 @@ export const steps = [
   },
   {
     name: 'R7',
-    description: '24-month inactivity erasure (eraseUser for dormant accounts)',
-    needsPool: true,
-    async run(client, dryRun, db) {
-      const { rows } = await client.query(`
+    description: '24-month inactivity erasure',
+    async run(client, dryRun) {
+      const { rows: inactiveUsers } = await client.query(`
         SELECT id FROM users
         WHERE erased_at IS NULL
-          AND last_active_at IS NOT NULL
           AND last_active_at < NOW() - INTERVAL '24 months'
       `);
-      if (rows.length === 0) return 0;
-      if (dryRun) return rows.length;
 
+      if (inactiveUsers.length === 0) return 0;
+      if (dryRun) return inactiveUsers.length;
+
+      // eraseUser uses its own transaction via withTransaction, so we need
+      // the pool reference. Import at module level; the pool is the same
+      // connection source. Each erasure is independent so partial failures
+      // don't roll back already-erased users.
       let erased = 0;
-      for (const { id } of rows) {
+      for (const user of inactiveUsers) {
         try {
-          await eraseUser(db, id);
+          await eraseUser(pool, user.id);
           erased++;
-          console.log(`[retention] R7: erased inactive user ${id}`);
         } catch (err) {
-          console.error(`[retention] R7: failed to erase user ${id}:`, err.message);
+          console.error(`[retention] R7 eraseUser failed for ${user.id}:`, err.message);
         }
       }
       return erased;
