@@ -247,7 +247,7 @@ export async function runRetention(db, { dryRun = false } = {}) {
     const client = await db.connect();
     try {
       await client.query('BEGIN');
-      const count = await step.run(client, dryRun);
+      const count = await step.run(client, dryRun, db);
       if (!dryRun) {
         await client.query('COMMIT');
       } else {
